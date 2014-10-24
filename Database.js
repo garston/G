@@ -66,7 +66,7 @@ Database.persistOnly = function(clazz, o, properties){
 };
 
 Database.remove = function(clazz, o){
-    if(PROD_MODE){
+    if(CONST.PROD_MODE){
         this._getSheet(clazz).deleteRow(o.__row);
     }
 };
@@ -121,13 +121,13 @@ Database._persistNew = function(clazz, o){
         newRow[clazz.__propsToCol[prop] - 1] = o[prop];
     }
 
-    if(PROD_MODE){
+    if(CONST.PROD_MODE){
         this._getSheet(clazz).appendRow(newRow);
     }
 };
 
 Database._persistProperty = function(clazz, o, property){
-    if(PROD_MODE){
+    if(CONST.PROD_MODE){
         this._getCell(clazz, o.__row, property).setValue(o[property]);
     }
 };

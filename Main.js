@@ -1,5 +1,3 @@
-PROD_MODE = true;
-
 function notifyPhysEd() {
     new PhysEd().notifyPhysEd();
 }
