@@ -1,2 +1,4 @@
 .idea
-Const.js
+*.iml
+build
+src/Const.js
