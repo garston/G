@@ -36,17 +36,3 @@ function recordGames(){
         }
     }
 }
-
-function leaderboardRequest() {
-    var sports = Database.hydrateAll(Sport);
-    for(var i = 0; i < sports.length; i++) {
-        var sport = sports[i];
-        var requests = GmailApp.search('"to:' + CONST.LEADERBOARD_EMAIL_PREFIX + sport.name + CONST.LEADERBOARD_EMAIL_SUFFIX + '"');
-        for(var j = 0; j < requests.length; j++) {
-            var request = requests[j];
-            if(request.getMessageCount() === 1){
-                MailSender.reply(request, new Leaderboard().getLeaderboards(sport));
-            }
-        }
-    }
-}

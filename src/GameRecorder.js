@@ -72,22 +72,10 @@ GameRecorder.prototype._sendEmail = function(sport, side1, side2){
     var day = side1.day;
     var year = side1.year;
 
-    /*var queryString = 'from:' + CONST.PHYS_ED_NAME +
-     ' before:' + year + '/' + (month < 10 ? '0' + month : month) + '/' + (day < 10 ? '0' + day : day) +
-     ' subject:' + (sport.name === InBasedThread.BASKETBALL_STORED_NAME ? InBasedThread.BASKETBALL_PRETTY_NAME : sport.name);
-     var threads = GmailApp.search(queryString, 0, 1);
-     if(threads.length === 0){
-     return;
-     }*/
-
-    var body = ['Game results',
+    MailSender.send('[PhysEdStats] ' + sport.name + ' ' + month + '/' + day + '/' + year, ['Game results',
         '<b>Team 1: ' + side1.score + '</b>. &nbsp;' + side1.getPeopleDisplayStrings().join(', '),
         '<b>Team 2: ' + side2.score + '</b>. &nbsp;' + side2.getPeopleDisplayStrings().join(', '),
         '',
         new Leaderboard().getLeaderboards(sport)
-    ].join('<br/>');
-
-    //MailSender.replyAll(threads[0], body, );
-    //MailSender.forward(threads[0].getMessages()[0], CONST.PHYS_ED_STATS_EMAIL, body);
-    MailSender.send('[PhysEdStats] ' + sport.name + ' ' + month + '/' + day + '/' + year, body, CONST.PHYS_ED_STATS_EMAIL);
+    ].join('<br/>'), CONST.PHYS_ED_STATS_EMAIL);
 };

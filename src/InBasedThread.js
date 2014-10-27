@@ -11,7 +11,7 @@ InBasedThread.STATUSES = {
 };
 
 InBasedThread.sendInitialEmail = function(sportName, dayWord, sport, email){
-    MailSender.send(sportName + ' ' + dayWord + ExclamationUtil.generateRandom(), /*new Leaderboard().getLeaderboards(sport)*/ '', email);
+    MailSender.send(sportName + ' ' + dayWord + ExclamationUtil.generateRandom(), '', email);
 };
 
 InBasedThread.prototype.isForToday = function(){
