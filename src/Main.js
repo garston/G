@@ -20,30 +20,9 @@ function suggestTeams(){
         return;
     }
 
-    var thread = new InBasedThread(threads[0]);
-    if(thread.isForToday()){
-        var players = thread.parsePlayers();
-        if(players.ins.length > 0){
-            var toPlayerNames = function(players, categoryName) {
-                var playerStrings  = [];
-                for(var i = 0; i < players.length; i++){
-                    var playerString = players[i].getDisplayString();
-                    playerStrings.push(ArrayUtil.contains(playerStrings, playerString) ? '<i>' + playerString + '</i>' : playerString);
-                }
-                return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
-            };
-
-            var body = [
-                toPlayerNames(players.ins, 'In'),
-                toPlayerNames(players.outs, 'Out'),
-                toPlayerNames(players.unknowns, 'Unknown')
-                //'',
-                //'For stats, <a href="mailto:' + CONST.LEADERBOARD_EMAIL_PREFIX + thread.parseInitialEmail().sportName + CONST.LEADERBOARD_EMAIL_SUFFIX + '">send this email</a>'
-            ].join('<br/>');
-            MailSender.replyAll(thread.thread, body, thread.parseInitialEmail().replyTo);
-
-            new TeamSuggester().suggestTeams(thread);
-        }
+    var inBasedThread = new InBasedThread(threads[0]);
+    if(inBasedThread.isForToday()){
+        new TeamSuggester().suggestTeams(inBasedThread);
     }
 }
 

@@ -1,63 +1,37 @@
 var TeamSuggester = function(){};
 
-TeamSuggester.prototype.suggestTeams = function(thread){
-    var emailMetadata = thread.parseInitialEmail();
-    var sportName = emailMetadata.sportName;
-    var sport = Database.hydrateBy(Sport, ['name', sportName]) || new Sport(sportName);
-
-    var persons = thread.parsePlayers().ins;
-
-    var personSports = [];
-    for(var i = 0; i < persons.length; i++){
-        personSports.push(persons[i].getPersonSport(sport));
+TeamSuggester.prototype.suggestTeams = function(inBasedThread){
+    var players = inBasedThread.parsePlayers();
+    if(players.ins.length === 0){
+        return;
     }
 
-    var teams = TeamSuggester._snakeDraft(personSports);
+    var emailMetadata = inBasedThread.parseInitialEmail();
+    MailSender.replyAll(inBasedThread.thread, [
+        TeamSuggester._toPlayerNames(players.ins, 'In'),
+        TeamSuggester._toPlayerNames(players.outs, 'Out'),
+        TeamSuggester._toPlayerNames(players.unknowns, 'Unknown')
+    ].join('<br/>'), emailMetadata.replyTo);
 
-    //TeamSuggester._sendEmail(personSports.length, teams, sport, thread);
-    TeamSuggester._persist(teams, emailMetadata.date, sportName);
+    TeamSuggester._persist(players.ins, emailMetadata.date, emailMetadata.sportName);
 };
 
-TeamSuggester._sendEmail = function(numPlayers, teams, sport, thread){
-    var body = [numPlayers + ' players. Suggested teams:'];
-    for(var i = 0; i < teams.length; i++){
-        body.push(teams[i].toString('Team ' + (i+1)));
+TeamSuggester._persist = function(inPlayers, date, sportName){
+    var teams = [[], []];
+    for(var i = 0; i < inPlayers.length; i++) {
+        teams[i % teams.length].push(inPlayers[i].email);
     }
 
-    body = body.concat([
-        '',
-        'Record game at: ' + SpreadsheetApp.getActiveSpreadsheet().getUrl()
-    ]);
-    //MailSender.replyAll(thread.thread, body.join('<br/>', ));
+    var dateParts = DateUtil.splitPrettyDate(date);
+    Database.persist(Side, new Side(dateParts.month, dateParts.day, dateParts.year, sportName, '', teams[0]));
+    Database.persist(Side, new Side(dateParts.month, dateParts.day, dateParts.year, sportName, '', teams[1]));
 };
 
-TeamSuggester._snakeDraft = function(personSports){
-    personSports.sort(function(ps1, ps2){
-        return ps2.getWinScore() - ps1.getWinScore();
-    });
-
-    var teams = [new TemporalTeam(), new TemporalTeam()];
-    var isOddNumberOfPlayers = personSports.length % 2 !== 0;
-    for(var i = 0; i < personSports.length; i++){
-        if(i % teams.length === 0){
-            teams.reverse();
-        }
-
-        var isLastPlayer = i === personSports.length - 1;
-        var team = isLastPlayer && isOddNumberOfPlayers ? teams.sort(TemporalTeam.compare)[teams.length - 1] : teams[i % teams.length];
-        team.personSports.push(personSports[i]);
+TeamSuggester._toPlayerNames = function(players, categoryName) {
+    var playerStrings  = [];
+    for(var i = 0; i < players.length; i++){
+        var playerString = players[i].getDisplayString();
+        playerStrings.push(ArrayUtil.contains(playerStrings, playerString) ? '<i>' + playerString + '</i>' : playerString);
     }
-    return teams;
-};
-
-TeamSuggester._persist = function(teams, date, sportName){
-    for(var i = 0; i < teams.length; i++){
-        var team = teams[i];
-        var playerEmails = [];
-        for(var j = 0; j < team.personSports.length; j++){
-            playerEmails.push(team.personSports[j].getPerson().email);
-        }
-        var dateParts = DateUtil.splitPrettyDate(date);
-        Database.persist(Side, new Side(dateParts.month, dateParts.day, dateParts.year, sportName, '', playerEmails));
-    }
+    return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
 };
