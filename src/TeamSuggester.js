@@ -13,7 +13,10 @@ TeamSuggester.prototype.suggestTeams = function(inBasedThread){
         TeamSuggester._toPlayerNames(players.unknowns, 'Unknown')
     ].join('<br/>'), emailMetadata.replyTo);
 
-    TeamSuggester._persist(players.ins, emailMetadata.date, emailMetadata.sportName);
+    var sport = Database.hydrateBy(Sport, ['name', emailMetadata.sportName]);
+    if(sport && sport.isInPhysEdRotation) {
+        TeamSuggester._persist(players.ins, emailMetadata.date, emailMetadata.sportName);
+    }
 };
 
 TeamSuggester._persist = function(inPlayers, date, sportName){
