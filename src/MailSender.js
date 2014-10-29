@@ -25,7 +25,7 @@ MailSender.send = function(subject, body, email){
 };
 
 MailSender._getEmail = function(email){
-    return CONST.PROD_MODE ? email || CONST.PHYS_ED_EMAIL : CONST.DEBUG_EMAIL;
+    return CONST.PROD_MODE ? email : CONST.DEBUG_EMAIL;
 };
 
 MailSender._getOptions = function(body, email){
@@ -33,7 +33,7 @@ MailSender._getOptions = function(body, email){
         bcc: CONST.DEBUG_EMAIL,
         htmlBody: body,
         name: 'PhysEd',
-        replyTo: this._getEmail(email)
+        replyTo: email
     };
 };
 

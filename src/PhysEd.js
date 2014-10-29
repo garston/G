@@ -4,7 +4,7 @@ PhysEd.TIMES_PER_SPORT_BEFORE_SWITCHING = 2;
 
 PhysEd.prototype.notifyPhysEd = function(){
     var sport = this._determinePhysEdSport();
-    InBasedThread.sendInitialEmail(sport.name, 'Tomorrow');
+    InBasedThread.sendInitialEmail(sport.name, 'Tomorrow', CONST.PHYS_ED_EMAIL);
 
     sport.physEdCount += 1;
     Database.persist(Sport, sport);
