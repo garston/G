@@ -3,14 +3,15 @@ PhysEd = function(){};
 PhysEd.TIMES_PER_SPORT_BEFORE_SWITCHING = 2;
 
 PhysEd.prototype.notifyPhysEd = function(){
-    var sport = this._determinePhysEdSport(Database.hydrateAllBy(Sport, ['isInPhysEdRotation', 1]));
-    InBasedThread.sendInitialEmail(sport.name, 'Tomorrow', sport);
+    var sport = this._determinePhysEdSport();
+    InBasedThread.sendInitialEmail(sport.name, 'Tomorrow');
 
     sport.physEdCount += 1;
     Database.persist(Sport, sport);
 };
 
-PhysEd.prototype._determinePhysEdSport = function(physEdSports){
+PhysEd.prototype._determinePhysEdSport = function(){
+    var physEdSports = Database.hydrateAllBy(Sport, ['isInPhysEdRotation', 1]);
     var lowestSport;
     var lowest = Infinity;
     for(var i = 0; i < physEdSports.length; i++){

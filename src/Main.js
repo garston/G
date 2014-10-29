@@ -3,15 +3,15 @@ function notifyPhysEd() {
 }
 
 function notifyFullCourtWednesday(){
-    //InBasedThread.sendInitialEmail(InBasedThread.BASKETBALL_PRETTY_NAME, 'Wednesday', Database.hydrateBy(Sport, ['name', InBasedThread.BASKETBALL_STORED_NAME]));
+    //InBasedThread.sendInitialEmail(InBasedThread.BASKETBALL_PRETTY_NAME, 'Wednesday');
 }
 
 function notifyFullCourtFriday(){
-    InBasedThread.sendInitialEmail(InBasedThread.BASKETBALL_PRETTY_NAME, 'Friday', Database.hydrateBy(Sport, ['name', InBasedThread.BASKETBALL_STORED_NAME]));
+    InBasedThread.sendInitialEmail(InBasedThread.BASKETBALL_PRETTY_NAME, 'Friday');
 }
 
 function notifyVolleyball(){
-    InBasedThread.sendInitialEmail('Volleyball', 'Tomorrow', undefined, CONST.VOLLEYBALL_EMAIL);
+    InBasedThread.sendInitialEmail('Volleyball', 'Tomorrow', CONST.VOLLEYBALL_EMAIL);
 }
 
 function suggestTeams(){

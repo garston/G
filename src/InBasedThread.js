@@ -10,7 +10,7 @@ InBasedThread.STATUSES = {
     OUT: 'out'
 };
 
-InBasedThread.sendInitialEmail = function(sportName, dayWord, sport, email){
+InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
     MailSender.send(sportName + ' ' + dayWord + ExclamationUtil.generateRandom(), '', email);
 };
 
