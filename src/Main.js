@@ -112,7 +112,7 @@ function _shouldSendMail(timesPerDay){
 }
 
 function _sendMail(renter, subject, sendTxt){
-    MailApp.sendEmail(renter.email, subject, SpreadsheetApp.getActiveSpreadsheet().getUrl(), {
+    MailApp.sendEmail(CONST.PROD_MODE ? renter.email : CONST.LORD_EMAIL, subject, SpreadsheetApp.getActiveSpreadsheet().getUrl(), {
         name: SpreadsheetApp.getActiveSpreadsheet().getName(),
         cc: CONST.LORD_EMAIL,
         bcc: sendTxt && renter.txt,
