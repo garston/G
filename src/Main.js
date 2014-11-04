@@ -26,7 +26,7 @@ function notifyAmountsEntered(e){
     }
 }
 
-function hourly(e){
+function hourly(){
     var today = new Date();
 
     for(var col = CONST.HEADER_COL + 1; col <= _getSheet(CONST.SUMMARY_SHEET_NAME).getLastColumn(); col++){
@@ -40,11 +40,11 @@ function hourly(e){
                 if(_hasPaidWithPayPal(renter, col)){
                     _getCell(renter.paidRow, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
                     _getCell(renter.depositRow, col).setValue('Paypal');
-                    _sendMail(renter, 'Paypal payment recieved for ' + prettyDueDate + ' rent check, thank you');
+                    _sendMail(renter, 'Paypal payment received for ' + prettyDueDate + ' rent check, thank you');
                 } else {
                     var daysLate = today.getDate() - dueDate.getDate();
                     if(today > dueDate && _shouldSendMail(daysLate + 1)){
-                        var lateMessage = 'Rent due on ' + prettyDueDate + ' hasn\'t been recieved';
+                        var lateMessage = 'Rent due on ' + prettyDueDate + ' hasn\'t been received';
                         _sendMail(renter, lateMessage, true);
                     }else if(today > reminderDay && today < _addDays(1, reminderDay) && _shouldSendMail(1)){
                         _sendMail(renter, 'Reminder: rent is due in ' + CONST.REMINDER_DAYS + ' days');
@@ -74,7 +74,7 @@ function _hasPaidWithPayPal(renter, col){
     var date = _addDays(-4, _getDueDate(col));
     var searchDate = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
 
-    var threads = GmailApp.search('to:' + CONST.LORD_PAYPAL_EMAIL + ' ' + renter.email + ' after:' + searchDate, 0, 1);
+    var threads = GmailApp.search(renter.email + ' to:' + CONST.LORD_PAYPAL_EMAIL + ' after:' + searchDate, 0, 1);
     return threads.length > 0;
 }
 
