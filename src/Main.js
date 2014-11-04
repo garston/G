@@ -29,7 +29,7 @@ function notifyAmountsEntered(e){
 function hourly(e){
     var today = new Date();
 
-    for(var col = CONST.HEADER_COL + 1; col <= _getActiveSheet().getLastColumn(); col++){
+    for(var col = CONST.HEADER_COL + 1; col <= _getSheet(CONST.SUMMARY_SHEET_NAME).getLastColumn(); col++){
         var dueDate = _getDueDate(col);
         var prettyDueDate = _prettyDate(dueDate);
         var reminderDay = _addDays(-CONST.REMINDER_DAYS, dueDate);
@@ -82,12 +82,12 @@ function _hasNotPaid(renter, col){
     return _getCellValue(renter.paidRow, col) === '';
 }
 
-function _getActiveSheet(){
-    return SpreadsheetApp.getActiveSheet();
+function _getSheet(sheetName) {
+    return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 }
 
 function _getCell(row, col){
-    return _getActiveSheet().getRange(row, col);
+    return _getSheet(CONST.SUMMARY_SHEET_NAME).getRange(row, col);
 }
 
 function _getCellValue(row, col){
