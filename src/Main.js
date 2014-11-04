@@ -43,7 +43,7 @@ function hourly(){
                     _sendMail(renter, 'Paypal payment received for ' + prettyDueDate + ' rent check, thank you');
                 } else {
                     var daysLate = today.getDate() - dueDate.getDate();
-                    if(today > dueDate && _shouldSendMail(daysLate + 1)){
+                    if(today > dueDate && _shouldSendMail(renter.increaseNotificationsForEveryLateDay ? daysLate + 1 : 1)){
                         var lateMessage = 'Rent due on ' + prettyDueDate + ' hasn\'t been received';
                         _sendMail(renter, lateMessage, true);
                     }else if(today > reminderDay && today < _addDays(1, reminderDay) && _shouldSendMail(1)){
