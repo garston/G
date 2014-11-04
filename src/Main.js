@@ -15,7 +15,7 @@ function notifyAmountsEntered(e){
         if(allAmountsEntered){
             for(var i = 0; i < CONST.RENTERS.length; i++){
                 var renter = CONST.RENTERS[i];
-                if(_hasNotPaid(renter, col)){
+                if(renter.notifyAmountsEntered && _hasNotPaid(renter, col)){
                     var subject = renter.amountRow ?
                         'Amount due for ' + _prettyDate(_getDueDate(col)) + ' rent is $' + _getCellValue(renter.amountRow, col).toFixed(2) :
                         'All amounts for rent due on ' + _prettyDate(_getDueDate(col)) + ' are now in the spreadsheet';
