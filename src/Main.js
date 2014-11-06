@@ -2,10 +2,6 @@ function notifyPhysEd() {
     new PhysEd().notifyPhysEd();
 }
 
-function notifyFullCourtWednesday(){
-    //InBasedThread.sendInitialEmail(InBasedThread.BASKETBALL_PRETTY_NAME, 'Wednesday', CONST.PHYS_ED_EMAIL);
-}
-
 function notifyFullCourtFriday(){
     InBasedThread.sendInitialEmail(InBasedThread.BASKETBALL_PRETTY_NAME, 'Friday', CONST.PHYS_ED_EMAIL);
 }
