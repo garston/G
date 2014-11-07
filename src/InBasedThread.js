@@ -40,7 +40,7 @@ InBasedThread.prototype.parsePlayers = function(){
     for(var i = 1; i < messages.length; i++){
         var message = messages[i];
         if(message.getFrom().indexOf(CONST.PHYS_ED_NAME) === -1){
-            var inStatus = this._getInStatus(i);
+            var inStatus = this._getInStatus(message);
             var fromParts = this._parseFromString(message.getFrom());
 
             var person = Database.hydrateBy(Person, ['email', fromParts.email]) || new Person(fromParts.email);
@@ -70,12 +70,13 @@ InBasedThread.prototype.parsePlayers = function(){
     return players;
 };
 
-InBasedThread.prototype._getInStatus = function(messageNum){
-    var words = this._getMessageLines(messageNum)[0].split(' ');
-    if(words.length === 0) {
+InBasedThread.prototype._getInStatus = function(message){
+    var firstLine = message.getPlainBody().split('\n')[0].trim();
+    if(!firstLine) {
         return InBasedThread.STATUSES.IN;
     }
 
+    var words = firstLine.split(' ');
     for(var j = 0; j < words.length; j++){
         var word = words[j].toLowerCase();
         if(/^(in|yes|yep|yea|yeah|yay)\W*$/.test(word)){
@@ -84,14 +85,6 @@ InBasedThread.prototype._getInStatus = function(messageNum){
             return InBasedThread.STATUSES.OUT;
         }
     }
-};
-
-InBasedThread.prototype._getMessageLines = function(messageNum){
-    var lines = this.thread.getMessages()[messageNum].getPlainBody().split('\n');
-    for(var i = 0; i < lines.length; i++){
-        lines[i] = lines[i].trim();
-    }
-    return lines;
 };
 
 InBasedThread.prototype._parseFromString = function(fromString){
