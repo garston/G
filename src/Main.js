@@ -27,12 +27,13 @@ function notifyAmountsEntered(e){
 }
 
 function hourly(){
-    var today = new Date();
+    var today = _startOfDay(new Date());
 
     for(var col = CONST.HEADER_COL + 1; col <= _getSheet(CONST.SUMMARY_SHEET_NAME).getLastColumn(); col++){
         var dueDate = _getDueDate(col);
         var prettyDueDate = _prettyDate(dueDate);
-        var reminderDay = _addDays(-CONST.REMINDER_DAYS, dueDate);
+        var reminderDays = 2;
+        var reminderDay = _addDays(-reminderDays, dueDate);
 
         for(var i = 0; i < CONST.RENTERS.length; i++){
             var renter = CONST.RENTERS[i];
@@ -41,14 +42,10 @@ function hourly(){
                     _getCell(renter.paidRow, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
                     _getCell(renter.depositRow, col).setValue('Paypal');
                     _sendMail(renter, 'Paypal payment received for ' + prettyDueDate + ' rent check, thank you');
-                } else {
-                    var daysLate = today.getDate() - dueDate.getDate();
-                    if(today > dueDate && _shouldSendMail(renter.increaseNotificationsForEveryLateDay ? daysLate + 1 : 1)){
-                        var lateMessage = 'Rent due on ' + prettyDueDate + ' hasn\'t been received';
-                        _sendMail(renter, lateMessage, true);
-                    }else if(today > reminderDay && today < _addDays(1, reminderDay) && _shouldSendMail(1)){
-                        _sendMail(renter, 'Reminder: rent is due in ' + CONST.REMINDER_DAYS + ' days');
-                    }
+                } else if(today > dueDate && _shouldSendMail(renter.increaseNotificationsForEveryLateDay ? _dayDiff(dueDate, today) : 1)) {
+                    _sendMail(renter, 'Rent due on ' + prettyDueDate + ' hasn\'t been received', true);
+                } else if(_dayDiff(reminderDay, today) === 0 && _shouldSendMail(1)) {
+                    _sendMail(renter, 'Reminder: rent is due in ' + reminderDays + ' days');
                 }
             }
         }
@@ -95,15 +92,27 @@ function _getCellValue(row, col){
 }
 
 function _getDueDate(col){
-    return _addDays(1, _getCellValue(1, col));
+    return _getCellValue(1, col);
 }
 
 function _addDays(days, date){
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+    var date = new Date(date);
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
+function _dayDiff(date1, date2){
+    return Math.floor((date2 - date1) / 86400000);
 }
 
 function _prettyDate(ts){
     return (ts.getMonth()+1) + '/' + ts.getDate() + '/' + ts.getFullYear();
+}
+
+function _startOfDay(date){
+    var date = new Date(date);
+    date.setHours(0, 0, 0, 0);
+    return date;
 }
 
 function _shouldSendMail(timesPerDay){
