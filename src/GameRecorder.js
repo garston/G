@@ -76,6 +76,6 @@ GameRecorder.prototype._sendEmail = function(sport, side1, side2){
         '<b>Team 1: ' + side1.score + '</b>. &nbsp;' + side1.getPeopleDisplayStrings().join(', '),
         '<b>Team 2: ' + side2.score + '</b>. &nbsp;' + side2.getPeopleDisplayStrings().join(', '),
         '',
-        new Leaderboard().getLeaderboards(sport)
+        new Leaderboard().getLeaderboards(sport, side1.getPlayerEmails().concat(side2.getPlayerEmails()))
     ].join('<br/>'), CONST.PHYS_ED_STATS_EMAIL);
 };

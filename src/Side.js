@@ -8,24 +8,22 @@ Side = function(month, day, year, sportName, score, playerEmails) {
 
     playerEmails = playerEmails || [];
     for(var i = 0; i < Side.MAX_PLAYERS; i++){
-        this['p' + i] = playerEmails[i] || '';
+        this['playerEmail' + i] = playerEmails[i] || '';
     }
 };
 
 Side.MAX_PLAYERS = 14;
 
 Side.prototype.getPeople = function(){
-    if(this.people){
-        return this.people;
-    }
-
-    this.people = [];
-    for(var i = 0; i < Side.MAX_PLAYERS; i++){
-        var email = this['p' + i];
-        if(email){
+    if(!this.people){
+        this.people = [];
+        var emails = this.getPlayerEmails();
+        for(var i = 0; i < emails.length; i++){
+            var email = emails[i];
             this.people.push(Database.hydrateBy(Person, ['email', email]) || new Person(email));
         }
     }
+
     return this.people;
 };
 
@@ -36,6 +34,17 @@ Side.prototype.getPeopleDisplayStrings = function(){
         displayStrings.push(people[i].getDisplayString());
     }
     return displayStrings;
+};
+
+Side.prototype.getPlayerEmails = function() {
+    var emails = [];
+    for(var i = 0; i < Side.MAX_PLAYERS; i++){
+        var email = this['playerEmail' + i];
+        if(email){
+            emails.push(email);
+        }
+    }
+    return emails;
 };
 
 Side.__tableName = 'GAME_RECORDER';
@@ -50,6 +59,6 @@ Side.__propsToCol = {
 };
 (function(){
     for(var i = 0; i < Side.MAX_PLAYERS; i++){
-        Side.__propsToCol['p' + i] = i + 7;
+        Side.__propsToCol['playerEmail' + i] = i + 7;
     }
 })();

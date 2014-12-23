@@ -1,6 +1,6 @@
 Leaderboard = function(){};
 
-Leaderboard.prototype.getLeaderboards = function(sport){
+Leaderboard.prototype.getLeaderboards = function(sport, boldPlayerEmails){
     var personSports = Database.hydrateAllBy(PersonSport, ['sportGuid', sport.guid]);
 
     if(personSports.length === 0){
@@ -16,12 +16,11 @@ Leaderboard.prototype.getLeaderboards = function(sport){
     var str = 'Win percentage leaderboard for ' + sport.name + '<br/>';
     for(var i = 0; i < personSports.length; i++){
         personSport = personSports[i];
-        str += ['<b>' + personSport.getPerson().getDisplayString(),
-            personSport.getWinScore() + '</b>',
+        str += this._createRow([
+            personSport.getWinScore(),
             personSport.wins + 'W-' + personSport.losses + 'L',
-            this._colorStreakText(personSport.streak + personSport.streakDir, personSport.streakDir === PersonSport.STREAK_DIR.W),
-            '<br/>'
-        ].join('&nbsp;&nbsp;&nbsp;');
+            this._colorStreakText(personSport.streak + personSport.streakDir, personSport.streakDir === PersonSport.STREAK_DIR.W)
+        ], personSport.getPerson(), boldPlayerEmails);
     }
 
     str += '<br/><br/>';
@@ -33,24 +32,24 @@ Leaderboard.prototype.getLeaderboards = function(sport){
     str += 'Participation percentage leaderboard for ' + sport.name + '<br/>';
     for(var i = 0; i < personSports.length; i++){
         personSport = personSports[i];
-        str += ['<b>' + personSport.getPerson().getDisplayString(),
-            personSport.getParticipationScore() + '</b>',
+        str += this._createRow([
+            personSport.getParticipationScore(),
             personSport.ins + 'ins-' + personSport.outs + 'outs',
-            this._colorStreakText(personSport.participationStreak + personSport.participationStreakDir, personSport.participationStreakDir === PersonSport.STREAK_DIR.INS),
-            '<br/>'
-        ].join('&nbsp;&nbsp;&nbsp;');
+            this._colorStreakText(personSport.participationStreak + personSport.participationStreakDir, personSport.participationStreakDir === PersonSport.STREAK_DIR.INS)
+        ], personSport.getPerson(), boldPlayerEmails);
     }
 
     return str;
 };
 
 Leaderboard.prototype._colorStreakText = function(text, isHot){
-    var streakColor = isHot ? 'red' : 'blue';
-    return '<span style="color: ' + streakColor + ';">' + text + '</span>';
+    return '<span style="color: ' + (isHot ? 'red' : 'blue') + ';">' + text + '</span>';
 };
 
-function _testLeaderboard() {
-    var sport = Database.hydrateBy(Sport, ['name', 'Soccer']);
-    var str = Leaderboard.prototype.getLeaderboards(sport);
-    MailSender.send('_testLeaderboard', str, CONST.DEBUG_EMAIL);
+Leaderboard.prototype._createRow = function(items, person, boldPlayerEmails) {
+    var str = [person.getDisplayString()].concat(items).join('&nbsp;&nbsp;&nbsp;');
+    if(ArrayUtil.contains(boldPlayerEmails, person.email)) {
+        str = '<b>' + str + '</b>';
+    }
+    return str + '<br/>';
 }
