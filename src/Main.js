@@ -17,8 +17,8 @@ function notifyAmountsEntered(e){
                 var renter = CONST.RENTERS[i];
                 if(renter.notifyAmountsEntered && _hasNotPaid(renter, col)){
                     var subject = renter.amountRow ?
-                        'Amount due for ' + _prettyDate(_getDueDate(col)) + ' rent is $' + _getCellValue(renter.amountRow, col).toFixed(2) :
-                        'All amounts for rent due on ' + _prettyDate(_getDueDate(col)) + ' are now in the spreadsheet';
+                        'Amount due for ' + DateUtil.prettyDate(_getDueDate(col)) + ' rent is $' + _getCellValue(renter.amountRow, col).toFixed(2) :
+                        'All amounts for rent due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' are now in the spreadsheet';
                     _sendMail(renter, subject);
                 }
             }
@@ -27,13 +27,13 @@ function notifyAmountsEntered(e){
 }
 
 function hourly(){
-    var today = _startOfDay(new Date());
+    var today = DateUtil.startOfDay(new Date());
 
     for(var col = CONST.HEADER_COL + 1; col <= _getSheet(CONST.SUMMARY_SHEET_NAME).getLastColumn(); col++){
         var dueDate = _getDueDate(col);
-        var prettyDueDate = _prettyDate(dueDate);
+        var prettyDueDate = DateUtil.prettyDate(dueDate);
         var reminderDays = 2;
-        var reminderDay = _addDays(-reminderDays, dueDate);
+        var reminderDay = DateUtil.addDays(-reminderDays, dueDate);
 
         for(var i = 0; i < CONST.RENTERS.length; i++){
             var renter = CONST.RENTERS[i];
@@ -42,9 +42,9 @@ function hourly(){
                     _getCell(renter.paidRow, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
                     _getCell(renter.depositRow, col).setValue('Paypal');
                     _sendMail(renter, 'Paypal payment received for ' + prettyDueDate + ' rent check, thank you');
-                } else if(today > dueDate && _shouldSendMail(renter.increaseNotificationsForEveryLateDay ? _dayDiff(dueDate, today) : 1)) {
+                } else if(today > dueDate && _shouldSendMail(renter.increaseNotificationsForEveryLateDay ? DateUtil.dayDiff(dueDate, today) : 1)) {
                     _sendMail(renter, 'Rent due on ' + prettyDueDate + ' hasn\'t been received', true);
-                } else if(_dayDiff(reminderDay, today) === 0 && _shouldSendMail(1)) {
+                } else if(DateUtil.dayDiff(reminderDay, today) === 0 && _shouldSendMail(1)) {
                     _sendMail(renter, 'Reminder: rent is due in ' + reminderDays + ' days');
                 }
             }
@@ -59,7 +59,7 @@ function notifyDeposit(e){
     for(var i = 0; i < CONST.RENTERS.length; i++){
         var renter = CONST.RENTERS[i];
         if((row === renter.depositRow) && col > CONST.HEADER_COL && _getCellValue(row, col).toLowerCase() === CONST.COMPLETED_VALUE.toLowerCase()){
-            _sendMail(renter, 'Your rent check due on ' + _prettyDate(_getDueDate(col)) + ' has been deposited');
+            _sendMail(renter, 'Your rent check due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' has been deposited');
             _getCell(row, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
             SpreadsheetApp.flush();
         }
@@ -68,7 +68,7 @@ function notifyDeposit(e){
 
 
 function _hasPaidWithPayPal(renter, col){
-    var date = _addDays(-4, _getDueDate(col));
+    var date = DateUtil.addDays(-4, _getDueDate(col));
     var searchDate = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
 
     var threads = GmailApp.search(renter.email + ' to:' + CONST.LORD_PAYPAL_EMAIL + ' after:' + searchDate, 0, 1);
@@ -93,26 +93,6 @@ function _getCellValue(row, col){
 
 function _getDueDate(col){
     return _getCellValue(1, col);
-}
-
-function _addDays(days, date){
-    var date = new Date(date);
-    date.setDate(date.getDate() + days);
-    return date;
-}
-
-function _dayDiff(date1, date2){
-    return Math.floor((date2 - date1) / 86400000);
-}
-
-function _prettyDate(ts){
-    return (ts.getMonth()+1) + '/' + ts.getDate() + '/' + ts.getFullYear();
-}
-
-function _startOfDay(date){
-    var date = new Date(date);
-    date.setHours(0, 0, 0, 0);
-    return date;
 }
 
 function _shouldSendMail(timesPerDay){
