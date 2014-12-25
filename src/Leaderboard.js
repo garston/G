@@ -7,21 +7,21 @@ Leaderboard.prototype.getLeaderboards = function(sport, boldPlayerEmails){
         return '';
     }
 
-    var personSport;
-
     personSports.sort(function(ps1, ps2){
         return ps2.getWinScore() - ps1.getWinScore();
     });
 
     var str = 'Win percentage leaderboard for ' + sport.name + '<br/>';
-    for(var i = 0; i < personSports.length; i++){
-        personSport = personSports[i];
-        str += this._createRow([
+    str += this._createTable(personSports, function(personSport) {
+        return [
             personSport.getWinScore(),
             personSport.wins + 'W-' + personSport.losses + 'L',
-            this._colorStreakText(personSport.streak + personSport.streakDir, personSport.streakDir === PersonSport.STREAK_DIR.W)
-        ], personSport.getPerson(), boldPlayerEmails);
-    }
+            {
+                color: personSport.streakDir === PersonSport.STREAK_DIR.W ? 'red' : 'blue',
+                html: personSport.streak + personSport.streakDir
+            }
+        ];
+    }, boldPlayerEmails);
 
     str += '<br/><br/>';
 
@@ -30,26 +30,35 @@ Leaderboard.prototype.getLeaderboards = function(sport, boldPlayerEmails){
     });
 
     str += 'Participation percentage leaderboard for ' + sport.name + '<br/>';
-    for(var i = 0; i < personSports.length; i++){
-        personSport = personSports[i];
-        str += this._createRow([
+    str += this._createTable(personSports, function(personSport) {
+        return [
             personSport.getParticipationScore(),
             personSport.ins + 'ins-' + personSport.outs + 'outs',
-            this._colorStreakText(personSport.participationStreak + personSport.participationStreakDir, personSport.participationStreakDir === PersonSport.STREAK_DIR.INS)
-        ], personSport.getPerson(), boldPlayerEmails);
-    }
+            {
+                color: personSport.participationStreakDir === PersonSport.STREAK_DIR.INS ? 'red' : 'blue',
+                html: personSport.participationStreak + personSport.participationStreakDir
+            }
+        ];
+    }, boldPlayerEmails);
 
     return str;
 };
 
-Leaderboard.prototype._colorStreakText = function(text, isHot){
-    return '<span style="color: ' + (isHot ? 'red' : 'blue') + ';">' + text + '</span>';
-};
-
-Leaderboard.prototype._createRow = function(items, person, boldPlayerEmails) {
-    var str = [person.getDisplayString()].concat(items).join('&nbsp;&nbsp;&nbsp;');
-    if(ArrayUtil.contains(boldPlayerEmails, person.email)) {
-        str = '<b>' + str + '</b>';
+Leaderboard.prototype._createTable = function(personSports, createRowItemsFn, boldPlayerEmails) {
+    var str = '';
+    for(var i = 0; i < personSports.length; i++) {
+        var personSport = personSports[i];
+        str += this._createRow(personSport, createRowItemsFn, boldPlayerEmails);
     }
-    return str + '<br/>';
+    return '<table>' + str + '</table>'
+}
+
+Leaderboard.prototype._createRow = function(personSport, createRowItemsFn, boldPlayerEmails) {
+    var str = '';
+    var items = [personSport.getPerson().getDisplayString()].concat(createRowItemsFn.call(this, personSport));
+    for(var i = 0; i < items.length; i++) {
+        var item = items[i];
+        str += '<td' + (item.color ? ' style="color: ' + item.color + ';"' : '') + '>' + (item.html || item) + '</td>'
+    }
+    return '<tr' + (ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' style="font-weight: bold;"' : '') + '>' + str + '</tr>';
 }
