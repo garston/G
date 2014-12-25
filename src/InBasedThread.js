@@ -11,7 +11,7 @@ InBasedThread.STATUSES = {
 };
 
 InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
-    MailSender.send(sportName + ' ' + dayWord + ExclamationUtil.generateRandom(), '', email);
+    MailSender.send(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
 };
 
 InBasedThread.prototype.isForToday = function(){
@@ -68,6 +68,16 @@ InBasedThread.prototype.parsePlayers = function(){
     }
 
     return players;
+};
+
+InBasedThread._generateRandomExclamations = function(){
+    var str = '';
+    var maxExclamations = 5;
+    var num = Math.floor(Math.random() * (maxExclamations + 1));
+    for(var i = 0; i < num; i++){
+        str += '!';
+    }
+    return str;
 };
 
 InBasedThread.prototype._getInStatus = function(message){
