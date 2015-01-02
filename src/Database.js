@@ -1,24 +1,17 @@
 Database = {};
 
-Database.getCount = function(clazz){
-    return this._getSheet(clazz).getLastRow();
-};
-
 Database.hasObject = function(clazz, colNameValuePairs){
     return !!this._getRowNumBy(clazz, colNameValuePairs);
 };
-
 
 Database.hydrate = function(clazz, guid){
     return this.hydrateBy(clazz, ['guid', guid]);
 };
 
 Database.hydrateAll = function(clazz){
-    var records = [];
-    for(var row = this._getFirstRow(clazz); row <= this.getCount(clazz); row++){
-        records.push(this._hydrateRow(clazz, row));
-    }
-    return records;
+    return ArrayUtil.map(ArrayUtil.range(this._getFirstRow(clazz), this._getLastRow(clazz) + 1), function(row){
+        return this._hydrateRow(clazz, row);
+    }, this);
 };
 
 Database.hydrateAllBy = function(clazz, colNameValuePairs){
@@ -44,11 +37,9 @@ Database.hydrateBy = function(clazz, colNameValuePairs, _startRow){
 };
 
 Database.hydrateMultiple = function(clazz, guids){
-    var objects = [];
-    for(var i = 0; i < guids.length; i++){
-        objects.push(this.hydrate(clazz, guids[i]));
-    }
-    return objects;
+    return ArrayUtil.map(guids, function(guid){
+        return this.hydrate(clazz, guid);
+    }, this);
 };
 
 Database.persist = function(clazz, o){
@@ -60,9 +51,9 @@ Database.persist = function(clazz, o){
 };
 
 Database.persistOnly = function(clazz, o, properties){
-    for(var i = 0; i < properties.length; i++){
-        this._persistProperty(clazz, o, properties[i]);
-    }
+    ArrayUtil.forEach(properties, function(property){
+        this._persistProperty(clazz, o, property);
+    }, this);
 };
 
 Database.remove = function(clazz, o){
@@ -83,23 +74,22 @@ Database._getFirstRow = function(clazz){
     return clazz.__firstRow || 1;
 };
 
+Database._getLastRow = function(clazz){
+    return this._getSheet(clazz).getLastRow();
+};
+
 Database._getRowNumBy = function(clazz, colNameValuePairs, startRow){
-    for(var row = startRow || this._getFirstRow(clazz); row <= this.getCount(clazz); row++){
-        var matchesAll = true;
+    return ArrayUtil.find(ArrayUtil.range(startRow || this._getFirstRow(clazz), this._getLastRow(clazz) + 1), function(row){
         for(var nameValPair = 0; nameValPair < colNameValuePairs.length; nameValPair += 2){
             var colName = colNameValuePairs[nameValPair];
             var expectedValue = colNameValuePairs[nameValPair + 1];
             var actualValue = this._getCellValue(clazz, row, colName);
             if(expectedValue !== actualValue){
-                matchesAll = false;
-                break;
+                return false;
             }
         }
-
-        if(matchesAll){
-            return row;
-        }
-    }
+        return true;
+    }, this);
 };
 
 Database._getSheet = function(clazz){

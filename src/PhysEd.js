@@ -12,20 +12,17 @@ PhysEd.prototype.notifyPhysEd = function(){
 
 PhysEd.prototype._determinePhysEdSport = function(){
     var physEdSports = Database.hydrateAllBy(Sport, ['isInPhysEdRotation', 1]);
-    var lowestSport;
-    var lowest = Infinity;
-    for(var i = 0; i < physEdSports.length; i++){
-        var sport = physEdSports[i];
-        var sportInProgress = sport.physEdCount % PhysEd.TIMES_PER_SPORT_BEFORE_SWITCHING !== 0;
-        if(sportInProgress){
-            return sport;
-        }
+    return this._findInProgressSport(physEdSports) || this._findLowestSport(physEdSports);
+};
 
-        if(sport.physEdCount < lowest){
-            lowest = sport.physEdCount;
-            lowestSport = sport;
-        }
-    }
+PhysEd.prototype._findInProgressSport = function(physEdSports) {
+    return ArrayUtil.find(physEdSports, function(sport){
+        return sport.physEdCount % PhysEd.TIMES_PER_SPORT_BEFORE_SWITCHING !== 0;
+    });
+};
 
-    return lowestSport;
+PhysEd.prototype._findLowestSport = function(physEdSports) {
+    return ArrayUtil.reduce(physEdSports, function(lowestSport, sport){
+        return sport.physEdCount < lowestSport.physEdCount ? sport : lowestSport;
+    });
 };

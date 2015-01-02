@@ -7,7 +7,8 @@ InBasedThread.BASKETBALL_STORED_NAME = 'Basketball';
 
 InBasedThread.STATUSES = {
     IN: 'in',
-    OUT: 'out'
+    OUT: 'out',
+    UNKNOWN: 'unknown'
 };
 
 InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
@@ -29,55 +30,34 @@ InBasedThread.prototype.parseInitialEmail = function(){
 };
 
 InBasedThread.prototype.parsePlayers = function(){
-    var players = {
-        ins: [],
-        outs: [],
-        plusOnes: [],
-        unknowns: []
-    };
+    var replyMessages = ArrayUtil.filter(this.thread.getMessages(), function(message){
+        return message.getFrom().indexOf(CONST.PHYS_ED_NAME) === -1;
+    });
 
-    var messages = this.thread.getMessages();
-    for(var i = 1; i < messages.length; i++){
-        var message = messages[i];
-        if(message.getFrom().indexOf(CONST.PHYS_ED_NAME) === -1){
-            var inStatus = this._getInStatus(message);
-            var fromParts = this._parseFromString(message.getFrom());
+    var players = {};
+    ArrayUtil.forEach(replyMessages, function(message){
+        var fromParts = this._parseFromString(message.getFrom());
 
-            var person = Database.hydrateBy(Person, ['email', fromParts.email]) || new Person(fromParts.email);
-            if(!person.firstName || !person.lastName){
-                person.firstName = fromParts.firstName;
-                person.lastName = fromParts.lastName;
-                Database.persist(Person, person);
-            }
-
-            if(inStatus === InBasedThread.STATUSES.IN){
-                players.ins.push(person);
-            }else if(inStatus === InBasedThread.STATUSES.OUT){
-                for(var j = 0; j < players.ins.length; j++){
-                    if(players.ins[j].email === fromParts.email){
-                        ArrayUtil.remove(players.ins, players.ins[j]);
-                        break;
-                    }
-                }
-
-                players.outs.push(person);
-            }else{
-                players.unknowns.push(person);
-            }
+        var person = Database.hydrateBy(Person, ['email', fromParts.email]) || new Person(fromParts.email);
+        if(!person.firstName || !person.lastName){
+            person.firstName = fromParts.firstName;
+            person.lastName = fromParts.lastName;
+            Database.persist(Person, person);
         }
-    }
 
+        var inStatus = this._getInStatus(message);
+        players[inStatus] = players[inStatus] || [];
+        players[inStatus].push(person);
+    }, this);
     return players;
 };
 
 InBasedThread._generateRandomExclamations = function(){
-    var str = '';
     var maxExclamations = 5;
     var num = Math.floor(Math.random() * (maxExclamations + 1));
-    for(var i = 0; i < num; i++){
-        str += '!';
-    }
-    return str;
+    return ArrayUtil.reduce(ArrayUtil.range(num), function(str){
+        return str + '!';
+    }, '');
 };
 
 InBasedThread.prototype._getInStatus = function(message){
@@ -87,14 +67,12 @@ InBasedThread.prototype._getInStatus = function(message){
     }
 
     var words = firstLine.split(' ');
-    for(var j = 0; j < words.length; j++){
-        var word = words[j].toLowerCase();
-        if(/^(in|yes|yep|yea|yeah|yay)\W*$/.test(word)){
-            return InBasedThread.STATUSES.IN;
-        }else if (/^out\W*$/.test(word)){
-            return InBasedThread.STATUSES.OUT;
-        }
+    if(ArrayUtil.any(words, function(word){ return /^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word); })){
+        return InBasedThread.STATUSES.IN;
+    }else if(ArrayUtil.any(words, function(word){ return /^out\W*$/i.test(word); })){
+        return InBasedThread.STATUSES.OUT
     }
+    return InBasedThread.STATUSES.UNKNOWN;
 };
 
 InBasedThread.prototype._parseFromString = function(fromString){

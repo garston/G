@@ -7,44 +7,25 @@ Side = function(month, day, year, sportName, score, playerEmails) {
     this.score = score;
 
     playerEmails = playerEmails || [];
-    for(var i = 0; i < Side.MAX_PLAYERS; i++){
+    ArrayUtil.times(Side.MAX_PLAYERS, function(i){
         this['playerEmail' + i] = playerEmails[i] || '';
-    }
+    }, this);
 };
 
 Side.MAX_PLAYERS = 14;
 
 Side.prototype.getPeople = function(){
-    if(!this.people){
-        this.people = [];
-        var emails = this.getPlayerEmails();
-        for(var i = 0; i < emails.length; i++){
-            var email = emails[i];
-            this.people.push(Database.hydrateBy(Person, ['email', email]) || new Person(email));
-        }
-    }
+    this.people = this.people || ArrayUtil.map(this.getPlayerEmails(), function(email){
+        return Database.hydrateBy(Person, ['email', email]) || new Person(email);
+    });
 
     return this.people;
 };
 
-Side.prototype.getPeopleDisplayStrings = function(){
-    var displayStrings = [];
-    var people = this.getPeople();
-    for(var i = 0; i < people.length; i++){
-        displayStrings.push(people[i].getDisplayString());
-    }
-    return displayStrings;
-};
-
 Side.prototype.getPlayerEmails = function() {
-    var emails = [];
-    for(var i = 0; i < Side.MAX_PLAYERS; i++){
-        var email = this['playerEmail' + i];
-        if(email){
-            emails.push(email);
-        }
-    }
-    return emails;
+    return ArrayUtil.compact(ArrayUtil.map(ArrayUtil.range(Side.MAX_PLAYERS), function(i){
+        return this['playerEmail' + i];
+    }, this));
 };
 
 Side.__tableName = 'GAME_RECORDER';
@@ -57,8 +38,6 @@ Side.__propsToCol = {
     sportName: 5,
     score: 6
 };
-(function(){
-    for(var i = 0; i < Side.MAX_PLAYERS; i++){
-        Side.__propsToCol['playerEmail' + i] = i + 7;
-    }
-})();
+ArrayUtil.times(Side.MAX_PLAYERS, function(i){
+    Side.__propsToCol['playerEmail' + i] = i + 7;
+});

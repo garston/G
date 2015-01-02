@@ -2,28 +2,29 @@ var TeamSuggester = function(){};
 
 TeamSuggester.prototype.suggestTeams = function(inBasedThread){
     var players = inBasedThread.parsePlayers();
-    if(players.ins.length === 0){
+    var inPlayers = players[InBasedThread.STATUSES.IN];
+    if(inPlayers.length === 0){
         return;
     }
 
     var emailMetadata = inBasedThread.parseInitialEmail();
     MailSender.replyAll(inBasedThread.thread, [
-        TeamSuggester._toPlayerNames(players.ins, 'In'),
-        TeamSuggester._toPlayerNames(players.outs, 'Out'),
-        TeamSuggester._toPlayerNames(players.unknowns, 'Unknown')
+        TeamSuggester._toPlayerNames(inPlayers, 'In'),
+        TeamSuggester._toPlayerNames(players[InBasedThread.STATUSES.OUT], 'Out'),
+        TeamSuggester._toPlayerNames(players[InBasedThread.STATUSES.UNKNOWN], 'Unknown')
     ].join('<br/>'), emailMetadata.replyTo);
 
     var sport = Database.hydrateBy(Sport, ['name', emailMetadata.sportName]);
     if(sport && sport.isInPhysEdRotation) {
-        TeamSuggester._persist(players.ins, emailMetadata.date, emailMetadata.sportName);
+        TeamSuggester._persist(inPlayers, emailMetadata.date, emailMetadata.sportName);
     }
 };
 
 TeamSuggester._persist = function(inPlayers, date, sportName){
     var teams = [[], []];
-    for(var i = 0; i < inPlayers.length; i++) {
-        teams[i % teams.length].push(inPlayers[i].email);
-    }
+    ArrayUtil.forEach(inPlayers, function(player, index){
+        teams[index % teams.length].push(player.email);
+    });
 
     var dateParts = DateUtil.splitPrettyDate(date);
     Database.persist(Side, new Side(dateParts.month, dateParts.day, dateParts.year, sportName, '', teams[0]));
@@ -31,10 +32,6 @@ TeamSuggester._persist = function(inPlayers, date, sportName){
 };
 
 TeamSuggester._toPlayerNames = function(players, categoryName) {
-    var playerStrings  = [];
-    for(var i = 0; i < players.length; i++){
-        var playerString = players[i].getDisplayString();
-        playerStrings.push(ArrayUtil.contains(playerStrings, playerString) ? '<i>' + playerString + '</i>' : playerString);
-    }
+    var playerStrings  = ArrayUtil.unique(ArrayUtil.map(players, Transformers.personToDisplayString));
     return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
 };
