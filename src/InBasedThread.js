@@ -6,9 +6,9 @@ InBasedThread.BASKETBALL_PRETTY_NAME = 'Full Court';
 InBasedThread.BASKETBALL_STORED_NAME = 'Basketball';
 
 InBasedThread.STATUSES = {
-    IN: 'in',
-    OUT: 'out',
-    UNKNOWN: 'unknown'
+    IN: 'In',
+    OUT: 'Out',
+    UNKNOWN: 'Unknown'
 };
 
 InBasedThread.sendInitialEmail = function(sportName, dayWord, email){

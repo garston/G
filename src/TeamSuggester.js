@@ -9,9 +9,9 @@ TeamSuggester.prototype.suggestTeams = function(inBasedThread){
 
     var emailMetadata = inBasedThread.parseInitialEmail();
     MailSender.replyAll(inBasedThread.thread, [
-        TeamSuggester._toPlayerNames(inPlayers, 'In'),
-        TeamSuggester._toPlayerNames(players[InBasedThread.STATUSES.OUT], 'Out'),
-        TeamSuggester._toPlayerNames(players[InBasedThread.STATUSES.UNKNOWN], 'Unknown')
+        TeamSuggester._toPlayerNames(players, InBasedThread.STATUSES.IN),
+        TeamSuggester._toPlayerNames(players, InBasedThread.STATUSES.OUT),
+        TeamSuggester._toPlayerNames(players, InBasedThread.STATUSES.UNKNOWN)
     ].join('<br/>'), emailMetadata.replyTo);
 
     var sport = Database.hydrateBy(Sport, ['name', emailMetadata.sportName]);
@@ -32,6 +32,6 @@ TeamSuggester._persist = function(inPlayers, date, sportName){
 };
 
 TeamSuggester._toPlayerNames = function(players, categoryName) {
-    var playerStrings  = ArrayUtil.unique(ArrayUtil.map(players, Transformers.personToDisplayString));
+    var playerStrings  = ArrayUtil.unique(ArrayUtil.map(players[categoryName], Transformers.personToDisplayString));
     return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
 };
