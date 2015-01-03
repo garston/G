@@ -1,11 +1,6 @@
 ArrayUtil = {
     any: function(a, fn, scope) {
-        for(var i = 0; i < a.length; i++) {
-            if(fn.call(scope || a, a[i], i)) {
-                return true;
-            }
-        }
-        return false;
+        return a.some(fn, scope);
     },
 
     compact: function(a) {
@@ -23,22 +18,11 @@ ArrayUtil = {
     },
 
     every: function(a, fn, scope) {
-        for(var i = 0; i < a.length; i++) {
-            if(!fn.call(scope, a[i], i, a)){
-                return false;
-            }
-        }
-        return true;
+        return a.every(fn, scope);
     },
 
     filter: function(a, fn, scope) {
-        var result = [];
-        for(var i = 0; i < a.length; i++) {
-            if (fn.call(scope, a[i], i, a)) {
-                result.push(a[i]);
-            }
-        }
-        return result;
+        return a.filter(fn, scope);
     },
 
     find: function(a, fn, scope) {
@@ -51,9 +35,7 @@ ArrayUtil = {
     },
 
     forEach: function(a, fn, scope) {
-        for(var i = 0; i < a.length; i++) {
-            fn.call(scope || a[i], a[i], i, a);
-        }
+        a.forEach(fn, scope);
     },
 
     groupBy: function(a, fn, scope) {
@@ -90,16 +72,8 @@ ArrayUtil = {
         return result;
     },
 
-    reduce: function(a, fn, accumulator, scope) {
-        var index = -1;
-        if (arguments.length < 3) {
-            accumulator = a[++index];
-        }
-        while (++index < a.length) {
-            accumulator = fn.call(scope || a, accumulator, a[index], index, a);
-        }
-
-        return accumulator;
+    reduce: function(a, fn, initialValue) {
+        return arguments.length < 3 ? a.reduce(fn) : a.reduce(fn, initialValue);
     },
 
     remove: function(a, o){
