@@ -14,18 +14,19 @@ GameRecorder.prototype.record = function(side1, side2){
     var personSportsGuids1 = this._recordSide(side1, game, sport, isParticipationOnly ? undefined : side1.score > side2.score);
     var personSportsGuids2 = this._recordSide(side2, game, sport, isParticipationOnly ? undefined : side2.score > side1.score);
 
+    var allPersonSports = Database.hydrateAllBy(PersonSport, ['sportGuid', sport.guid]);
     if(isFirstGameOfDay){
-        this._recordParticipation(ArrayUtil.unique(personSportsGuids1.concat(personSportsGuids2)), sport);
+        this._recordParticipation(ArrayUtil.unique(personSportsGuids1.concat(personSportsGuids2)), allPersonSports);
     }
 
-    this._sendEmail(sport, side1, side2);
+    this._sendEmail(side1, side2, sportName, allPersonSports);
 
     Database.remove(Side, side2);
     Database.remove(Side, side1);
 };
 
-GameRecorder.prototype._recordParticipation = function(inPersonSportGuids, sport){
-    ArrayUtil.forEach(Database.hydrateAllBy(PersonSport, ['sportGuid', sport.guid]), function(personSport){
+GameRecorder.prototype._recordParticipation = function(inPersonSportGuids, allPersonSports){
+    ArrayUtil.forEach(allPersonSports, function(personSport){
         var isIn = ArrayUtil.contains(inPersonSportGuids, personSport.guid);
         var participationStreakDirBefore = personSport.participationStreakDir;
         personSport.recordParticipation(isIn);
@@ -58,15 +59,15 @@ GameRecorder.prototype._recordSide = function(side, game, sport, isWinner){
     });
 };
 
-GameRecorder.prototype._sendEmail = function(sport, side1, side2){
+GameRecorder.prototype._sendEmail = function(side1, side2, sportName, allPersonSports){
     var month = side1.month;
     var day = side1.day;
     var year = side1.year;
 
-    MailSender.send('[PhysEdStats] ' + sport.name + ' ' + month + '/' + day + '/' + year, ['Game results',
+    MailSender.send('[PhysEdStats] ' + sportName + ' ' + month + '/' + day + '/' + year, ['Game results',
         '<b>Team 1: ' + side1.score + '</b>. &nbsp;' + ArrayUtil.map(side1.getPeople(), Transformers.personToDisplayString).join(', '),
         '<b>Team 2: ' + side2.score + '</b>. &nbsp;' + ArrayUtil.map(side2.getPeople(), Transformers.personToDisplayString).join(', '),
         '',
-        new Leaderboard().getLeaderboards(sport, side1.getPlayerEmails().concat(side2.getPlayerEmails()))
+        new Leaderboard().getLeaderboards(sportName, allPersonSports, side1.getPlayerEmails().concat(side2.getPlayerEmails()))
     ].join('<br/>'), CONST.PHYS_ED_STATS_EMAIL);
 };

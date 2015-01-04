@@ -1,17 +1,11 @@
 Leaderboard = function(){};
 
-Leaderboard.prototype.getLeaderboards = function(sport, boldPlayerEmails){
-    var personSports = Database.hydrateAllBy(PersonSport, ['sportGuid', sport.guid]);
-
-    if(personSports.length === 0){
-        return '';
-    }
-
+Leaderboard.prototype.getLeaderboards = function(sportName, personSports, boldPlayerEmails){
     personSports.sort(function(ps1, ps2){
         return ps2.getWinScore() - ps1.getWinScore();
     });
 
-    var html = 'Win percentage leaderboard for ' + sport.name + '<br/>';
+    var html = 'Win percentage leaderboard for ' + sportName + '<br/>';
     html += this._createTable(personSports, function(personSport) {
         return [
             personSport.getWinScore(),
@@ -29,7 +23,7 @@ Leaderboard.prototype.getLeaderboards = function(sport, boldPlayerEmails){
         return ps2.getParticipationScore() - ps1.getParticipationScore();
     });
 
-    html += 'Participation percentage leaderboard for ' + sport.name + '<br/>';
+    html += 'Participation percentage leaderboard for ' + sportName + '<br/>';
     html += this._createTable(personSports, function(personSport) {
         return [
             personSport.getParticipationScore(),
