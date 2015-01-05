@@ -15,7 +15,7 @@ function notifyAmountsEntered(e){
             ArrayUtil.forEach(rentersToNotify, function(renter){
                 _sendMail(renter,
                     renter.amountRow ?
-                    'Amount due for ' + DateUtil.prettyDate(_getDueDate(col)) + ' rent is $' + _getCellValue(renter.amountRow, col).toFixed(2) :
+                    'Amount due for ' + DateUtil.prettyDate(_getDueDate(col)) + ' rent is $' + _getAmountDue(renter, col) :
                     'All amounts for rent due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' are now in the spreadsheet'
                 );
             });
@@ -26,7 +26,8 @@ function notifyAmountsEntered(e){
 function hourly(){
     var handlers = [
         new HasPaidHandler(),
-        new RecentPaypalPaymentHandler(),
+        new RecentPaymentInMailHandler(CONST.LORD_PAYPAL_EMAIL, 'Paypal'),
+        new RecentPaymentInMailHandler(CONST.LORD_BANK_EMAIL, 'mobile'),
         new UpcomingDueDateHandler(),
         new LatePaymentHandler()
     ];
@@ -77,6 +78,10 @@ function _getCell(row, col){
 
 function _getCellValue(row, col){
     return _getCell(row, col).getValue();
+}
+
+function _getAmountDue(renter, col) {
+    return _getCellValue(renter.amountRow, col).toFixed(2);
 }
 
 function _getDueDate(col){
