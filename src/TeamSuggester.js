@@ -8,11 +8,11 @@ TeamSuggester.prototype.suggestTeams = function(inBasedThread){
     }
 
     var emailMetadata = inBasedThread.parseInitialEmail();
-    MailSender.replyAll(inBasedThread.thread, [
+    MailSender.replyAll(inBasedThread.thread, ArrayUtil.compact([
         TeamSuggester._toPlayerNames(players, InBasedThread.STATUSES.IN),
         TeamSuggester._toPlayerNames(players, InBasedThread.STATUSES.OUT),
         TeamSuggester._toPlayerNames(players, InBasedThread.STATUSES.UNKNOWN)
-    ].join('<br/>'), emailMetadata.replyTo);
+    ]).join('<br/>'), emailMetadata.replyTo);
 
     var sport = Database.hydrateBy(Sport, ['name', emailMetadata.sportName]);
     if(sport && sport.isInPhysEdRotation) {
@@ -32,6 +32,8 @@ TeamSuggester._persist = function(inPlayers, date, sportName){
 };
 
 TeamSuggester._toPlayerNames = function(players, categoryName) {
-    var playerStrings  = ArrayUtil.unique(ArrayUtil.map(players[categoryName], Transformers.personToDisplayString));
-    return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
+    if(players[categoryName]){
+        var playerStrings  = ArrayUtil.unique(ArrayUtil.map(players[categoryName], Transformers.personToDisplayString));
+        return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
+    }
 };
