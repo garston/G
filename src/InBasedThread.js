@@ -1,5 +1,7 @@
 InBasedThread = function(thread){
     this.thread = thread;
+    this._parseInitialEmail();
+    this._parsePlayers();
 };
 
 InBasedThread.BASKETBALL_PRETTY_NAME = 'Full Court';
@@ -11,45 +13,16 @@ InBasedThread.STATUSES = {
     UNKNOWN: 'Unknown'
 };
 
-InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
-    MailSender.send(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
+InBasedThread.prototype.getInPlayers = function() {
+    return this.players[InBasedThread.STATUSES.IN] || [];
 };
 
 InBasedThread.prototype.isForToday = function(){
-    return this.parseInitialEmail().date === DateUtil.prettyDate(new Date());
+    return this.metadata.date === DateUtil.prettyDate(new Date());
 };
 
-InBasedThread.prototype.parseInitialEmail = function(){
-    var sportName = this.thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '');
-    var initialMessage = this.thread.getMessages()[0];
-    return {
-        date: DateUtil.prettyDate(DateUtil.addDays(1, initialMessage.getDate())),
-        replyTo: initialMessage.getReplyTo(),
-        sportName: sportName === InBasedThread.BASKETBALL_PRETTY_NAME ? InBasedThread.BASKETBALL_STORED_NAME : sportName
-    };
-};
-
-InBasedThread.prototype.parsePlayers = function(){
-    var replyMessages = ArrayUtil.filter(this.thread.getMessages(), function(message){
-        return message.getFrom().indexOf(CONST.PHYS_ED_NAME) === -1;
-    });
-
-    var players = {};
-    ArrayUtil.forEach(replyMessages, function(message){
-        var fromParts = this._parseFromString(message.getFrom());
-
-        var person = Database.hydrateBy(Person, ['email', fromParts.email]) || new Person(fromParts.email);
-        if(!person.firstName || !person.lastName){
-            person.firstName = fromParts.firstName;
-            person.lastName = fromParts.lastName;
-            Database.persist(Person, person);
-        }
-
-        var inStatus = this._getInStatus(message);
-        players[inStatus] = players[inStatus] || [];
-        players[inStatus].push(person);
-    }, this);
-    return players;
+InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
+    MailSender.send(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
 };
 
 InBasedThread._generateRandomExclamations = function(){
@@ -82,4 +55,35 @@ InBasedThread.prototype._parseFromString = function(fromString){
         lastName: parts[1],
         email: parts[2] && parts[2].replace(/[<>]/g, '')
     };
+};
+
+InBasedThread.prototype._parseInitialEmail = function() {
+    var sportName = this.thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '');
+    var initialMessage = this.thread.getMessages()[0];
+    this.metadata = {
+        date: DateUtil.prettyDate(DateUtil.addDays(1, initialMessage.getDate())),
+        replyTo: initialMessage.getReplyTo(),
+        sportName: sportName === InBasedThread.BASKETBALL_PRETTY_NAME ? InBasedThread.BASKETBALL_STORED_NAME : sportName
+    };
+};
+
+InBasedThread.prototype._parsePlayers = function() {
+    this.players = {};
+    var replyMessages = ArrayUtil.filter(this.thread.getMessages(), function(message){
+        return message.getFrom().indexOf(CONST.PHYS_ED_NAME) === -1;
+    });
+    ArrayUtil.forEach(replyMessages, function(message){
+        var fromParts = this._parseFromString(message.getFrom());
+
+        var person = Database.hydrateBy(Person, ['email', fromParts.email]) || new Person(fromParts.email);
+        if(!person.firstName || !person.lastName){
+            person.firstName = fromParts.firstName;
+            person.lastName = fromParts.lastName;
+            Database.persist(Person, person);
+        }
+
+        var inStatus = this._getInStatus(message);
+        this.players[inStatus] = this.players[inStatus] || [];
+        this.players[inStatus].push(person);
+    }, this);
 };

@@ -1,19 +1,14 @@
 var BeforeGameHandler = function() {
     this.inBasedThread = this._findTodayThread();
-    if(this.inBasedThread) {
-        this.emailMetadata = this.inBasedThread.parseInitialEmail();
-        this.players = this.inBasedThread.parsePlayers();
-        this.inPlayers = this.players[InBasedThread.STATUSES.IN];
-    }
 };
 
 BeforeGameHandler.prototype.checkGameStatus = function(){
-    if(this.inPlayers && this.inPlayers.length > 0){
+    if(this.inBasedThread && this.inBasedThread.getInPlayers().length > 0){
         MailSender.replyAll(this.inBasedThread.thread, ArrayUtil.compact([
             this._toPlayerNames(InBasedThread.STATUSES.IN),
             this._toPlayerNames(InBasedThread.STATUSES.OUT),
             this._toPlayerNames(InBasedThread.STATUSES.UNKNOWN)
-        ]).join('<br/>'), this.emailMetadata.replyTo);
+        ]).join('<br/>'), this.inBasedThread.metadata.replyTo);
 
         this._persistSides();
     }
@@ -30,22 +25,22 @@ BeforeGameHandler.prototype._findTodayThread = function() {
 };
 
 BeforeGameHandler.prototype._persistSides = function(){
-    var sport = Database.hydrateBy(Sport, ['name', this.emailMetadata.sportName]);
+    var sport = Database.hydrateBy(Sport, ['name', this.inBasedThread.metadata.sportName]);
     if(sport && sport.isInPhysEdRotation) {
         var teams = [[], []];
-        ArrayUtil.forEach(this.inPlayers, function(player, index){
+        ArrayUtil.forEach(this.inBasedThread.getInPlayers(), function(player, index){
             teams[index % teams.length].push(player.email);
         });
 
-        var dateParts = DateUtil.splitPrettyDate(this.emailMetadata.date);
-        Database.persist(Side, new Side(dateParts.month, dateParts.day, dateParts.year, this.emailMetadata.sportName, '', teams[0]));
-        Database.persist(Side, new Side(dateParts.month, dateParts.day, dateParts.year, this.emailMetadata.sportName, '', teams[1]));
+        var dateParts = DateUtil.splitPrettyDate(this.inBasedThread.metadata.date);
+        Database.persist(Side, new Side(dateParts.month, dateParts.day, dateParts.year, this.inBasedThread.metadata.sportName, '', teams[0]));
+        Database.persist(Side, new Side(dateParts.month, dateParts.day, dateParts.year, this.inBasedThread.metadata.sportName, '', teams[1]));
     }
 };
 
 BeforeGameHandler.prototype._toPlayerNames = function(categoryName) {
-    if(this.players[categoryName]){
-        var playerStrings  = ArrayUtil.unique(ArrayUtil.map(this.players[categoryName], Transformers.personToDisplayString));
+    if(this.inBasedThread.players[categoryName]){
+        var playerStrings  = ArrayUtil.unique(ArrayUtil.map(this.inBasedThread.players[categoryName], Transformers.personToDisplayString));
         return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
     }
 };
