@@ -10,7 +10,7 @@ function notifyAmountsEntered(e){
 
         if(allAmountsEntered){
             var rentersToNotify = ArrayUtil.filter(CONST.RENTERS, function(renter){
-                return renter.notifyAmountsEntered && _hasNotPaid(renter, col);
+                return renter.notifyAmountsEntered && !_hasPaid(renter, col);
             });
             ArrayUtil.forEach(rentersToNotify, function(renter){
                 _sendMail(renter,
@@ -24,25 +24,24 @@ function notifyAmountsEntered(e){
 }
 
 function hourly(){
-    var today = DateUtil.startOfDay(new Date());
+    var handlers = [
+        new HasPaidHandler(),
+        new RecentPaypalPaymentHandler(),
+        new UpcomingDueDateHandler(),
+        new LatePaymentHandler()
+    ];
 
     ArrayUtil.forEach(ArrayUtil.range(CONST.HEADER_COL + 1, _getSheet(CONST.SUMMARY_SHEET_NAME).getLastColumn() + 1), function(col){
         var dueDate = _getDueDate(col);
-        var prettyDueDate = DateUtil.prettyDate(dueDate);
-        var reminderDays = 2;
-        var reminderDay = DateUtil.addDays(-reminderDays, dueDate);
-
         ArrayUtil.forEach(CONST.RENTERS, function(renter){
-            if(_hasNotPaid(renter, col)){
-                if(_hasPaidWithPayPal(renter, col)){
-                    _getCell(renter.paidRow, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
-                    _getCell(renter.depositRow, col).setValue('Paypal');
-                    _sendMail(renter, 'Paypal payment received for ' + prettyDueDate + ' rent check, thank you');
-                } else if(today > dueDate && _shouldSendMail(renter.increaseNotificationsForEveryLateDay ? DateUtil.dayDiff(dueDate, today) : 1)) {
-                    _sendMail(renter, 'Rent due on ' + prettyDueDate + ' hasn\'t been received', true);
-                } else if(DateUtil.dayDiff(reminderDay, today) === 0 && _shouldSendMail(1)) {
-                    _sendMail(renter, 'Reminder: rent is due in ' + reminderDays + ' days');
-                }
+            var handlerOptions = {
+                col: col,
+                dueDate: dueDate,
+                renter: renter
+            };
+            var handler = ArrayUtil.find(handlers, function(handler){ return handler.shouldHandle(handlerOptions); });
+            if(handler) {
+                handler.doHandle(handlerOptions);
             }
         });
     });
@@ -64,16 +63,8 @@ function notifyDeposit(e){
 }
 
 
-function _hasPaidWithPayPal(renter, col){
-    var date = DateUtil.addDays(-4, _getDueDate(col));
-    var searchDate = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
-
-    var threads = GmailApp.search(renter.email + ' to:' + CONST.LORD_PAYPAL_EMAIL + ' after:' + searchDate, 0, 1);
-    return threads.length > 0;
-}
-
-function _hasNotPaid(renter, col){
-    return _getCellValue(renter.paidRow, col) === '';
+function _hasPaid(renter, col) {
+    return _getCellValue(renter.paidRow, col) !== '';
 }
 
 function _getSheet(sheetName) {
@@ -104,4 +95,8 @@ function _sendMail(renter, subject, sendTxt){
         bcc: sendTxt && renter.txt,
         replyTo: CONST.LORD_EMAIL
     });
+}
+
+function _startOfToday() {
+    return DateUtil.startOfDay(new Date());
 }
