@@ -1,6 +1,11 @@
 InBasedThread = function(thread){
     this.thread = thread;
-    this._parseInitialEmail();
+
+    this.sportName = this.thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '');
+    if(this.sportName === InBasedThread.BASKETBALL_PRETTY_NAME) {
+        this.sportName = InBasedThread.BASKETBALL_STORED_NAME;
+    }
+
     this._parsePlayers();
 };
 
@@ -13,16 +18,20 @@ InBasedThread.STATUSES = {
     UNKNOWN: 'Unknown'
 };
 
+InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
+    MailSender.send(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
+};
+
 InBasedThread.prototype.getInPlayers = function() {
     return this.players[InBasedThread.STATUSES.IN] || [];
 };
 
-InBasedThread.prototype.isForToday = function(){
-    return this.metadata.date === DateUtil.prettyDate(new Date());
-};
-
-InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
-    MailSender.send(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
+InBasedThread.prototype.sendPlayerCountEmail = function() {
+    MailSender.replyAll(this.thread, ArrayUtil.compact([
+        this._toPlayerNames(InBasedThread.STATUSES.IN),
+        this._toPlayerNames(InBasedThread.STATUSES.OUT),
+        this._toPlayerNames(InBasedThread.STATUSES.UNKNOWN)
+    ]).join('<br/>'), this.thread.getMessages()[0].getReplyTo());
 };
 
 InBasedThread._generateRandomExclamations = function(){
@@ -57,16 +66,6 @@ InBasedThread.prototype._parseFromString = function(fromString){
     };
 };
 
-InBasedThread.prototype._parseInitialEmail = function() {
-    var sportName = this.thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '');
-    var initialMessage = this.thread.getMessages()[0];
-    this.metadata = {
-        date: DateUtil.prettyDate(DateUtil.addDays(1, initialMessage.getDate())),
-        replyTo: initialMessage.getReplyTo(),
-        sportName: sportName === InBasedThread.BASKETBALL_PRETTY_NAME ? InBasedThread.BASKETBALL_STORED_NAME : sportName
-    };
-};
-
 InBasedThread.prototype._parsePlayers = function() {
     this.players = {};
     var replyMessages = ArrayUtil.filter(this.thread.getMessages(), function(message){
@@ -86,4 +85,11 @@ InBasedThread.prototype._parsePlayers = function() {
         this.players[inStatus] = this.players[inStatus] || [];
         this.players[inStatus].push(person);
     }, this);
+};
+
+InBasedThread.prototype._toPlayerNames = function(categoryName) {
+    if(this.players[categoryName]){
+        var playerStrings  = ArrayUtil.unique(ArrayUtil.map(this.players[categoryName], Transformers.personToDisplayString));
+        return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
+    }
 };

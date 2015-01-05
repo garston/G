@@ -11,7 +11,7 @@ function notifyVolleyball(){
 }
 
 function checkGameStatus(){
-    new BeforeGameHandler().checkGameStatus();
+    new TodayGameService().checkGameStatus();
 }
 
 function recordGames(){
