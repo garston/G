@@ -11,15 +11,7 @@ function notifyVolleyball(){
 }
 
 function checkGameStatus(){
-    var threads = GmailApp.search('-subject:re: from:' + CONST.PHYS_ED_NAME + ' -to:' + CONST.PHYS_ED_STATS_EMAIL, 0, 1);
-    if(threads.length === 0){
-        return;
-    }
-
-    var inBasedThread = new InBasedThread(threads[0]);
-    if(inBasedThread.isForToday()){
-        new BeforeGameHandler().checkGameStatus(inBasedThread);
-    }
+    new BeforeGameHandler().checkGameStatus();
 }
 
 function recordGames(){
