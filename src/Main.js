@@ -4,24 +4,21 @@ function notifyAmountsEntered(e){
 
     var isEditingAmount = (row >= CONST.AMOUNT_ROWS.START) && (row <= CONST.AMOUNT_ROWS.END) && (col > CONST.HEADER_COL);
     if(isEditingAmount){
-        var allAmountsEntered = true;
-        for(var r = CONST.AMOUNT_ROWS.START; r <= CONST.AMOUNT_ROWS.END; r++){
-            if(_getCellValue(r, col) === ''){
-                allAmountsEntered = false;
-                break;
-            }
-        }
+        var allAmountsEntered = ArrayUtil.every(ArrayUtil.range(CONST.AMOUNT_ROWS.START, CONST.AMOUNT_ROWS.END + 1), function(row){
+            return _getCellValue(row, col) !== '';
+        });
 
         if(allAmountsEntered){
-            for(var i = 0; i < CONST.RENTERS.length; i++){
-                var renter = CONST.RENTERS[i];
-                if(renter.notifyAmountsEntered && _hasNotPaid(renter, col)){
-                    var subject = renter.amountRow ?
-                        'Amount due for ' + DateUtil.prettyDate(_getDueDate(col)) + ' rent is $' + _getCellValue(renter.amountRow, col).toFixed(2) :
-                        'All amounts for rent due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' are now in the spreadsheet';
-                    _sendMail(renter, subject);
-                }
-            }
+            var rentersToNotify = ArrayUtil.filter(CONST.RENTERS, function(renter){
+                return renter.notifyAmountsEntered && _hasNotPaid(renter, col);
+            });
+            ArrayUtil.forEach(rentersToNotify, function(renter){
+                _sendMail(renter,
+                    renter.amountRow ?
+                    'Amount due for ' + DateUtil.prettyDate(_getDueDate(col)) + ' rent is $' + _getCellValue(renter.amountRow, col).toFixed(2) :
+                    'All amounts for rent due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' are now in the spreadsheet'
+                );
+            });
         }
     }
 }
@@ -29,14 +26,13 @@ function notifyAmountsEntered(e){
 function hourly(){
     var today = DateUtil.startOfDay(new Date());
 
-    for(var col = CONST.HEADER_COL + 1; col <= _getSheet(CONST.SUMMARY_SHEET_NAME).getLastColumn(); col++){
+    ArrayUtil.forEach(ArrayUtil.range(CONST.HEADER_COL + 1, _getSheet(CONST.SUMMARY_SHEET_NAME).getLastColumn() + 1), function(col){
         var dueDate = _getDueDate(col);
         var prettyDueDate = DateUtil.prettyDate(dueDate);
         var reminderDays = 2;
         var reminderDay = DateUtil.addDays(-reminderDays, dueDate);
 
-        for(var i = 0; i < CONST.RENTERS.length; i++){
-            var renter = CONST.RENTERS[i];
+        ArrayUtil.forEach(CONST.RENTERS, function(renter){
             if(_hasNotPaid(renter, col)){
                 if(_hasPaidWithPayPal(renter, col)){
                     _getCell(renter.paidRow, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
@@ -48,21 +44,22 @@ function hourly(){
                     _sendMail(renter, 'Reminder: rent is due in ' + reminderDays + ' days');
                 }
             }
-        }
-    }
+        });
+    });
 }
 
 function notifyDeposit(e){
     var row = e.range.rowStart;
     var col = e.range.columnStart;
 
-    for(var i = 0; i < CONST.RENTERS.length; i++){
-        var renter = CONST.RENTERS[i];
-        if((row === renter.depositRow) && col > CONST.HEADER_COL && _getCellValue(row, col).toLowerCase() === CONST.COMPLETED_VALUE.toLowerCase()){
-            _sendMail(renter, 'Your rent check due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' has been deposited');
-            _getCell(row, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
-            SpreadsheetApp.flush();
-        }
+    var depositedRenter = ArrayUtil.find(CONST.RENTERS, function(renter){
+        return row === renter.depositRow && col > CONST.HEADER_COL &&
+            _getCellValue(row, col).toLowerCase() === CONST.COMPLETED_VALUE.toLowerCase();
+    });
+    if(depositedRenter){
+        _sendMail(depositedRenter, 'Your rent check due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' has been deposited');
+        _getCell(row, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
+        SpreadsheetApp.flush();
     }
 }
 
