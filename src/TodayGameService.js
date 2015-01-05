@@ -13,6 +13,21 @@ TodayGameService.prototype.checkGameStatus = function(){
     }
 };
 
+TodayGameService.prototype.sendEarlyWarning = function(){
+    var inBasedThread = this._findTodayThread();
+    if(inBasedThread) {
+        var sport = inBasedThread.getSport();
+        var numInPlayers = inBasedThread.getInPlayers().length;
+        if(sport && sport.earlyWarningEmail && numInPlayers > sport.earlyWarningThreshold) {
+            MailSender.send(
+                DateUtil.toPrettyString(this.today),
+                CONST.GROUP_NAME + ' is looking to get a game together today. ' + numInPlayers + ' people are currently in. Anybody interested?',
+                sport.earlyWarningEmail
+            );
+        }
+    }
+};
+
 TodayGameService.prototype._findTodayThread = function() {
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + CONST.PHYS_ED_NAME +
@@ -24,7 +39,7 @@ TodayGameService.prototype._findTodayThread = function() {
 };
 
 TodayGameService.prototype._persistSides = function(inBasedThread){
-    var sport = Database.hydrateBy(Sport, ['name', inBasedThread.sportName]);
+    var sport = inBasedThread.getSport();
     if(sport && sport.isInPhysEdRotation) {
         var teams = [[], []];
         ArrayUtil.forEach(inBasedThread.getInPlayers(), function(player, index){

@@ -26,6 +26,10 @@ InBasedThread.prototype.getInPlayers = function() {
     return this.players[InBasedThread.STATUSES.IN] || [];
 };
 
+InBasedThread.prototype.getSport = function() {
+    return Database.hydrateBy(Sport, ['name', this.sportName]);
+};
+
 InBasedThread.prototype.sendPlayerCountEmail = function() {
     MailSender.replyAll(this.thread, ArrayUtil.compact([
         this._toPlayerNames(InBasedThread.STATUSES.IN),

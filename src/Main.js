@@ -14,6 +14,10 @@ function checkGameStatus(){
     new TodayGameService().checkGameStatus();
 }
 
+function earlyWarnGameStatus(){
+    new TodayGameService().sendEarlyWarning();
+}
+
 function recordGames(){
     var sides = Database.hydrateAll(Side);
     if(sides.length >= 2){
