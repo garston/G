@@ -9,10 +9,6 @@ DateUtil = {
         return Math.floor((date2 - date1) / 86400000);
     },
 
-    prettyDate: function(ts) {
-        return (ts.getMonth()+1) + '/' + ts.getDate() + '/' + ts.getFullYear();
-    },
-
     splitPrettyDate: function(prettyDate){
         var parts = prettyDate.split('/');
         return {
@@ -26,5 +22,13 @@ DateUtil = {
         var date = new Date(date);
         date.setHours(0, 0, 0, 0);
         return date;
+    },
+
+    toPrettyString: function(date) {
+        return (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear();
+    },
+
+    toSearchString: function(date) {
+        return date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
     }
 };
