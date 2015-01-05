@@ -1,7 +1,7 @@
 LatePaymentHandler = function() {};
 
 LatePaymentHandler.prototype.doHandle = function(options) {
-    _sendMail(options.renter, 'Rent due on ' + DateUtil.prettyDate(options.dueDate) + ' hasn\'t been received', true);
+    _sendMail(options.renter, 'Rent due on ' + DateUtil.toPrettyString(options.dueDate) + ' hasn\'t been received', true);
 };
 
 LatePaymentHandler.prototype.shouldHandle = function(options) {

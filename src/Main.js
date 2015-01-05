@@ -15,8 +15,8 @@ function notifyAmountsEntered(e){
             ArrayUtil.forEach(rentersToNotify, function(renter){
                 _sendMail(renter,
                     renter.amountRow ?
-                    'Amount due for ' + DateUtil.prettyDate(_getDueDate(col)) + ' rent is $' + _getAmountDue(renter, col) :
-                    'All amounts for rent due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' are now in the spreadsheet'
+                    'Amount due for ' + DateUtil.toPrettyString(_getDueDate(col)) + ' rent is $' + _getAmountDue(renter, col) :
+                    'All amounts for rent due on ' + DateUtil.toPrettyString(_getDueDate(col)) + ' are now in the spreadsheet'
                 );
             });
         }
@@ -57,7 +57,7 @@ function notifyDeposit(e){
             _getCellValue(row, col).toLowerCase() === CONST.COMPLETED_VALUE.toLowerCase();
     });
     if(depositedRenter){
-        _sendMail(depositedRenter, 'Your rent check due on ' + DateUtil.prettyDate(_getDueDate(col)) + ' has been deposited');
+        _sendMail(depositedRenter, 'Your rent check due on ' + DateUtil.toPrettyString(_getDueDate(col)) + ' has been deposited');
         _getCell(row, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
         SpreadsheetApp.flush();
     }
