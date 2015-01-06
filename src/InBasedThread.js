@@ -53,12 +53,15 @@ InBasedThread.prototype._getInStatus = function(message){
     }
 
     var words = firstLine.split(' ');
-    if(ArrayUtil.any(words, function(word){ return /^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word); })){
-        return InBasedThread.STATUSES.IN;
-    }else if(ArrayUtil.any(words, function(word){ return /^out\W*$/i.test(word); })){
-        return InBasedThread.STATUSES.OUT
-    }
-    return InBasedThread.STATUSES.UNKNOWN;
+    return ArrayUtil.reduce(words, function(status, word){
+        if(status) {
+            return status;
+        } else if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
+            return InBasedThread.STATUSES.IN;
+        } else if (/^out\W*$/i.test(word)) {
+            return InBasedThread.STATUSES.OUT;
+        }
+    }, undefined) || InBasedThread.STATUSES.UNKNOWN;
 };
 
 InBasedThread.prototype._parseFromString = function(fromString){
