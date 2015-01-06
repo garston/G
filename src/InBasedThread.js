@@ -91,6 +91,12 @@ InBasedThread.prototype._parsePlayers = function() {
         var inStatus = this._getInStatus(message);
         this.players[inStatus] = this.players[inStatus] || [];
         this.players[inStatus].push(person);
+
+        if(inStatus === InBasedThread.STATUSES.OUT) {
+            this.players[InBasedThread.STATUSES.IN] = ArrayUtil.filter(this.getInPlayers(), function(player) {
+                return player.guid !== person.guid;
+            });
+        }
     }, this);
 };
 
