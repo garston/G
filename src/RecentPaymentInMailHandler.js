@@ -12,5 +12,6 @@ RecentPaymentInMailHandler.prototype.shouldHandle = function(options) {
     return options.renter.amountRow &&
         GmailApp.search(_getAmountDue(options.renter, options.col) +
             ' to:' + this.toEmail +
-            ' after:' + DateUtil.toSearchString(DateUtil.addDays(-4, _getDueDate(options.col))), 0, 1).length > 0;
+            ' after:' + DateUtil.toSearchString(DateUtil.addDays(-1, new Date())),
+            0, 1).length > 0;
 };
