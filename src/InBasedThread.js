@@ -47,13 +47,10 @@ InBasedThread._generateRandomExclamations = function(){
 };
 
 InBasedThread.prototype._getInStatus = function(message){
-    var firstLine = message.getPlainBody().split('\n')[0].trim();
-    if(!firstLine) {
-        return InBasedThread.STATUSES.IN;
-    }
-
-    var words = firstLine.split(' ');
-    return ArrayUtil.reduce(words, function(status, word){
+    var words = ArrayUtil.reduce(message.getPlainBody().split('\n'), function(allWords, line) {
+        return line[0] === '>' ? allWords : allWords.concat(ArrayUtil.compact(line.trim().split(' ')));
+    }, []);
+    return words.length === 0 ? InBasedThread.STATUSES.IN : ArrayUtil.reduce(words, function(status, word){
         if(status) {
             return status;
         } else if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
