@@ -28,3 +28,7 @@ function recordGames(){
         }
     }
 }
+
+function createPerson(){
+    Database.persist(Person, new Person('email@test.com', 'first', 'last'));
+}
