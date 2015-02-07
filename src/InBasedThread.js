@@ -19,9 +19,9 @@ InBasedThread.prototype.getSport = function() {
     return Database.hydrateBy(Sport, ['name', this.sportName]);
 };
 
-InBasedThread.prototype.sendPlayerCountEmail = function() {
+InBasedThread.prototype.sendPlayerCountEmail = function(additionalInPlayers) {
     MailSender.replyAll(this.thread, ArrayUtil.compact([
-        this._toPlayerNames(this.playerStatusParser.inPlayers, 'In'),
+        this._toPlayerNames(this.playerStatusParser.inPlayers.concat(additionalInPlayers), 'In'),
         this._toPlayerNames(this.playerStatusParser.outPlayers, 'Out'),
         this._toPlayerNames(this.playerStatusParser.unknownPlayers, 'Unknown')
     ]).join('<br/>'), this.thread.getMessages()[0].getReplyTo());

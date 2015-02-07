@@ -32,7 +32,7 @@ MailSender._getOptions = function(body, email){
     return {
         bcc: CONST.DEBUG_EMAIL,
         htmlBody: body,
-        name: 'PhysEd',
+        name: CONST.PHYS_ED_NAME,
         replyTo: email
     };
 };
