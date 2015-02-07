@@ -1,5 +1,7 @@
 PlayerStatusParser = function(thread){
-    this.players = {};
+    this.inPlayers = [];
+    this.outPlayers = [];
+    this.unknownPlayers = [];
 
     var replyMessages = ArrayUtil.filter(thread.getMessages(), function(message){
         return message.getFrom().indexOf(CONST.PHYS_ED_NAME) === -1;
@@ -14,41 +16,35 @@ PlayerStatusParser = function(thread){
             Database.persist(Person, person);
         }
 
-        var inStatus = this._getInStatus(message);
-        this.players[inStatus] = this.players[inStatus] || [];
-        this.players[inStatus].push(person);
-
-        if(inStatus === PlayerStatusParser.STATUSES.OUT) {
-            this.players[PlayerStatusParser.STATUSES.IN] = ArrayUtil.filter(this.getInPlayers(), function(player) {
-                return player.guid !== person.guid;
-            });
-        }
+        this._parseInStatus(message, person);
     }, this);
 };
 
-PlayerStatusParser.STATUSES = {
-    IN: 'In',
-    OUT: 'Out',
-    UNKNOWN: 'Unknown'
-};
-
-PlayerStatusParser.prototype.getInPlayers = function() {
-    return this.players[PlayerStatusParser.STATUSES.IN] || [];
-};
-
-PlayerStatusParser.prototype._getInStatus = function(message){
+PlayerStatusParser.prototype._parseInStatus = function(message, person){
     var words = ArrayUtil.reduce(message.getPlainBody().split('\n'), function(allWords, line) {
         return line[0] === '>' ? allWords : allWords.concat(ArrayUtil.compact(line.trim().split(' ')));
     }, []);
-    return words.length === 0 ? PlayerStatusParser.STATUSES.IN : ArrayUtil.reduce(words, function(status, word){
-        if(status) {
-            return status;
-        } else if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
-            return PlayerStatusParser.STATUSES.IN;
+
+    if(words.length === 0){
+        this.inPlayers.push(person);
+        return;
+    }
+
+    var statusKnown = ArrayUtil.any(words, function(word){
+        if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
+            this.inPlayers.push(person);
+            return true;
         } else if (/^out\W*$/i.test(word)) {
-            return PlayerStatusParser.STATUSES.OUT;
+            this.outPlayers.push(person);
+            this.inPlayers = ArrayUtil.filter(this.inPlayers, function(inPlayer) {
+                return inPlayer.guid !== person.guid;
+            });
+            return true;
         }
-    }, undefined) || PlayerStatusParser.STATUSES.UNKNOWN;
+    }, this);
+    if(!statusKnown){
+        this.unknownPlayers.push(person);
+    }
 };
 
 PlayerStatusParser.prototype._parseFromString = function(fromString){

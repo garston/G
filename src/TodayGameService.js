@@ -5,7 +5,7 @@ TodayGameService = function() {
 TodayGameService.prototype.checkGameStatus = function(){
     var inBasedThread = this._findTodayThread();
     if(inBasedThread){
-        var inPlayers = inBasedThread.playerStatusParser.getInPlayers();
+        var inPlayers = inBasedThread.playerStatusParser.inPlayers;
         if(inPlayers.length > 0){
             inBasedThread.sendPlayerCountEmail();
             this._persistSides(inPlayers, inBasedThread.getSport());
@@ -17,7 +17,7 @@ TodayGameService.prototype.sendEarlyWarning = function(){
     var inBasedThread = this._findTodayThread();
     if(inBasedThread) {
         var sport = inBasedThread.getSport();
-        var numInPlayers = inBasedThread.playerStatusParser.getInPlayers().length;
+        var numInPlayers = inBasedThread.playerStatusParser.inPlayers.length;
         if(sport && sport.earlyWarningEmail && numInPlayers > sport.earlyWarningThreshold) {
             MailSender.send(
                 DateUtil.toPrettyString(this.today),

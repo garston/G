@@ -21,9 +21,9 @@ InBasedThread.prototype.getSport = function() {
 
 InBasedThread.prototype.sendPlayerCountEmail = function() {
     MailSender.replyAll(this.thread, ArrayUtil.compact([
-        this._toPlayerNames(PlayerStatusParser.STATUSES.IN),
-        this._toPlayerNames(PlayerStatusParser.STATUSES.OUT),
-        this._toPlayerNames(PlayerStatusParser.STATUSES.UNKNOWN)
+        this._toPlayerNames(this.playerStatusParser.inPlayers, 'In'),
+        this._toPlayerNames(this.playerStatusParser.outPlayers, 'Out'),
+        this._toPlayerNames(this.playerStatusParser.unknownPlayers, 'Unknown')
     ]).join('<br/>'), this.thread.getMessages()[0].getReplyTo());
 };
 
@@ -35,9 +35,9 @@ InBasedThread._generateRandomExclamations = function(){
     }, '');
 };
 
-InBasedThread.prototype._toPlayerNames = function(categoryName) {
-    if(this.playerStatusParser.players[categoryName]){
-        var playerStrings  = ArrayUtil.unique(ArrayUtil.map(this.playerStatusParser.players[categoryName], Transformers.personToDisplayString));
+InBasedThread.prototype._toPlayerNames = function(players, categoryName) {
+    if(players.length){
+        var playerStrings = ArrayUtil.unique(ArrayUtil.map(players, Transformers.personToDisplayString));
         return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
     }
 };
