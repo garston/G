@@ -22,6 +22,7 @@ InBasedThread.prototype.getSport = function() {
 InBasedThread.prototype.sendPlayerCountEmail = function(additionalInPlayers) {
     MailSender.replyAll(this.thread, ArrayUtil.compact([
         this._toPlayerNames(this.playerStatusParser.inPlayers.concat(additionalInPlayers), 'In'),
+        this._toPlayerNames(this.playerStatusParser.maybePlayers, 'Maybe'),
         this._toPlayerNames(this.playerStatusParser.outPlayers, 'Out'),
         this._toPlayerNames(this.playerStatusParser.unknownPlayers, 'Unknown')
     ]).join('<br/>'), this.thread.getMessages()[0].getReplyTo());

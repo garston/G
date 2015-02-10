@@ -1,5 +1,6 @@
 PlayerStatusParser = function(thread){
     this.inPlayers = [];
+    this.maybePlayers = [];
     this.outPlayers = [];
     this.unknownPlayers = [];
 
@@ -33,6 +34,9 @@ PlayerStatusParser.prototype._parseInStatus = function(message, person){
     var statusKnown = ArrayUtil.any(words, function(word){
         if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
             this.inPlayers.push(person);
+            return true;
+        } else if (/^(maybe|50\W?50)\W*$/i.test(word)) {
+            this.maybePlayers.push(person);
             return true;
         } else if (/^out\W*$/i.test(word)) {
             this.outPlayers.push(person);
