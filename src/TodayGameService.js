@@ -43,7 +43,7 @@ TodayGameService.prototype._getAdditionalInPlayers = function(sport) {
 TodayGameService.prototype._findTodayThread = function() {
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + CONST.PHYS_ED_NAME +
-        ' -to:' + CONST.PHYS_ED_STATS_EMAIL +
+        ' (to:' + CONST.PHYS_ED_EMAIL + ' OR to:' + CONST.VOLLEYBALL_EMAIL + ')' +
         ' after:' + DateUtil.toSearchString(DateUtil.addDays(-1, this.today)) +
         ' before:' + DateUtil.toSearchString(this.today),
         0, 1);
