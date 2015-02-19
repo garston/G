@@ -53,9 +53,17 @@ PlayerStatusParser.prototype._parseInStatus = function(message, person){
 
 PlayerStatusParser.prototype._parseFromString = function(fromString){
     var parts = fromString.split(' ');
-    return {
-        firstName: parts[0],
-        lastName: parts[1],
-        email: parts[2] && parts[2].replace(/[<>]/g, '')
-    };
+
+    var parsed = {firstName: parts[0]};
+    ArrayUtil.remove(parts, parsed.firstName);
+
+    if(parts.length > 1) {
+        var emailPart = parts[parts.length - 1];
+        parsed.email = emailPart.replace(/[<>]/g, '');
+        ArrayUtil.remove(parts, emailPart);
+    }
+
+    parsed.lastName = parts.join(' ');
+
+    return parsed;
 };
