@@ -8,8 +8,10 @@ TodayGameService.prototype.checkGameStatus = function(){
         var inPlayers = inBasedThread.playerStatusParser.inPlayers;
         if(inPlayers.length){
             var sport = inBasedThread.getSport();
-            inBasedThread.sendPlayerCountEmail(this._parseEarlyWarningThread(sport));
-            this._persistSides(inPlayers, sport);
+            var additionalPlayerStatusParser = this._parseEarlyWarningThread(sport);
+
+            inBasedThread.sendPlayerCountEmail(additionalPlayerStatusParser);
+            this._persistSides(inPlayers.concat(additionalPlayerStatusParser ? additionalPlayerStatusParser.inPlayers : []), sport);
         }
     }
 };
