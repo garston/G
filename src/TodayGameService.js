@@ -8,7 +8,7 @@ TodayGameService.prototype.checkGameStatus = function(){
         var inPlayers = inBasedThread.playerStatusParser.inPlayers;
         if(inPlayers.length){
             var sport = inBasedThread.getSport();
-            inBasedThread.sendPlayerCountEmail(this._getAdditionalInPlayers(sport));
+            inBasedThread.sendPlayerCountEmail(this._parseEarlyWarningThread(sport));
             this._persistSides(inPlayers, sport);
         }
     }
@@ -29,17 +29,6 @@ TodayGameService.prototype.sendEarlyWarning = function(){
     }
 };
 
-TodayGameService.prototype._getAdditionalInPlayers = function(sport) {
-    if(sport.earlyWarningEmail){
-        var earlyWarningThread = GmailApp.search('from:' + CONST.PHYS_ED_NAME + ' to:' + sport.earlyWarningEmail + ' subject:' + DateUtil.toPrettyString(this.today), 0, 1)[0];
-        if(earlyWarningThread) {
-            return new PlayerStatusParser(earlyWarningThread).inPlayers;
-        }
-    }
-
-    return [];
-};
-
 TodayGameService.prototype._findTodayThread = function() {
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + CONST.PHYS_ED_NAME +
@@ -48,6 +37,15 @@ TodayGameService.prototype._findTodayThread = function() {
         ' before:' + DateUtil.toSearchString(this.today),
         0, 1);
     return threads.length && new InBasedThread(threads[0]);
+};
+
+TodayGameService.prototype._parseEarlyWarningThread = function(sport) {
+    if(sport.earlyWarningEmail){
+        var earlyWarningThread = GmailApp.search('from:' + CONST.PHYS_ED_NAME + ' to:' + sport.earlyWarningEmail + ' subject:' + DateUtil.toPrettyString(this.today), 0, 1)[0];
+        if(earlyWarningThread) {
+            return new PlayerStatusParser(earlyWarningThread);
+        }
+    }
 };
 
 TodayGameService.prototype._persistSides = function(inPlayers, sport){

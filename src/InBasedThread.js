@@ -19,12 +19,12 @@ InBasedThread.prototype.getSport = function() {
     return Database.hydrateBy(Sport, ['name', this.sportName]);
 };
 
-InBasedThread.prototype.sendPlayerCountEmail = function(additionalInPlayers) {
+InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerStatusParser) {
     MailSender.replyAll(this.thread, ArrayUtil.compact([
-        this._toPlayerNames(this.playerStatusParser.inPlayers.concat(additionalInPlayers), 'In'),
-        this._toPlayerNames(this.playerStatusParser.maybePlayers, 'Maybe'),
-        this._toPlayerNames(this.playerStatusParser.outPlayers, 'Out'),
-        this._toPlayerNames(this.playerStatusParser.unknownPlayers, 'Unknown')
+        this._toPlayerNames('inPlayers', 'In', additionalPlayerStatusParser),
+        this._toPlayerNames('maybePlayers', 'Maybe', additionalPlayerStatusParser),
+        this._toPlayerNames('outPlayers', 'Out', additionalPlayerStatusParser),
+        this._toPlayerNames('unknownPlayers', 'Unknown', additionalPlayerStatusParser)
     ]).join('<br/>'), this.thread.getMessages()[0].getReplyTo());
 };
 
@@ -36,9 +36,13 @@ InBasedThread._generateRandomExclamations = function(){
     }, '');
 };
 
-InBasedThread.prototype._toPlayerNames = function(players, categoryName) {
+InBasedThread.prototype._toPlayerNames = function(playerStatusParserCategoryName, categoryDisplayString, additionalPlayerStatusParser) {
+    var playerStatusParsers = ArrayUtil.compact([this.playerStatusParser, additionalPlayerStatusParser]);
+    var players = ArrayUtil.reduce(playerStatusParsers, function(players, playerStatusParser){
+        return players.concat(playerStatusParser[playerStatusParserCategoryName]);
+    }, []);
     if(players.length){
         var playerStrings = ArrayUtil.unique(ArrayUtil.map(players, Transformers.personToDisplayString));
-        return categoryName + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
+        return categoryDisplayString + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
     }
 };
