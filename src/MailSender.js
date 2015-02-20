@@ -1,5 +1,9 @@
 MailSender = {};
 
+MailSender.getNameUsedForSending = function() {
+    return SpreadsheetApp.getActiveSpreadsheet().getName();
+};
+
 MailSender.forward = function(message, email, body) {
     message.forward(this._getEmail(email), this._getOptions(body, email));
 };
@@ -24,7 +28,7 @@ MailSender._getOptions = function(body, replyTo){
     return {
         bcc: Session.getActiveUser().getEmail(),
         htmlBody: body,
-        name: CONST.PHYS_ED_NAME,
+        name: this.getNameUsedForSending(),
         replyTo: replyTo
     };
 };

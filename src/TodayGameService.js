@@ -33,7 +33,7 @@ TodayGameService.prototype.sendEarlyWarning = function(){
 
 TodayGameService.prototype._findTodayThread = function() {
     var threads = GmailApp.search('-subject:re:' +
-        ' from:' + CONST.PHYS_ED_NAME +
+        ' from:' + MailSender.getNameUsedForSending() +
         ' (to:' + CONST.PHYS_ED_EMAIL + ' OR to:' + CONST.VOLLEYBALL_EMAIL + ')' +
         ' after:' + DateUtil.toSearchString(DateUtil.addDays(-1, this.today)) +
         ' before:' + DateUtil.toSearchString(this.today),
@@ -43,7 +43,7 @@ TodayGameService.prototype._findTodayThread = function() {
 
 TodayGameService.prototype._parseEarlyWarningThread = function(sport) {
     if(sport.earlyWarningEmail){
-        var earlyWarningThread = GmailApp.search('from:' + CONST.PHYS_ED_NAME + ' to:' + sport.earlyWarningEmail + ' subject:' + DateUtil.toPrettyString(this.today), 0, 1)[0];
+        var earlyWarningThread = GmailApp.search('from:' + MailSender.getNameUsedForSending() + ' to:' + sport.earlyWarningEmail + ' subject:' + DateUtil.toPrettyString(this.today), 0, 1)[0];
         if(earlyWarningThread) {
             return new PlayerStatusParser(earlyWarningThread);
         }

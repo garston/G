@@ -5,7 +5,7 @@ PlayerStatusParser = function(thread){
     this.unknownPlayers = [];
 
     var replyMessages = ArrayUtil.filter(thread.getMessages(), function(message){
-        return message.getFrom().indexOf(CONST.PHYS_ED_NAME) === -1;
+        return message.getFrom().indexOf(MailSender.getNameUsedForSending()) === -1;
     });
     ArrayUtil.forEach(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
