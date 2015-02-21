@@ -1,30 +1,30 @@
-MailSender = {};
+GASton.MailSender = {};
 
-MailSender.getNameUsedForSending = function() {
+GASton.MailSender.getNameUsedForSending = function() {
     return SpreadsheetApp.getActiveSpreadsheet().getName();
 };
 
-MailSender.forward = function(message, email, body) {
+GASton.MailSender.forward = function(message, email, body) {
     message.forward(this._getEmail(email), this._getOptions(body, email));
 };
 
-MailSender.replyAll = function(thread, body, replyTo){
-    if(GASTON_PROD_MODE){
+GASton.MailSender.replyAll = function(thread, body, replyTo){
+    if(GASton.PROD_MODE){
         thread.replyAll(body, this._getOptions(body, replyTo));
     }else{
         this.send('test replyAll', body);
     }
 };
 
-MailSender.send = function(subject, body, email){
+GASton.MailSender.send = function(subject, body, email){
     MailApp.sendEmail(this._getEmail(email), subject, this._getPlainBody(body), this._getOptions(body, email));
 };
 
-MailSender._getEmail = function(email){
-    return GASTON_PROD_MODE ? email : Session.getActiveUser().getEmail();
+GASton.MailSender._getEmail = function(email){
+    return GASton.PROD_MODE ? email : Session.getActiveUser().getEmail();
 };
 
-MailSender._getOptions = function(body, replyTo){
+GASton.MailSender._getOptions = function(body, replyTo){
     return {
         bcc: Session.getActiveUser().getEmail(),
         htmlBody: body,
@@ -33,6 +33,6 @@ MailSender._getOptions = function(body, replyTo){
     };
 };
 
-MailSender._getPlainBody = function(body){
+GASton.MailSender._getPlainBody = function(body){
     return body.replace(/(<([^>]+)>)/ig, '');
 };
