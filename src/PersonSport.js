@@ -1,5 +1,5 @@
 PhysEd.PersonSport = function(personGuid, sportGuid) {
-    this.guid = GuidUtil.generate();
+    this.guid = JSUtil.GuidUtil.generate();
     this.creationDate = new Date();
     this.personGuid = personGuid;
     this.sportGuid = sportGuid;

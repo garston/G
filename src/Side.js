@@ -1,5 +1,5 @@
 PhysEd.Side = function(month, day, year, sportName, score, playerEmails) {
-    this.guid = GuidUtil.generate();
+    this.guid = JSUtil.GuidUtil.generate();
     this.month = month;
     this.day = day;
     this.year = year;
@@ -7,7 +7,7 @@ PhysEd.Side = function(month, day, year, sportName, score, playerEmails) {
     this.score = score;
 
     playerEmails = playerEmails || [];
-    ArrayUtil.times(PhysEd.Side.MAX_PLAYERS, function(i){
+    JSUtil.ArrayUtil.times(PhysEd.Side.MAX_PLAYERS, function(i){
         this['playerEmail' + i] = playerEmails[i] || '';
     }, this);
 };
@@ -15,7 +15,7 @@ PhysEd.Side = function(month, day, year, sportName, score, playerEmails) {
 PhysEd.Side.MAX_PLAYERS = 14;
 
 PhysEd.Side.prototype.getPeople = function(){
-    this.people = this.people || ArrayUtil.map(this.getPlayerEmails(), function(email){
+    this.people = this.people || JSUtil.ArrayUtil.map(this.getPlayerEmails(), function(email){
         return GASton.Database.hydrateBy(PhysEd.Person, ['email', email]) || new PhysEd.Person(email);
     });
 
@@ -23,7 +23,7 @@ PhysEd.Side.prototype.getPeople = function(){
 };
 
 PhysEd.Side.prototype.getPlayerEmails = function() {
-    return ArrayUtil.compact(ArrayUtil.map(ArrayUtil.range(PhysEd.Side.MAX_PLAYERS), function(i){
+    return JSUtil.ArrayUtil.compact(JSUtil.ArrayUtil.map(JSUtil.ArrayUtil.range(PhysEd.Side.MAX_PLAYERS), function(i){
         return this['playerEmail' + i];
     }, this));
 };

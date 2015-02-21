@@ -1,5 +1,5 @@
 PhysEd.Person = function(email, firstName, lastName) {
-    this.guid = GuidUtil.generate();
+    this.guid = JSUtil.GuidUtil.generate();
     this.creationDate = new Date();
     this.email = email;
     this.firstName = firstName || '';

@@ -16,13 +16,13 @@ PhysEd.PhysEdNotifier.prototype._determinePhysEdSport = function(){
 };
 
 PhysEd.PhysEdNotifier.prototype._findInProgressSport = function(physEdSports) {
-    return ArrayUtil.find(physEdSports, function(sport){
+    return JSUtil.ArrayUtil.find(physEdSports, function(sport){
         return sport.physEdCount % PhysEd.PhysEdNotifier.TIMES_PER_SPORT_BEFORE_SWITCHING !== 0;
     });
 };
 
 PhysEd.PhysEdNotifier.prototype._findLowestSport = function(physEdSports) {
-    return ArrayUtil.reduce(physEdSports, function(lowestSport, sport){
+    return JSUtil.ArrayUtil.reduce(physEdSports, function(lowestSport, sport){
         return sport.physEdCount < lowestSport.physEdCount ? sport : lowestSport;
     });
 };

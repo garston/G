@@ -1,5 +1,5 @@
 PhysEd.Team = function(gameGuid, score) {
-    this.guid = GuidUtil.generate();
+    this.guid = JSUtil.GuidUtil.generate();
     this.creationDate = new Date();
     this.gameGuid = gameGuid;
     this.score = score;

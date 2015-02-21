@@ -4,10 +4,10 @@ PhysEd.PlayerStatusParser = function(thread){
     this.outPlayers = [];
     this.unknownPlayers = [];
 
-    var replyMessages = ArrayUtil.filter(thread.getMessages(), function(message){
+    var replyMessages = JSUtil.ArrayUtil.filter(thread.getMessages(), function(message){
         return message.getFrom().indexOf(GASton.MailSender.getNameUsedForSending()) === -1;
     });
-    ArrayUtil.forEach(replyMessages, function(message){
+    JSUtil.ArrayUtil.forEach(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
 
         var person = GASton.Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || new PhysEd.Person(fromParts.email);
@@ -22,8 +22,8 @@ PhysEd.PlayerStatusParser = function(thread){
 };
 
 PhysEd.PlayerStatusParser.prototype._parseInStatus = function(message, person){
-    var words = ArrayUtil.reduce(message.getPlainBody().split('\n'), function(allWords, line) {
-        return line[0] === '>' ? allWords : allWords.concat(ArrayUtil.compact(line.trim().split(' ')));
+    var words = JSUtil.ArrayUtil.reduce(message.getPlainBody().split('\n'), function(allWords, line) {
+        return line[0] === '>' ? allWords : allWords.concat(JSUtil.ArrayUtil.compact(line.trim().split(' ')));
     }, []);
 
     if(words.length === 0){
@@ -31,7 +31,7 @@ PhysEd.PlayerStatusParser.prototype._parseInStatus = function(message, person){
         return;
     }
 
-    var statusKnown = ArrayUtil.any(words, function(word){
+    var statusKnown = JSUtil.ArrayUtil.any(words, function(word){
         if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
             this.inPlayers.push(person);
             return true;
@@ -40,7 +40,7 @@ PhysEd.PlayerStatusParser.prototype._parseInStatus = function(message, person){
             return true;
         } else if (/^out\W*$/i.test(word)) {
             this.outPlayers.push(person);
-            this.inPlayers = ArrayUtil.filter(this.inPlayers, function(inPlayer) {
+            this.inPlayers = JSUtil.ArrayUtil.filter(this.inPlayers, function(inPlayer) {
                 return inPlayer.guid !== person.guid;
             });
             return true;
@@ -55,12 +55,12 @@ PhysEd.PlayerStatusParser.prototype._parseFromString = function(fromString){
     var parts = fromString.split(' ');
 
     var parsed = {firstName: parts[0]};
-    ArrayUtil.remove(parts, parsed.firstName);
+    JSUtil.ArrayUtil.remove(parts, parsed.firstName);
 
     if(parts.length > 1) {
         var emailPart = parts[parts.length - 1];
         parsed.email = emailPart.replace(/[<>]/g, '');
-        ArrayUtil.remove(parts, emailPart);
+        JSUtil.ArrayUtil.remove(parts, emailPart);
     }
 
     parsed.lastName = parts.join(' ');

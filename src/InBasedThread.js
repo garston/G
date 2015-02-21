@@ -20,7 +20,7 @@ PhysEd.InBasedThread.prototype.getSport = function() {
 };
 
 PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerStatusParser) {
-    GASton.MailSender.replyAll(this.thread, ArrayUtil.compact([
+    GASton.MailSender.replyAll(this.thread, JSUtil.ArrayUtil.compact([
         this._toPlayerNames('inPlayers', 'In', additionalPlayerStatusParser),
         this._toPlayerNames('maybePlayers', 'Maybe', additionalPlayerStatusParser),
         this._toPlayerNames('outPlayers', 'Out', additionalPlayerStatusParser),
@@ -31,18 +31,18 @@ PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerS
 PhysEd.InBasedThread._generateRandomExclamations = function(){
     var maxExclamations = 5;
     var num = Math.floor(Math.random() * (maxExclamations + 1));
-    return ArrayUtil.reduce(ArrayUtil.range(num), function(str){
+    return JSUtil.ArrayUtil.reduce(JSUtil.ArrayUtil.range(num), function(str){
         return str + '!';
     }, '');
 };
 
 PhysEd.InBasedThread.prototype._toPlayerNames = function(playerStatusParserCategoryName, categoryDisplayString, additionalPlayerStatusParser) {
-    var playerStatusParsers = ArrayUtil.compact([this.playerStatusParser, additionalPlayerStatusParser]);
-    var players = ArrayUtil.reduce(playerStatusParsers, function(players, playerStatusParser){
+    var playerStatusParsers = JSUtil.ArrayUtil.compact([this.playerStatusParser, additionalPlayerStatusParser]);
+    var players = JSUtil.ArrayUtil.reduce(playerStatusParsers, function(players, playerStatusParser){
         return players.concat(playerStatusParser[playerStatusParserCategoryName]);
     }, []);
     if(players.length){
-        var playerStrings = ArrayUtil.unique(ArrayUtil.map(players, PhysEd.Transformers.personToDisplayString));
+        var playerStrings = JSUtil.ArrayUtil.unique(JSUtil.ArrayUtil.map(players, PhysEd.Transformers.personToDisplayString));
         return categoryDisplayString + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
     }
 };

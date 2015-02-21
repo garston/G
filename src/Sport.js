@@ -1,5 +1,5 @@
 PhysEd.Sport = function(name, isInPhysEdRotation, physEdCount, earlyWarningEmail, earlyWarningThreshold) {
-    this.guid = GuidUtil.generate();
+    this.guid = JSUtil.GuidUtil.generate();
     this.creationDate = new Date();
     this.name = name;
     this.isInPhysEdRotation = isInPhysEdRotation || 0;

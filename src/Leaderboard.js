@@ -40,7 +40,7 @@ PhysEd.Leaderboard.prototype.getLeaderboards = function(sportName, personSports,
 
 PhysEd.Leaderboard.prototype._createTable = function(personSports, createRowItemsFn, boldPlayerEmails) {
     return '<table>' +
-                ArrayUtil.map(personSports, function(personSport){
+                JSUtil.ArrayUtil.map(personSports, function(personSport){
                     return this._createRow(personSport, createRowItemsFn, boldPlayerEmails);
                 }, this).join('') +
            '</table>'
@@ -48,8 +48,8 @@ PhysEd.Leaderboard.prototype._createTable = function(personSports, createRowItem
 
 PhysEd.Leaderboard.prototype._createRow = function(personSport, createRowItemsFn, boldPlayerEmails) {
     var rowItems = [personSport.getPerson().getDisplayString()].concat(createRowItemsFn.call(this, personSport));
-    return '<tr' + (ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' style="font-weight: bold;"' : '') + '>' +
-                ArrayUtil.map(rowItems, function(rowItem){
+    return '<tr' + (JSUtil.ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' style="font-weight: bold;"' : '') + '>' +
+                JSUtil.ArrayUtil.map(rowItems, function(rowItem){
                     return '<td' + (rowItem.color ? ' style="color: ' + rowItem.color + ';"' : '') + '>' +
                                 (rowItem.html || rowItem) +
                             '</td>';

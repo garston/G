@@ -1,5 +1,5 @@
 PhysEd.Game = function(month, day, year, sportGuid) {
-    this.guid = GuidUtil.generate();
+    this.guid = JSUtil.GuidUtil.generate();
     this.creationDate = new Date();
     this.month = month;
     this.day = day;
