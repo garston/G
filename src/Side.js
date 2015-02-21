@@ -38,6 +38,8 @@ Side.__propsToCol = {
     sportName: 5,
     score: 6
 };
-ArrayUtil.times(Side.MAX_PLAYERS, function(i){
-    Side.__propsToCol['playerEmail' + i] = i + 7;
-});
+(function(){
+    for(var i = 0; i < Side.MAX_PLAYERS; i++){
+        Side.__propsToCol['playerEmail' + i] = i + 7;
+    }
+})();
