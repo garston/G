@@ -45,7 +45,7 @@ PhysEd.PersonSport.prototype.recordResult = function(isWin){
 };
 
 PhysEd.PersonSport.prototype.getPerson = function(){
-    this.person = this.person || Database.hydrate(PhysEd.Person, this.personGuid);
+    this.person = this.person || GASton.Database.hydrate(PhysEd.Person, this.personGuid);
     return this.person;
 };
 

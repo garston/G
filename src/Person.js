@@ -11,7 +11,7 @@ PhysEd.Person.prototype.getDisplayString = function(){
 };
 
 PhysEd.Person.prototype.getPersonSport = function(sport){
-    return Database.hydrateBy(PhysEd.PersonSport, ['personGuid', this.guid, 'sportGuid', sport.guid]) || new PhysEd.PersonSport(this.guid, sport.guid)
+    return GASton.Database.hydrateBy(PhysEd.PersonSport, ['personGuid', this.guid, 'sportGuid', sport.guid]) || new PhysEd.PersonSport(this.guid, sport.guid)
 };
 
 PhysEd.Person.__tableName = 'PERSON';

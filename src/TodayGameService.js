@@ -22,7 +22,7 @@ PhysEd.TodayGameService.prototype.sendEarlyWarning = function(){
         var sport = inBasedThread.getSport();
         var numInPlayers = inBasedThread.playerStatusParser.inPlayers.length;
         if(sport.earlyWarningEmail && numInPlayers > sport.earlyWarningThreshold) {
-            MailSender.send(
+            GASton.MailSender.send(
                 DateUtil.toPrettyString(this.today),
                 PhysEd.Const.GROUP_NAME + ' is looking to get a game together today. ' + numInPlayers + ' people are currently in. Anybody interested?',
                 sport.earlyWarningEmail
@@ -33,7 +33,7 @@ PhysEd.TodayGameService.prototype.sendEarlyWarning = function(){
 
 PhysEd.TodayGameService.prototype._findTodayThread = function() {
     var threads = GmailApp.search('-subject:re:' +
-        ' from:' + MailSender.getNameUsedForSending() +
+        ' from:' + GASton.MailSender.getNameUsedForSending() +
         ' (to:' + PhysEd.Const.PHYS_ED_EMAIL + ' OR to:' + PhysEd.Const.VOLLEYBALL_EMAIL + ')' +
         ' after:' + DateUtil.toSearchString(DateUtil.addDays(-1, this.today)) +
         ' before:' + DateUtil.toSearchString(this.today),
@@ -43,7 +43,7 @@ PhysEd.TodayGameService.prototype._findTodayThread = function() {
 
 PhysEd.TodayGameService.prototype._parseEarlyWarningThread = function(sport) {
     if(sport.earlyWarningEmail){
-        var earlyWarningThread = GmailApp.search('from:' + MailSender.getNameUsedForSending() + ' to:' + sport.earlyWarningEmail + ' subject:' + DateUtil.toPrettyString(this.today), 0, 1)[0];
+        var earlyWarningThread = GmailApp.search('from:' + GASton.MailSender.getNameUsedForSending() + ' to:' + sport.earlyWarningEmail + ' subject:' + DateUtil.toPrettyString(this.today), 0, 1)[0];
         if(earlyWarningThread) {
             return new PhysEd.PlayerStatusParser(earlyWarningThread);
         }
@@ -57,7 +57,7 @@ PhysEd.TodayGameService.prototype._persistSides = function(inPlayers, sport){
             teams[index % teams.length].push(player.email);
         });
 
-        Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), sport.name, '', teams[0]));
-        Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), sport.name, '', teams[1]));
+        GASton.Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), sport.name, '', teams[0]));
+        GASton.Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), sport.name, '', teams[1]));
     }
 };

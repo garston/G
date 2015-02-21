@@ -5,16 +5,16 @@ PhysEd.PlayerStatusParser = function(thread){
     this.unknownPlayers = [];
 
     var replyMessages = ArrayUtil.filter(thread.getMessages(), function(message){
-        return message.getFrom().indexOf(MailSender.getNameUsedForSending()) === -1;
+        return message.getFrom().indexOf(GASton.MailSender.getNameUsedForSending()) === -1;
     });
     ArrayUtil.forEach(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
 
-        var person = Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || new PhysEd.Person(fromParts.email);
+        var person = GASton.Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || new PhysEd.Person(fromParts.email);
         if(!person.firstName || !person.lastName){
             person.firstName = fromParts.firstName;
             person.lastName = fromParts.lastName;
-            Database.persist(PhysEd.Person, person);
+            GASton.Database.persist(PhysEd.Person, person);
         }
 
         this._parseInStatus(message, person);

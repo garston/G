@@ -21,7 +21,7 @@ function earlyWarnGameStatus(){
 }
 
 function recordGames(){
-    var sides = Database.hydrateAll(PhysEd.Side);
+    var sides = GASton.Database.hydrateAll(PhysEd.Side);
     if(sides.length >= 2){
         var side1 = sides[0];
         var side2 = sides[1];
@@ -32,5 +32,5 @@ function recordGames(){
 }
 
 function createPerson(){
-    Database.persist(PhysEd.Person, new PhysEd.Person('email@test.com', 'first', 'last'));
+    GASton.Database.persist(PhysEd.Person, new PhysEd.Person('email@test.com', 'first', 'last'));
 }

@@ -7,11 +7,11 @@ PhysEd.PhysEdNotifier.prototype.notifyPhysEd = function(){
     PhysEd.InBasedThread.sendInitialEmail(sport.name, 'Tomorrow', PhysEd.Const.PHYS_ED_EMAIL);
 
     sport.physEdCount += 1;
-    Database.persist(PhysEd.Sport, sport);
+    GASton.Database.persist(PhysEd.Sport, sport);
 };
 
 PhysEd.PhysEdNotifier.prototype._determinePhysEdSport = function(){
-    var physEdSports = Database.hydrateAllBy(PhysEd.Sport, ['isInPhysEdRotation', 1]);
+    var physEdSports = GASton.Database.hydrateAllBy(PhysEd.Sport, ['isInPhysEdRotation', 1]);
     return this._findInProgressSport(physEdSports) || this._findLowestSport(physEdSports);
 };
 

@@ -12,15 +12,15 @@ PhysEd.InBasedThread.BASKETBALL_PRETTY_NAME = 'Full Court';
 PhysEd.InBasedThread.BASKETBALL_STORED_NAME = 'Basketball';
 
 PhysEd.InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
-    MailSender.send(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
+    GASton.MailSender.send(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
 };
 
 PhysEd.InBasedThread.prototype.getSport = function() {
-    return Database.hydrateBy(PhysEd.Sport, ['name', this.sportName]);
+    return GASton.Database.hydrateBy(PhysEd.Sport, ['name', this.sportName]);
 };
 
 PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerStatusParser) {
-    MailSender.replyAll(this.thread, ArrayUtil.compact([
+    GASton.MailSender.replyAll(this.thread, ArrayUtil.compact([
         this._toPlayerNames('inPlayers', 'In', additionalPlayerStatusParser),
         this._toPlayerNames('maybePlayers', 'Maybe', additionalPlayerStatusParser),
         this._toPlayerNames('outPlayers', 'Out', additionalPlayerStatusParser),
