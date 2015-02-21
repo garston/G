@@ -9,7 +9,7 @@ GASton.Database.hydrate = function(clazz, guid){
 };
 
 GASton.Database.hydrateAll = function(clazz){
-    return ArrayUtil.map(ArrayUtil.range(this._getFirstRow(clazz), this._getLastRow(clazz) + 1), function(row){
+    return JSUtil.ArrayUtil.map(JSUtil.ArrayUtil.range(this._getFirstRow(clazz), this._getLastRow(clazz) + 1), function(row){
         return this._hydrateRow(clazz, row);
     }, this);
 };
@@ -37,7 +37,7 @@ GASton.Database.hydrateBy = function(clazz, colNameValuePairs, _startRow){
 };
 
 GASton.Database.hydrateMultiple = function(clazz, guids){
-    return ArrayUtil.map(guids, function(guid){
+    return JSUtil.ArrayUtil.map(guids, function(guid){
         return this.hydrate(clazz, guid);
     }, this);
 };
@@ -51,7 +51,7 @@ GASton.Database.persist = function(clazz, o){
 };
 
 GASton.Database.persistOnly = function(clazz, o, properties){
-    ArrayUtil.forEach(properties, function(property){
+    JSUtil.ArrayUtil.forEach(properties, function(property){
         this._persistProperty(clazz, o, property);
     }, this);
 };
@@ -81,7 +81,7 @@ GASton.Database._getLastRow = function(clazz){
 };
 
 GASton.Database._getRowNumBy = function(clazz, colNameValuePairs, startRow){
-    return ArrayUtil.find(ArrayUtil.range(startRow || this._getFirstRow(clazz), this._getLastRow(clazz) + 1), function(row){
+    return JSUtil.ArrayUtil.find(JSUtil.ArrayUtil.range(startRow || this._getFirstRow(clazz), this._getLastRow(clazz) + 1), function(row){
         for(var nameValPair = 0; nameValPair < colNameValuePairs.length; nameValPair += 2){
             var colName = colNameValuePairs[nameValPair];
             var expectedValue = colNameValuePairs[nameValPair + 1];
