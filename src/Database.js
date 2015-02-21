@@ -57,7 +57,7 @@ Database.persistOnly = function(clazz, o, properties){
 };
 
 Database.remove = function(clazz, o){
-    if(PROD_MODE){
+    if(GASTON_PROD_MODE){
         this._getSheet(clazz).deleteRow(o.__row);
     } else {
         Logger.log('DELETE %s:%s', clazz.__tableName, o.__row);
@@ -113,7 +113,7 @@ Database._persistNew = function(clazz, o){
         newRow[clazz.__propsToCol[prop] - 1] = o[prop];
     }
 
-    if(PROD_MODE){
+    if(GASTON_PROD_MODE){
         this._getSheet(clazz).appendRow(newRow);
     } else {
         Logger.log('INSERT %s - %s', clazz.__tableName, newRow);
@@ -121,7 +121,7 @@ Database._persistNew = function(clazz, o){
 };
 
 Database._persistProperty = function(clazz, o, property){
-    if(PROD_MODE){
+    if(GASTON_PROD_MODE){
         this._getCell(clazz, o.__row, property).setValue(o[property]);
     } else {
         Logger.log('UPDATE %s:%s - %s: %s', clazz.__tableName, o.__row, property, o[property]);

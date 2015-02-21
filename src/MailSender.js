@@ -9,7 +9,7 @@ MailSender.forward = function(message, email, body) {
 };
 
 MailSender.replyAll = function(thread, body, replyTo){
-    if(PROD_MODE){
+    if(GASTON_PROD_MODE){
         thread.replyAll(body, this._getOptions(body, replyTo));
     }else{
         this.send('test replyAll', body);
@@ -21,7 +21,7 @@ MailSender.send = function(subject, body, email){
 };
 
 MailSender._getEmail = function(email){
-    return PROD_MODE ? email : Session.getActiveUser().getEmail();
+    return GASTON_PROD_MODE ? email : Session.getActiveUser().getEmail();
 };
 
 MailSender._getOptions = function(body, replyTo){
