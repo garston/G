@@ -1,4 +1,4 @@
-Side = function(month, day, year, sportName, score, playerEmails) {
+PhysEd.Side = function(month, day, year, sportName, score, playerEmails) {
     this.guid = GuidUtil.generate();
     this.month = month;
     this.day = day;
@@ -7,30 +7,30 @@ Side = function(month, day, year, sportName, score, playerEmails) {
     this.score = score;
 
     playerEmails = playerEmails || [];
-    ArrayUtil.times(Side.MAX_PLAYERS, function(i){
+    ArrayUtil.times(PhysEd.Side.MAX_PLAYERS, function(i){
         this['playerEmail' + i] = playerEmails[i] || '';
     }, this);
 };
 
-Side.MAX_PLAYERS = 14;
+PhysEd.Side.MAX_PLAYERS = 14;
 
-Side.prototype.getPeople = function(){
+PhysEd.Side.prototype.getPeople = function(){
     this.people = this.people || ArrayUtil.map(this.getPlayerEmails(), function(email){
-        return Database.hydrateBy(Person, ['email', email]) || new Person(email);
+        return Database.hydrateBy(PhysEd.Person, ['email', email]) || new PhysEd.Person(email);
     });
 
     return this.people;
 };
 
-Side.prototype.getPlayerEmails = function() {
-    return ArrayUtil.compact(ArrayUtil.map(ArrayUtil.range(Side.MAX_PLAYERS), function(i){
+PhysEd.Side.prototype.getPlayerEmails = function() {
+    return ArrayUtil.compact(ArrayUtil.map(ArrayUtil.range(PhysEd.Side.MAX_PLAYERS), function(i){
         return this['playerEmail' + i];
     }, this));
 };
 
-Side.__tableName = 'GAME_RECORDER';
-Side.__firstRow = 2;
-Side.__propsToCol = {
+PhysEd.Side.__tableName = 'GAME_RECORDER';
+PhysEd.Side.__firstRow = 2;
+PhysEd.Side.__propsToCol = {
     guid: 1,
     month: 2,
     day: 3,
@@ -39,7 +39,7 @@ Side.__propsToCol = {
     score: 6
 };
 (function(){
-    for(var i = 0; i < Side.MAX_PLAYERS; i++){
-        Side.__propsToCol['playerEmail' + i] = i + 7;
+    for(var i = 0; i < PhysEd.Side.MAX_PLAYERS; i++){
+        PhysEd.Side.__propsToCol['playerEmail' + i] = i + 7;
     }
 })();

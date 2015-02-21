@@ -1,12 +1,12 @@
-PersonTeam = function(personGuid, teamGuid) {
+PhysEd.PersonTeam = function(personGuid, teamGuid) {
     this.guid = GuidUtil.generate();
     this.creationDate = new Date();
     this.personGuid = personGuid;
     this.teamGuid = teamGuid;
 };
 
-PersonTeam.__tableName = 'PERSON_TEAM';
-PersonTeam.__propsToCol = {
+PhysEd.PersonTeam.__tableName = 'PERSON_TEAM';
+PhysEd.PersonTeam.__propsToCol = {
     guid: 1,
     creationDate: 2,
     personGuid: 3,

@@ -1,4 +1,4 @@
-Sport = function(name, isInPhysEdRotation, physEdCount, earlyWarningEmail, earlyWarningThreshold) {
+PhysEd.Sport = function(name, isInPhysEdRotation, physEdCount, earlyWarningEmail, earlyWarningThreshold) {
     this.guid = GuidUtil.generate();
     this.creationDate = new Date();
     this.name = name;
@@ -8,8 +8,8 @@ Sport = function(name, isInPhysEdRotation, physEdCount, earlyWarningEmail, early
     this.earlyWarningThreshold = earlyWarningThreshold || 0;
 };
 
-Sport.__tableName = 'SPORT';
-Sport.__propsToCol = {
+PhysEd.Sport.__tableName = 'SPORT';
+PhysEd.Sport.__propsToCol = {
     guid: 1,
     creationDate: 2,
     name: 3,

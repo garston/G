@@ -1,4 +1,4 @@
-Game = function(month, day, year, sportGuid) {
+PhysEd.Game = function(month, day, year, sportGuid) {
     this.guid = GuidUtil.generate();
     this.creationDate = new Date();
     this.month = month;
@@ -7,8 +7,8 @@ Game = function(month, day, year, sportGuid) {
     this.sportGuid = sportGuid;
 };
 
-Game.__tableName = 'GAME';
-Game.__propsToCol = {
+PhysEd.Game.__tableName = 'GAME';
+PhysEd.Game.__propsToCol = {
     guid: 1,
     creationDate: 2,
     month: 3,

@@ -1,6 +1,6 @@
-Leaderboard = function(){};
+PhysEd.Leaderboard = function(){};
 
-Leaderboard.prototype.getLeaderboards = function(sportName, personSports, boldPlayerEmails){
+PhysEd.Leaderboard.prototype.getLeaderboards = function(sportName, personSports, boldPlayerEmails){
     personSports.sort(function(ps1, ps2){
         return ps2.getWinScore() - ps1.getWinScore();
     });
@@ -11,7 +11,7 @@ Leaderboard.prototype.getLeaderboards = function(sportName, personSports, boldPl
             personSport.getWinScore(),
             personSport.wins + 'W-' + personSport.losses + 'L',
             {
-                color: personSport.streakDir === PersonSport.STREAK_DIR.W ? 'red' : 'blue',
+                color: personSport.streakDir === PhysEd.PersonSport.STREAK_DIR.W ? 'red' : 'blue',
                 html: personSport.streak + personSport.streakDir
             }
         ];
@@ -29,7 +29,7 @@ Leaderboard.prototype.getLeaderboards = function(sportName, personSports, boldPl
             personSport.getParticipationScore(),
             personSport.ins + 'ins-' + personSport.outs + 'outs',
             {
-                color: personSport.participationStreakDir === PersonSport.STREAK_DIR.INS ? 'red' : 'blue',
+                color: personSport.participationStreakDir === PhysEd.PersonSport.STREAK_DIR.INS ? 'red' : 'blue',
                 html: personSport.participationStreak + personSport.participationStreakDir
             }
         ];
@@ -38,7 +38,7 @@ Leaderboard.prototype.getLeaderboards = function(sportName, personSports, boldPl
     return html;
 };
 
-Leaderboard.prototype._createTable = function(personSports, createRowItemsFn, boldPlayerEmails) {
+PhysEd.Leaderboard.prototype._createTable = function(personSports, createRowItemsFn, boldPlayerEmails) {
     return '<table>' +
                 ArrayUtil.map(personSports, function(personSport){
                     return this._createRow(personSport, createRowItemsFn, boldPlayerEmails);
@@ -46,7 +46,7 @@ Leaderboard.prototype._createTable = function(personSports, createRowItemsFn, bo
            '</table>'
 }
 
-Leaderboard.prototype._createRow = function(personSport, createRowItemsFn, boldPlayerEmails) {
+PhysEd.Leaderboard.prototype._createRow = function(personSport, createRowItemsFn, boldPlayerEmails) {
     var rowItems = [personSport.getPerson().getDisplayString()].concat(createRowItemsFn.call(this, personSport));
     return '<tr' + (ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' style="font-weight: bold;"' : '') + '>' +
                 ArrayUtil.map(rowItems, function(rowItem){

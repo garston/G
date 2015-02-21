@@ -1,8 +1,8 @@
-TodayGameService = function() {
+PhysEd.TodayGameService = function() {
     this.today = new Date();
 };
 
-TodayGameService.prototype.checkGameStatus = function(){
+PhysEd.TodayGameService.prototype.checkGameStatus = function(){
     var inBasedThread = this._findTodayThread();
     if(inBasedThread){
         var inPlayers = inBasedThread.playerStatusParser.inPlayers;
@@ -16,7 +16,7 @@ TodayGameService.prototype.checkGameStatus = function(){
     }
 };
 
-TodayGameService.prototype.sendEarlyWarning = function(){
+PhysEd.TodayGameService.prototype.sendEarlyWarning = function(){
     var inBasedThread = this._findTodayThread();
     if(inBasedThread) {
         var sport = inBasedThread.getSport();
@@ -24,40 +24,40 @@ TodayGameService.prototype.sendEarlyWarning = function(){
         if(sport.earlyWarningEmail && numInPlayers > sport.earlyWarningThreshold) {
             MailSender.send(
                 DateUtil.toPrettyString(this.today),
-                CONST.GROUP_NAME + ' is looking to get a game together today. ' + numInPlayers + ' people are currently in. Anybody interested?',
+                PhysEd.Const.GROUP_NAME + ' is looking to get a game together today. ' + numInPlayers + ' people are currently in. Anybody interested?',
                 sport.earlyWarningEmail
             );
         }
     }
 };
 
-TodayGameService.prototype._findTodayThread = function() {
+PhysEd.TodayGameService.prototype._findTodayThread = function() {
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + MailSender.getNameUsedForSending() +
-        ' (to:' + CONST.PHYS_ED_EMAIL + ' OR to:' + CONST.VOLLEYBALL_EMAIL + ')' +
+        ' (to:' + PhysEd.Const.PHYS_ED_EMAIL + ' OR to:' + PhysEd.Const.VOLLEYBALL_EMAIL + ')' +
         ' after:' + DateUtil.toSearchString(DateUtil.addDays(-1, this.today)) +
         ' before:' + DateUtil.toSearchString(this.today),
         0, 1);
-    return threads.length && new InBasedThread(threads[0]);
+    return threads.length && new PhysEd.InBasedThread(threads[0]);
 };
 
-TodayGameService.prototype._parseEarlyWarningThread = function(sport) {
+PhysEd.TodayGameService.prototype._parseEarlyWarningThread = function(sport) {
     if(sport.earlyWarningEmail){
         var earlyWarningThread = GmailApp.search('from:' + MailSender.getNameUsedForSending() + ' to:' + sport.earlyWarningEmail + ' subject:' + DateUtil.toPrettyString(this.today), 0, 1)[0];
         if(earlyWarningThread) {
-            return new PlayerStatusParser(earlyWarningThread);
+            return new PhysEd.PlayerStatusParser(earlyWarningThread);
         }
     }
 };
 
-TodayGameService.prototype._persistSides = function(inPlayers, sport){
+PhysEd.TodayGameService.prototype._persistSides = function(inPlayers, sport){
     if(sport && sport.isInPhysEdRotation) {
         var teams = [[], []];
         ArrayUtil.forEach(inPlayers, function(player, index){
             teams[index % teams.length].push(player.email);
         });
 
-        Database.persist(Side, new Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), sport.name, '', teams[0]));
-        Database.persist(Side, new Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), sport.name, '', teams[1]));
+        Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), sport.name, '', teams[0]));
+        Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), sport.name, '', teams[1]));
     }
 };

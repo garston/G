@@ -1,4 +1,4 @@
-PlayerStatusParser = function(thread){
+PhysEd.PlayerStatusParser = function(thread){
     this.inPlayers = [];
     this.maybePlayers = [];
     this.outPlayers = [];
@@ -10,18 +10,18 @@ PlayerStatusParser = function(thread){
     ArrayUtil.forEach(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
 
-        var person = Database.hydrateBy(Person, ['email', fromParts.email]) || new Person(fromParts.email);
+        var person = Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || new PhysEd.Person(fromParts.email);
         if(!person.firstName || !person.lastName){
             person.firstName = fromParts.firstName;
             person.lastName = fromParts.lastName;
-            Database.persist(Person, person);
+            Database.persist(PhysEd.Person, person);
         }
 
         this._parseInStatus(message, person);
     }, this);
 };
 
-PlayerStatusParser.prototype._parseInStatus = function(message, person){
+PhysEd.PlayerStatusParser.prototype._parseInStatus = function(message, person){
     var words = ArrayUtil.reduce(message.getPlainBody().split('\n'), function(allWords, line) {
         return line[0] === '>' ? allWords : allWords.concat(ArrayUtil.compact(line.trim().split(' ')));
     }, []);
@@ -51,7 +51,7 @@ PlayerStatusParser.prototype._parseInStatus = function(message, person){
     }
 };
 
-PlayerStatusParser.prototype._parseFromString = function(fromString){
+PhysEd.PlayerStatusParser.prototype._parseFromString = function(fromString){
     var parts = fromString.split(' ');
 
     var parsed = {firstName: parts[0]};
