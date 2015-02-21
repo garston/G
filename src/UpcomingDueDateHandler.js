@@ -7,5 +7,5 @@ UpcomingDueDateHandler.prototype.doHandle = function(options) {
 };
 
 UpcomingDueDateHandler.prototype.shouldHandle = function(options) {
-    return DateUtil.dayDiff(_startOfToday(), options.dueDate) === UpcomingDueDateHandler.REMINDER_DAYS && _shouldSendMail(1);
+    return JSUtil.DateUtil.dayDiff(_startOfToday(), options.dueDate) === UpcomingDueDateHandler.REMINDER_DAYS && _shouldSendMail(1);
 };
