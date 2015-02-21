@@ -1,4 +1,4 @@
-ArrayUtil = {
+JSUtil.ArrayUtil = {
     any: function(a, fn, scope) {
         return a.some(fn, scope);
     },
@@ -84,7 +84,7 @@ ArrayUtil = {
     },
 
     times: function(n, fn, scope) {
-        ArrayUtil.forEach(ArrayUtil.range(n), fn, scope);
+        JSUtil.ArrayUtil.forEach(JSUtil.ArrayUtil.range(n), fn, scope);
     },
 
     unique: function(arr){
