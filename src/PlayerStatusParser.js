@@ -5,7 +5,7 @@ PhysEd.PlayerStatusParser = function(thread){
     this.unknownPlayers = [];
 
     var replyMessages = JSUtil.ArrayUtil.filter(thread.getMessages(), function(message){
-        return message.getFrom().indexOf(GASton.MailSender.getNameUsedForSending()) === -1;
+        return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending());
     });
     JSUtil.ArrayUtil.forEach(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
