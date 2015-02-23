@@ -60,12 +60,12 @@ GASton.Database.remove = function(clazz, o){
     if(GASton.PROD_MODE){
         this._getSheet(clazz).deleteRow(o.__row);
     } else {
-        Logger.log('DELETE %s:%s', clazz.__tableName, o.__row);
+        Logger.log('DELETE %s:%s', this._getClassMetadataValue(clazz, '__tableName'), o.__row);
     }
 };
 
 GASton.Database._getCell = function(clazz, row, colName){
-    return this._getSheet(clazz).getRange(row, clazz.__propsToCol[colName]);
+    return this._getSheet(clazz).getRange(row, this._getClassMetadataValue(clazz, '__propsToCol')[colName]);
 };
 
 GASton.Database._getCellValue = function(clazz, row, colName){
@@ -73,11 +73,15 @@ GASton.Database._getCellValue = function(clazz, row, colName){
 };
 
 GASton.Database._getFirstRow = function(clazz){
-    return clazz.__firstRow || 1;
+    return this._getClassMetadataValue(clazz, '__firstRow') || 1;
 };
 
 GASton.Database._getLastRow = function(clazz){
     return this._getSheet(clazz).getLastRow();
+};
+
+GASton.Database._getClassMetadataValue = function(clazz, fieldName) {
+    return typeof(clazz[fieldName]) === 'function' ? clazz[fieldName].call(clazz) : clazz[fieldName];
 };
 
 GASton.Database._getRowNumBy = function(clazz, colNameValuePairs, startRow){
@@ -95,13 +99,13 @@ GASton.Database._getRowNumBy = function(clazz, colNameValuePairs, startRow){
 };
 
 GASton.Database._getSheet = function(clazz){
-    return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(clazz.__tableName);
+    return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this._getClassMetadataValue(clazz, '__tableName'));
 };
 
 GASton.Database._hydrateRow = function(clazz, row){
     var o = new clazz();
     o.__row = row;
-    for(var prop in clazz.__propsToCol){
+    for(var prop in this._getClassMetadataValue(clazz, '__propsToCol')){
         o[prop] = this._getCellValue(clazz, row, prop);
     }
     return o;
@@ -109,14 +113,15 @@ GASton.Database._hydrateRow = function(clazz, row){
 
 GASton.Database._persistNew = function(clazz, o){
     var newRow = [];
-    for(var prop in clazz.__propsToCol){
-        newRow[clazz.__propsToCol[prop] - 1] = o[prop];
+    var propsToCol = this._getClassMetadataValue(clazz, '__propsToCol');
+    for(var prop in propsToCol){
+        newRow[propsToCol[prop] - 1] = o[prop];
     }
 
     if(GASton.PROD_MODE){
         this._getSheet(clazz).appendRow(newRow);
     } else {
-        Logger.log('INSERT %s - %s', clazz.__tableName, newRow);
+        Logger.log('INSERT %s - %s', this._getClassMetadataValue(clazz, '__tableName'), newRow);
     }
 };
 
@@ -124,12 +129,12 @@ GASton.Database._persistProperty = function(clazz, o, property){
     if(GASton.PROD_MODE){
         this._getCell(clazz, o.__row, property).setValue(o[property]);
     } else {
-        Logger.log('UPDATE %s:%s - %s: %s', clazz.__tableName, o.__row, property, o[property]);
+        Logger.log('UPDATE %s:%s - %s: %s', this._getClassMetadataValue(clazz, '__tableName'), o.__row, property, o[property]);
     }
 };
 
 GASton.Database._persistUpdateAllProperties = function(clazz, o){
-    for(var property in clazz.__propsToCol){
+    for(var property in this._getClassMetadataValue(clazz, '__propsToCol')){
         this._persistProperty(clazz, o, property);
     }
 };
