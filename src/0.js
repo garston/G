@@ -96,12 +96,7 @@ function _shouldSendMail(timesPerDay){
 }
 
 function _sendMail(renter, subject, sendTxt){
-    MailApp.sendEmail(LordGarston.Const.PROD_MODE ? renter.email : LordGarston.Const.LORD_EMAIL, subject, SpreadsheetApp.getActiveSpreadsheet().getUrl(), {
-        name: SpreadsheetApp.getActiveSpreadsheet().getName(),
-        cc: LordGarston.Const.LORD_EMAIL,
-        bcc: sendTxt && renter.txt,
-        replyTo: LordGarston.Const.LORD_EMAIL
-    });
+    GASton.MailSender.sendToIndividual(subject, SpreadsheetApp.getActiveSpreadsheet().getUrl(), renter.email + (sendTxt && renter.txt ? ',' + renter.txt : ''));
 }
 
 function _startOfToday() {
