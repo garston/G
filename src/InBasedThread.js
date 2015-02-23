@@ -12,7 +12,7 @@ PhysEd.InBasedThread.BASKETBALL_PRETTY_NAME = 'Full Court';
 PhysEd.InBasedThread.BASKETBALL_STORED_NAME = 'Basketball';
 
 PhysEd.InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
-    GASton.MailSender.send(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
+    GASton.MailSender.sendToList(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
 };
 
 PhysEd.InBasedThread.prototype.getSport = function() {
