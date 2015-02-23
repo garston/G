@@ -1,15 +1,17 @@
+LordGarston = {};
+
 function notifyAmountsEntered(e){
     var row = e.range.rowStart;
     var col = e.range.columnStart;
 
-    var isEditingAmount = (row >= CONST.AMOUNT_ROWS.START) && (row <= CONST.AMOUNT_ROWS.END) && (col > CONST.HEADER_COL);
+    var isEditingAmount = (row >= LordGarston.Const.AMOUNT_ROWS.START) && (row <= LordGarston.Const.AMOUNT_ROWS.END) && (col > LordGarston.Const.HEADER_COL);
     if(isEditingAmount){
-        var allAmountsEntered = JSUtil.ArrayUtil.every(JSUtil.ArrayUtil.range(CONST.AMOUNT_ROWS.START, CONST.AMOUNT_ROWS.END + 1), function(row){
+        var allAmountsEntered = JSUtil.ArrayUtil.every(JSUtil.ArrayUtil.range(LordGarston.Const.AMOUNT_ROWS.START, LordGarston.Const.AMOUNT_ROWS.END + 1), function(row){
             return _getCellValue(row, col) !== '';
         });
 
         if(allAmountsEntered){
-            var rentersToNotify = JSUtil.ArrayUtil.filter(CONST.RENTERS, function(renter){
+            var rentersToNotify = JSUtil.ArrayUtil.filter(LordGarston.Const.RENTERS, function(renter){
                 return renter.notifyAmountsEntered && !_hasPaid(renter, col);
             });
             JSUtil.ArrayUtil.forEach(rentersToNotify, function(renter){
@@ -25,16 +27,16 @@ function notifyAmountsEntered(e){
 
 function hourly(){
     var handlers = [
-        new HasPaidHandler(),
-        new RecentPaymentInMailHandler(CONST.LORD_PAYPAL_EMAIL, 'Paypal'),
-        new RecentPaymentInMailHandler(CONST.LORD_BANK_EMAIL, 'mobile'),
-        new UpcomingDueDateHandler(),
-        new LatePaymentHandler()
+        new LordGarston.HasPaidHandler(),
+        new LordGarston.RecentPaymentInMailHandler(LordGarston.Const.LORD_PAYPAL_EMAIL, 'Paypal'),
+        new LordGarston.RecentPaymentInMailHandler(LordGarston.Const.LORD_BANK_EMAIL, 'mobile'),
+        new LordGarston.UpcomingDueDateHandler(),
+        new LordGarston.LatePaymentHandler()
     ];
 
-    JSUtil.ArrayUtil.forEach(JSUtil.ArrayUtil.range(CONST.HEADER_COL + 1, _getSheet(CONST.SUMMARY_SHEET_NAME).getLastColumn() + 1), function(col){
+    JSUtil.ArrayUtil.forEach(JSUtil.ArrayUtil.range(LordGarston.Const.HEADER_COL + 1, _getSheet(LordGarston.Const.SUMMARY_SHEET_NAME).getLastColumn() + 1), function(col){
         var dueDate = _getDueDate(col);
-        JSUtil.ArrayUtil.forEach(CONST.RENTERS, function(renter){
+        JSUtil.ArrayUtil.forEach(LordGarston.Const.RENTERS, function(renter){
             var handlerOptions = {
                 col: col,
                 dueDate: dueDate,
@@ -52,13 +54,13 @@ function notifyDeposit(e){
     var row = e.range.rowStart;
     var col = e.range.columnStart;
 
-    var depositedRenter = JSUtil.ArrayUtil.find(CONST.RENTERS, function(renter){
-        return row === renter.depositRow && col > CONST.HEADER_COL &&
-            _getCellValue(row, col).toLowerCase() === CONST.COMPLETED_VALUE.toLowerCase();
+    var depositedRenter = JSUtil.ArrayUtil.find(LordGarston.Const.RENTERS, function(renter){
+        return row === renter.depositRow && col > LordGarston.Const.HEADER_COL &&
+            _getCellValue(row, col).toLowerCase() === LordGarston.Const.COMPLETED_VALUE.toLowerCase();
     });
     if(depositedRenter){
         _sendMail(depositedRenter, 'Your rent check due on ' + JSUtil.DateUtil.toPrettyString(_getDueDate(col)) + ' has been deposited');
-        _getCell(row, col).setValue(CONST.COMPLETED_DISPLAY_VALUE);
+        _getCell(row, col).setValue(LordGarston.Const.COMPLETED_DISPLAY_VALUE);
         SpreadsheetApp.flush();
     }
 }
@@ -73,7 +75,7 @@ function _getSheet(sheetName) {
 }
 
 function _getCell(row, col){
-    return _getSheet(CONST.SUMMARY_SHEET_NAME).getRange(row, col);
+    return _getSheet(LordGarston.Const.SUMMARY_SHEET_NAME).getRange(row, col);
 }
 
 function _getCellValue(row, col){
@@ -94,11 +96,11 @@ function _shouldSendMail(timesPerDay){
 }
 
 function _sendMail(renter, subject, sendTxt){
-    MailApp.sendEmail(CONST.PROD_MODE ? renter.email : CONST.LORD_EMAIL, subject, SpreadsheetApp.getActiveSpreadsheet().getUrl(), {
+    MailApp.sendEmail(LordGarston.Const.PROD_MODE ? renter.email : LordGarston.Const.LORD_EMAIL, subject, SpreadsheetApp.getActiveSpreadsheet().getUrl(), {
         name: SpreadsheetApp.getActiveSpreadsheet().getName(),
-        cc: CONST.LORD_EMAIL,
+        cc: LordGarston.Const.LORD_EMAIL,
         bcc: sendTxt && renter.txt,
-        replyTo: CONST.LORD_EMAIL
+        replyTo: LordGarston.Const.LORD_EMAIL
     });
 }
 
