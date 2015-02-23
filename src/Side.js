@@ -30,16 +30,17 @@ PhysEd.Side.prototype.getPlayerEmails = function() {
 
 PhysEd.Side.__tableName = 'GAME_RECORDER';
 PhysEd.Side.__firstRow = 2;
-PhysEd.Side.__propsToCol = {
-    guid: 1,
-    month: 2,
-    day: 3,
-    year: 4,
-    sportName: 5,
-    score: 6
+PhysEd.Side.__propsToCol = function() {
+    var propsToCol = {
+        guid: 1,
+        month: 2,
+        day: 3,
+        year: 4,
+        sportName: 5,
+        score: 6
+    };
+    JSUtil.ArrayUtil.times(this.MAX_PLAYERS, function(i){
+        propsToCol['playerEmail' + i] = i + 7;
+    });
+    return propsToCol;
 };
-(function(){
-    for(var i = 0; i < PhysEd.Side.MAX_PLAYERS; i++){
-        PhysEd.Side.__propsToCol['playerEmail' + i] = i + 7;
-    }
-})();
