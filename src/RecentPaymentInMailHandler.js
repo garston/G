@@ -3,14 +3,13 @@ LordGarston.RecentPaymentInMailHandler = function(toEmail, depositRowDisplayValu
     this.depositRowDisplayValue = depositRowDisplayValue;
 };
 
-LordGarston.RecentPaymentInMailHandler.prototype.doHandle = function(options) {
-    _getCell(options.renter.paidRow, options.col).setValue(LordGarston.Const.COMPLETED_DISPLAY_VALUE);
-    _getCell(options.renter.depositRow, options.col).setValue(this.depositRowDisplayValue);
+LordGarston.RecentPaymentInMailHandler.prototype.doHandle = function(rentPayment) {
+    rentPayment.paidWith = this.depositRowDisplayValue;
+    GASton.Database.persistOnly(LordGarston.RentPayment, rentPayment, ['paidWith']);
 };
 
-LordGarston.RecentPaymentInMailHandler.prototype.shouldHandle = function(options) {
-    return options.renter.amountRow &&
-        GmailApp.search(_getAmountDue(options.renter, options.col) +
+LordGarston.RecentPaymentInMailHandler.prototype.shouldHandle = function(rentPayment) {
+    return GmailApp.search(rentPayment.totalAmount.toFixed(2) +
             ' to:' + this.toEmail +
             ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, new Date())),
             0, 1).length > 0;
