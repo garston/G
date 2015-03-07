@@ -1,5 +1,9 @@
 GASton.Database = {};
 
+GASton.Database.getLastRow = function(clazz){
+    return this._getSheet(clazz).getLastRow();
+};
+
 GASton.Database.hasObject = function(clazz, colNameValuePairs){
     return !!this._getRowNumBy(clazz, colNameValuePairs);
 };
@@ -9,7 +13,7 @@ GASton.Database.hydrate = function(clazz, guid){
 };
 
 GASton.Database.hydrateAll = function(clazz){
-    return JSUtil.ArrayUtil.map(JSUtil.ArrayUtil.range(this._getFirstRow(clazz), this._getLastRow(clazz) + 1), function(row){
+    return JSUtil.ArrayUtil.map(JSUtil.ArrayUtil.range(this._getFirstRow(clazz), this.getLastRow(clazz) + 1), function(row){
         return this._hydrateRow(clazz, row);
     }, this);
 };
@@ -76,16 +80,12 @@ GASton.Database._getFirstRow = function(clazz){
     return this._getClassMetadataValue(clazz, '__firstRow') || 1;
 };
 
-GASton.Database._getLastRow = function(clazz){
-    return this._getSheet(clazz).getLastRow();
-};
-
 GASton.Database._getClassMetadataValue = function(clazz, fieldName) {
     return typeof(clazz[fieldName]) === 'function' ? clazz[fieldName].call(clazz) : clazz[fieldName];
 };
 
 GASton.Database._getRowNumBy = function(clazz, colNameValuePairs, startRow){
-    return JSUtil.ArrayUtil.find(JSUtil.ArrayUtil.range(startRow || this._getFirstRow(clazz), this._getLastRow(clazz) + 1), function(row){
+    return JSUtil.ArrayUtil.find(JSUtil.ArrayUtil.range(startRow || this._getFirstRow(clazz), this.getLastRow(clazz) + 1), function(row){
         for(var nameValPair = 0; nameValPair < colNameValuePairs.length; nameValPair += 2){
             var colName = colNameValuePairs[nameValPair];
             var expectedValue = colNameValuePairs[nameValPair + 1];
