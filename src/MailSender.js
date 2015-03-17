@@ -8,7 +8,7 @@ GASton.MailSender.replyAll = function(thread, body, replyTo){
     if(GASton.PROD_MODE){
         thread.replyAll(body, this._getOptions(body, replyTo));
     }else{
-        this.send('test replyAll', body);
+        this._sendNewEmail('test replyAll', body);
     }
 };
 
