@@ -7,48 +7,58 @@ PhysEd.PlayerStatusParser = function(thread){
     var replyMessages = JSUtil.ArrayUtil.filter(thread.getMessages(), function(message){
         return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending());
     });
-    JSUtil.ArrayUtil.forEach(replyMessages, function(message){
+
+    var peopleByEmail = {};
+    var messagesByEmail = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
 
-        var person = GASton.Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || new PhysEd.Person(fromParts.email);
-        if(!person.firstName || !person.lastName){
-            person.firstName = fromParts.firstName;
-            person.lastName = fromParts.lastName;
-            GASton.Database.persist(PhysEd.Person, person);
+        if(!peopleByEmail[fromParts.email]) {
+            var person = GASton.Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || new PhysEd.Person(fromParts.email);
+            if(!person.firstName || !person.lastName){
+                person.firstName = fromParts.firstName;
+                person.lastName = fromParts.lastName;
+                GASton.Database.persist(PhysEd.Person, person);
+            }
+
+            peopleByEmail[fromParts.email] = person;
         }
 
-        this._parseInStatus(message, person);
+        return fromParts.email;
     }, this);
+
+    for(var email in messagesByEmail) {
+        var playerStatusParser = this;
+        var statusArray = JSUtil.ArrayUtil.reduce(messagesByEmail[email], function(currentStatusArray, message){
+            var newStatusArray = playerStatusParser._determineStatusArrayFromMessage(message);
+            return currentStatusArray && newStatusArray === playerStatusParser.unknownPlayers ? currentStatusArray : newStatusArray;
+        }, undefined);
+        statusArray.push(peopleByEmail[email]);
+    }
 };
 
-PhysEd.PlayerStatusParser.prototype._parseInStatus = function(message, person){
+PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function (message) {
     var words = JSUtil.ArrayUtil.reduce(message.getPlainBody().split('\n'), function(allWords, line) {
         return line[0] === '>' ? allWords : allWords.concat(JSUtil.ArrayUtil.compact(line.trim().split(' ')));
     }, []);
 
     if(words.length === 0){
-        this.inPlayers.push(person);
-        return;
+        return this.inPlayers;
     }
 
-    var statusKnown = JSUtil.ArrayUtil.any(words, function(word){
+    var statusArray = this.unknownPlayers;
+    JSUtil.ArrayUtil.any(words, function(word){
         if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
-            this.inPlayers.push(person);
+            statusArray = this.inPlayers;
             return true;
         } else if (/^(maybe|50\W?50)\W*$/i.test(word)) {
-            this.maybePlayers.push(person);
+            statusArray = this.maybePlayers;
             return true;
         } else if (/^out\W*$/i.test(word)) {
-            this.outPlayers.push(person);
-            this.inPlayers = JSUtil.ArrayUtil.filter(this.inPlayers, function(inPlayer) {
-                return inPlayer.guid !== person.guid;
-            });
+            statusArray = this.outPlayers;
             return true;
         }
     }, this);
-    if(!statusKnown){
-        this.unknownPlayers.push(person);
-    }
+    return statusArray;
 };
 
 PhysEd.PlayerStatusParser.prototype._parseFromString = function(fromString){
