@@ -13,7 +13,8 @@ PhysEd.Leaderboard.prototype.getLeaderboards = function(sportName, personSports,
             {
                 color: personSport.streakDir === PhysEd.PersonSport.STREAK_DIR.W ? 'red' : 'blue',
                 html: personSport.streak + personSport.streakDir
-            }
+            },
+            (personSport.plusMinus > 0 ? '+' : '') + personSport.plusMinus
         ];
     }, boldPlayerEmails);
 

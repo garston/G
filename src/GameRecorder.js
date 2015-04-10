@@ -10,9 +10,8 @@ PhysEd.GameRecorder.prototype.record = function(side1, side2){
     var game = new PhysEd.Game(side1.month, side1.day, side1.year, sport.guid);
     GASton.Database.persist(PhysEd.Game, game);
 
-    var isParticipationOnly = typeof side1.score !== 'number' || typeof side2.score !== 'number';
-    var personSportsGuids1 = this._recordSide(side1, game, sport, isParticipationOnly ? undefined : side1.score > side2.score);
-    var personSportsGuids2 = this._recordSide(side2, game, sport, isParticipationOnly ? undefined : side2.score > side1.score);
+    var personSportsGuids1 = this._recordSide(side1, game, sport, side2.score);
+    var personSportsGuids2 = this._recordSide(side2, game, sport, side1.score);
 
     var allPersonSports = GASton.Database.hydrateAllBy(PhysEd.PersonSport, ['sportGuid', sport.guid]);
     if(isFirstGameOfDay){
@@ -39,7 +38,7 @@ PhysEd.GameRecorder.prototype._recordParticipation = function(inPersonSportGuids
     });
 };
 
-PhysEd.GameRecorder.prototype._recordSide = function(side, game, sport, isWinner){
+PhysEd.GameRecorder.prototype._recordSide = function(side, game, sport, opponentScore){
     var team = new PhysEd.Team(game.guid, side.score);
     GASton.Database.persist(PhysEd.Team, team);
 
@@ -50,8 +49,8 @@ PhysEd.GameRecorder.prototype._recordSide = function(side, game, sport, isWinner
         GASton.Database.persist(PhysEd.PersonTeam, personTeam);
 
         var personSport = person.getPersonSport(sport);
-        if(typeof isWinner === 'boolean'){
-            personSport.recordResult(isWinner);
+        if(typeof side.score === 'number' && typeof opponentScore === 'number'){
+            personSport.recordResult(side.score, opponentScore);
         }
         GASton.Database.persist(PhysEd.PersonSport, personSport);
 

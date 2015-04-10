@@ -11,6 +11,7 @@ PhysEd.PersonSport = function(personGuid, sportGuid) {
     this.streak = 0;
     this.participationStreakDir = '';
     this.participationStreak = 0;
+    this.plusMinus = 0;
 };
 
 PhysEd.PersonSport.__tableName = 'PERSON_SPORT';
@@ -26,7 +27,8 @@ PhysEd.PersonSport.__propsToCol = {
     streakDir: 9,
     streak: 10,
     participationStreakDir: 11,
-    participationStreak: 12
+    participationStreak: 12,
+    plusMinus: 13
 };
 
 PhysEd.PersonSport.STREAK_DIR = {
@@ -40,8 +42,9 @@ PhysEd.PersonSport.prototype.recordParticipation = function(isIn){
     this._recordCountStreak(isIn, 'ins', 'outs', 'participationStreak', 'participationStreakDir', PhysEd.PersonSport.STREAK_DIR.INS, PhysEd.PersonSport.STREAK_DIR.OUTS);
 };
 
-PhysEd.PersonSport.prototype.recordResult = function(isWin){
-    this._recordCountStreak(isWin, 'wins', 'losses', 'streak', 'streakDir', PhysEd.PersonSport.STREAK_DIR.W, PhysEd.PersonSport.STREAK_DIR.L);
+PhysEd.PersonSport.prototype.recordResult = function(teamScore, opponentScore){
+    this._recordCountStreak(teamScore > opponentScore, 'wins', 'losses', 'streak', 'streakDir', PhysEd.PersonSport.STREAK_DIR.W, PhysEd.PersonSport.STREAK_DIR.L);
+    this.plusMinus += teamScore - opponentScore;
 };
 
 PhysEd.PersonSport.prototype.getPerson = function(){
