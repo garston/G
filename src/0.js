@@ -14,7 +14,7 @@ function createRentPayment(){
 function hourly(){
     var handlers = [
         new LordGarston.RecentPaymentInMailHandler(LordGarston.Const.LORD_PAYPAL_EMAIL, 'Paypal'),
-        new LordGarston.RecentPaymentInMailHandler(LordGarston.Const.LORD_BANK_EMAIL, 'mobile'),
+        new LordGarston.RecentPaymentInMailHandler(LordGarston.Const.LORD_BANK_EMAIL, 'check'),
         new LordGarston.UpcomingDueDateHandler(),
         new LordGarston.LatePaymentHandler()
     ];
