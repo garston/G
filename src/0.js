@@ -4,6 +4,7 @@ function processTransactions() {
     var processedStrings = [];
     var notProcessedStrings = [];
 
+    var sharingInfos = GASton.Database.hydrateAll(HalfZs.SharingInfo);
     JSUtil.ArrayUtil.forEach(GmailApp.search('label:' + HalfZs.Const.CHASE_LABEL), function(thread){
         JSUtil.ArrayUtil.forEach(thread.getMessages(), function(message){
             if(!message.isInTrash()){
@@ -13,7 +14,7 @@ function processTransactions() {
                 var month = transactionInfo[3];
                 var year = transactionInfo[4];
 
-                var sharingInfo = JSUtil.ArrayUtil.find(HalfZs.Const.SHARING_INFOS, function(sharingInfo){
+                var sharingInfo = JSUtil.ArrayUtil.find(sharingInfos, function(sharingInfo){
                     return JSUtil.StringUtil.contains(chaseFullName.toLowerCase(), (sharingInfo.chaseName || sharingInfo.prettyName).toLowerCase());
                 });
                 if(sharingInfo){
