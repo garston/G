@@ -2,7 +2,7 @@ PhysEd.GameRecorder = function(){};
 
 PhysEd.GameRecorder.prototype.record = function(side1, side2){
     var sportName = side1.sportName;
-    var sport = GASton.Database.hydrateBy(PhysEd.Sport, ['name', sportName]) || new PhysEd.Sport(sportName);
+    var sport = PhysEd.Sport.hydrateByName(sportName);
     GASton.Database.persist(PhysEd.Sport, sport);
 
     var isFirstGameOfDay = !GASton.Database.hasObject(PhysEd.Game, ['month', side1.month, 'day', side1.day, 'year', side1.year, 'sportGuid', sport.guid]);

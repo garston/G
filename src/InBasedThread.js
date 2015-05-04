@@ -15,10 +15,6 @@ PhysEd.InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
     GASton.MailSender.sendToList(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
 };
 
-PhysEd.InBasedThread.prototype.getSport = function() {
-    return GASton.Database.hydrateBy(PhysEd.Sport, ['name', this.sportName]);
-};
-
 PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerStatusParser) {
     GASton.MailSender.replyAll(this.thread, JSUtil.ArrayUtil.compact([
         this._toPlayerNames('inPlayers', 'In', additionalPlayerStatusParser),

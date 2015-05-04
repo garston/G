@@ -7,7 +7,7 @@ PhysEd.TodayGameService.prototype.checkGameStatus = function(){
     if(inBasedThread){
         var inPlayers = inBasedThread.playerStatusParser.inPlayers;
         if(inPlayers.length){
-            var sport = inBasedThread.getSport();
+            var sport = PhysEd.Sport.hydrateByName(inBasedThread.sportName);
             var additionalPlayerStatusParser = this._parseEarlyWarningThread(sport);
 
             inBasedThread.sendPlayerCountEmail(additionalPlayerStatusParser);
@@ -19,7 +19,7 @@ PhysEd.TodayGameService.prototype.checkGameStatus = function(){
 PhysEd.TodayGameService.prototype.sendEarlyWarning = function(){
     var inBasedThread = this._findTodayThread();
     if(inBasedThread) {
-        var sport = inBasedThread.getSport();
+        var sport = PhysEd.Sport.hydrateByName(inBasedThread.sportName);
         var numInPlayers = inBasedThread.playerStatusParser.inPlayers.length;
         if(sport.earlyWarningEmail && numInPlayers > sport.earlyWarningThreshold) {
             GASton.MailSender.sendToList(
@@ -51,7 +51,7 @@ PhysEd.TodayGameService.prototype._parseEarlyWarningThread = function(sport) {
 };
 
 PhysEd.TodayGameService.prototype._persistSides = function(inPlayers, sport){
-    if(sport && sport.isInPhysEdRotation) {
+    if(sport.isInPhysEdRotation) {
         var teams = [[], []];
         JSUtil.ArrayUtil.forEach(inPlayers, function(player, index){
             teams[index % teams.length].push(player.email);
