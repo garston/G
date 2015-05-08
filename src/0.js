@@ -3,8 +3,8 @@ HalfZs = {};
 function processTransactions() {
     var processedStrings = [];
     var notProcessedStrings = [];
-
     var sharingInfos = GASton.Database.hydrateAll(HalfZs.SharingInfo);
+
     JSUtil.ArrayUtil.forEach(GmailApp.search('label:' + HalfZs.Const.CHASE_LABEL), function(thread){
         JSUtil.ArrayUtil.forEach(thread.getMessages(), function(message){
             if(!message.isInTrash()){
@@ -14,11 +14,9 @@ function processTransactions() {
                 var month = transactionInfo[3];
                 var year = transactionInfo[4];
 
-                var sharingInfo = JSUtil.ArrayUtil.find(sharingInfos, function(sharingInfo){
-                    return JSUtil.StringUtil.contains(chaseFullName.toLowerCase(), (sharingInfo.chaseName || sharingInfo.prettyName).toLowerCase());
-                });
+                var sharingInfo = _findSharingInfo(chaseFullName, sharingInfos);
                 if(sharingInfo){
-                    processedStrings.push(_populateNextEmptySharedTransactionAndPersist(month, year, sharingInfo.prettyName, amount, sharingInfo.splitPercent));
+                    _newSharedTransaction(month, year, amount, sharingInfo, processedStrings);
                 }else{
                     notProcessedStrings.push([month, year, chaseFullName, '$' + amount].join(' '));
                 }
@@ -31,9 +29,11 @@ function processTransactions() {
     var now = new Date();
     var xcelThread = GmailApp.search('subject:"' + HalfZs.Const.XCEL_SUBJECT + '" after:' + JSUtil.DateUtil.toSearchString(now))[0];
     if(xcelThread) {
-        processedStrings.push(_populateNextEmptySharedTransactionAndPersist(
-            now.getMonth() + 1, now.getFullYear(), 'Xcel', /Amount Due: [$]([0-9]+[.][0-9][0-9])/.exec(xcelThread.getMessages()[0].getBody())[1], 50
-        ));
+        _newSharedTransaction(
+            now.getMonth() + 1, now.getFullYear(),
+            /Amount Due: [$]([0-9]+[.][0-9][0-9])/.exec(xcelThread.getMessages()[0].getBody())[1],
+            _findSharingInfo('Xcel', sharingInfos), processedStrings
+        );
     }
 
     if(processedStrings.length || notProcessedStrings.length){
@@ -43,14 +43,20 @@ function processTransactions() {
     }
 }
 
-function _populateNextEmptySharedTransactionAndPersist(month, year, what, iPayed, percentOwed) {
+function _findSharingInfo(name, sharingInfos) {
+    return JSUtil.ArrayUtil.find(sharingInfos, function (sharingInfo) {
+        return JSUtil.StringUtil.contains(name.toLowerCase(), (sharingInfo.chaseName || sharingInfo.prettyName).toLowerCase());
+    });
+}
+
+function _newSharedTransaction(month, year, iPayed, sharingInfo, processedStrings) {
     var sharedTransaction = GASton.Database.hydrateBy(HalfZs.SharedTransaction, ['month', '']);
     sharedTransaction.month = month;
     sharedTransaction.year = year;
-    sharedTransaction.what = what;
+    sharedTransaction.what = sharingInfo.prettyName;
     sharedTransaction.iPayed = iPayed;
-    sharedTransaction.percentOwed = percentOwed;
+    sharedTransaction.percentOwed = sharingInfo.splitPercent;
     GASton.Database.persist(HalfZs.SharedTransaction, sharedTransaction);
 
-    return [month, year, what, '$' + iPayed, percentOwed + '%'].join(' ');
+    processedStrings.push([month, year, sharingInfo.prettyName, '$' + iPayed, sharingInfo.splitPercent + '%'].join(' '));
 }
