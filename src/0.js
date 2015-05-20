@@ -58,5 +58,5 @@ function _newSharedTransaction(month, year, iPayed, sharingInfo, processedString
     sharedTransaction.percentOwed = sharingInfo.splitPercent;
     GASton.Database.persist(HalfZs.SharedTransaction, sharedTransaction);
 
-    processedStrings.push([month, year, sharingInfo.prettyName, '$' + iPayed, sharingInfo.splitPercent + '%'].join(' '));
+    processedStrings.push([month, year, sharingInfo.prettyName, '$' + iPayed, (sharingInfo.splitPercent * 100) + '%'].join(' '));
 }
