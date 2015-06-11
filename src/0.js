@@ -27,14 +27,20 @@ function processTransactions() {
     });
 
     var now = new Date();
-    var xcelThread = GmailApp.search('subject:"' + HalfZs.Const.XCEL_SUBJECT + '" after:' + JSUtil.DateUtil.toSearchString(now))[0];
+    var receivedTodaySearchStr = ' after:' + JSUtil.DateUtil.toSearchString(now);
+
+    var xcelThread = GmailApp.search('subject:"Account Notification: Your Xcel Energy statement is ready to view"' + receivedTodaySearchStr)[0];
     if(xcelThread) {
-        _newSharedTransaction(
-            now.getMonth() + 1, now.getFullYear(),
-            /Amount Due: [$]([0-9]+[.][0-9][0-9])/.exec(xcelThread.getMessages()[0].getBody())[1],
-            _findSharingInfo('Xcel', sharingInfos), processedStrings
-        );
+        _processMessageReceivedToday(_findSharingInfo('Xcel', sharingInfos), 'Amount Due:', xcelThread.getMessages()[0].getBody(), processedStrings);
     }
+
+    JSUtil.ArrayUtil.forEach(GmailApp.search('from:service@paypal.com subject:"You sent a payment"' + receivedTodaySearchStr), function(thread){
+        var messageBody = thread.getMessages()[0].getBody();
+        var sharingInfo = JSUtil.ArrayUtil.find(sharingInfos, function(sharingInfo){ return JSUtil.StringUtil.contains(messageBody, sharingInfo.prettyName); });
+        if(sharingInfo) {
+            _processMessageReceivedToday(sharingInfo, 'You sent a payment for', messageBody, processedStrings);
+        }
+    });
 
     if(processedStrings.length || notProcessedStrings.length){
         GASton.MailSender.sendToIndividual('HalfZs ' + JSUtil.DateUtil.toPrettyString(now), [
@@ -59,4 +65,12 @@ function _newSharedTransaction(month, year, iPayed, sharingInfo, processedString
     GASton.Database.persist(HalfZs.SharedTransaction, sharedTransaction);
 
     processedStrings.push([month, year, sharingInfo.prettyName, '$' + iPayed, (sharingInfo.splitPercent * 100) + '%'].join(' '));
+}
+
+function _processMessageReceivedToday(sharingInfo, textBeforeAmountDue, messageBody, processedStrings) {
+    _newSharedTransaction(
+        new Date().getMonth() + 1, new Date().getFullYear(),
+        new RegExp(textBeforeAmountDue + ' [$]([0-9]+[.][0-9][0-9])').exec(messageBody)[1],
+        sharingInfo, processedStrings
+    );
 }
