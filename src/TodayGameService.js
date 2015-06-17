@@ -24,7 +24,7 @@ PhysEd.TodayGameService.prototype.sendEarlyWarning = function(){
         if(sport.earlyWarningEmail && numInPlayers > sport.earlyWarningThreshold) {
             GASton.MailSender.sendToList(
                 JSUtil.DateUtil.toPrettyString(this.today),
-                PhysEd.Const.GROUP_NAME + ' is looking to get a game together today. ' + numInPlayers + ' people are currently in. Anybody interested?',
+                PhysEd.Const.generateEarlyWarningEmailBody(numInPlayers),
                 sport.earlyWarningEmail
             );
         }
