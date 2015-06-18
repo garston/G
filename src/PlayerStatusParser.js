@@ -8,31 +8,30 @@ PhysEd.PlayerStatusParser = function(thread){
         return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending());
     });
 
-    var peopleByEmail = {};
-    var messagesByEmail = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){
+    var people = [];
+    var messagesByPersonGuid = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
 
-        if(!peopleByEmail[fromParts.email]) {
-            var person = GASton.Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || new PhysEd.Person(fromParts.email);
-            if(!person.firstName || !person.lastName){
-                person.firstName = fromParts.firstName;
-                person.lastName = fromParts.lastName;
+        var person = JSUtil.ArrayUtil.find(people, function(person) { return person.firstName === fromParts.firstName && person.lastName === fromParts.lastName; });
+        if(!person){
+            person = GASton.Database.hydrateBy(PhysEd.Person, ['firstName', fromParts.firstName, 'lastName', fromParts.lastName]);
+            if(!person){
+                person = new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
                 GASton.Database.persist(PhysEd.Person, person);
             }
-
-            peopleByEmail[fromParts.email] = person;
+            people.push(person);
         }
 
-        return fromParts.email;
+        return person.guid;
     }, this);
 
-    for(var email in messagesByEmail) {
+    for(var personGuid in messagesByPersonGuid) {
         var playerStatusParser = this;
-        var statusArray = JSUtil.ArrayUtil.reduce(messagesByEmail[email], function(currentStatusArray, message){
+        var statusArray = JSUtil.ArrayUtil.reduce(messagesByPersonGuid[personGuid], function(currentStatusArray, message){
             var newStatusArray = playerStatusParser._determineStatusArrayFromMessage(message);
             return currentStatusArray && newStatusArray === playerStatusParser.unknownPlayers ? currentStatusArray : newStatusArray;
         }, undefined);
-        statusArray.push(peopleByEmail[email]);
+        statusArray.push(JSUtil.ArrayUtil.find(people, function(person){ return person.guid === personGuid; }));
     }
 };
 
