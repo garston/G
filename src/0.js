@@ -43,9 +43,9 @@ function processTransactions() {
     });
 
     if(processedStrings.length || notProcessedStrings.length){
-        GASton.MailSender.sendToIndividual('HalfZs ' + JSUtil.DateUtil.toPrettyString(now), [
-            'Processed:', processedStrings.join('<br/>'), '<br/>', 'Not Processed:', notProcessedStrings.join('<br/>')
-        ].join('<br/>'), Session.getActiveUser().getEmail());
+        GASton.MailSender.sendToIndividual('HalfZs ' + JSUtil.DateUtil.toPrettyString(now), JSUtil.ArrayUtil.flatten([
+            'Processed:', processedStrings, '', 'Not Processed:', notProcessedStrings, '', SpreadsheetApp.getActiveSpreadsheet().getUrl()
+        ]).join('<br/>'), Session.getActiveUser().getEmail());
     }
 }
 
