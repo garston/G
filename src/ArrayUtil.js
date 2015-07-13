@@ -34,6 +34,28 @@ JSUtil.ArrayUtil = {
         return null;
     },
 
+    flatten: function(array) {
+        var worker = [];
+
+        function rFlatten(a) {
+            var i, ln, v;
+
+            for (i = 0, ln = a.length; i < ln; i++) {
+                v = a[i];
+
+                if (Array.isArray(v)) {
+                    rFlatten(v);
+                } else {
+                    worker.push(v);
+                }
+            }
+
+            return worker;
+        }
+
+        return rFlatten(array);
+    },
+
     forEach: function(a, fn, scope) {
         a.forEach(fn, scope);
     },
