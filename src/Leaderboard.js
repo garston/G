@@ -5,14 +5,18 @@ PhysEd.Leaderboard.prototype.getLeaderboards = function(sportName, personSports,
         return ps2.getWinScore() - ps1.getWinScore();
     });
 
+    var streakablePropsColorMap = {};
+    streakablePropsColorMap[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] = streakablePropsColorMap[PhysEd.PersonSport.STREAKABLE_PROPS.INS] = 'red';
+    streakablePropsColorMap[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] = streakablePropsColorMap[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS] = 'blue';
+
     var html = 'Win percentage leaderboard for ' + sportName + '<br/>';
     html += this._createTable(personSports, function(personSport) {
         return [
             personSport.getWinScore(),
-            personSport.wins + 'W-' + personSport.losses + 'L',
+            personSport[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] + 'W-' + personSport[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] + 'L-' + personSport[PhysEd.PersonSport.STREAKABLE_PROPS.TIES] + 'T',
             {
-                color: personSport.streakDir === PhysEd.PersonSport.STREAK_DIR.W ? 'red' : 'blue',
-                html: personSport.streak + personSport.streakDir
+                color: streakablePropsColorMap[personSport.streakDir],
+                html: personSport.streak + personSport.streakDir[0].toUpperCase()
             },
             (personSport.plusMinus > 0 ? '+' : '') + personSport.plusMinus
         ];
@@ -28,9 +32,9 @@ PhysEd.Leaderboard.prototype.getLeaderboards = function(sportName, personSports,
     html += this._createTable(personSports, function(personSport) {
         return [
             personSport.getParticipationScore(),
-            personSport.ins + 'ins-' + personSport.outs + 'outs',
+            personSport[PhysEd.PersonSport.STREAKABLE_PROPS.INS] + 'ins-' + personSport[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS] + 'outs',
             {
-                color: personSport.participationStreakDir === PhysEd.PersonSport.STREAK_DIR.INS ? 'red' : 'blue',
+                color: streakablePropsColorMap[personSport.participationStreakDir],
                 html: personSport.participationStreak + personSport.participationStreakDir
             }
         ];

@@ -28,9 +28,9 @@ PhysEd.GameRecorder.prototype._recordParticipation = function(inPersonSportGuids
     JSUtil.ArrayUtil.forEach(allPersonSports, function(personSport){
         var isIn = JSUtil.ArrayUtil.contains(inPersonSportGuids, personSport.guid);
         var participationStreakDirBefore = personSport.participationStreakDir;
-        personSport.recordParticipation(isIn);
+        personSport.incrementStreakableProp(isIn ? PhysEd.PersonSport.STREAKABLE_PROPS.INS : PhysEd.PersonSport.STREAKABLE_PROPS.OUTS);
 
-        var affectedProperties = [isIn ? 'ins' : 'outs', 'participationStreak'];
+        var affectedProperties = [isIn ? PhysEd.PersonSport.STREAKABLE_PROPS.INS : PhysEd.PersonSport.STREAKABLE_PROPS.OUTS, 'participationStreak'];
         if(participationStreakDirBefore !== personSport.participationStreakDir){
             affectedProperties.push('participationStreakDir');
         }
@@ -50,7 +50,8 @@ PhysEd.GameRecorder.prototype._recordSide = function(side, game, sport, opponent
 
         var personSport = person.getPersonSport(sport);
         if(typeof side.score === 'number' && typeof opponentScore === 'number'){
-            personSport.recordResult(side.score, opponentScore);
+            personSport.incrementStreakableProp(side.score === opponentScore ? PhysEd.PersonSport.STREAKABLE_PROPS.TIES : (side.score > opponentScore ? PhysEd.PersonSport.STREAKABLE_PROPS.WINS : PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES));
+            personSport.plusMinus += side.score - opponentScore;
         }
         GASton.Database.persist(PhysEd.PersonSport, personSport);
 
