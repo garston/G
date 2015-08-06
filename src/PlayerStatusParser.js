@@ -1,5 +1,6 @@
 PhysEd.PlayerStatusParser = function(thread){
     this.inPlayers = [];
+    this.plus1Players = [];
     this.maybePlayers = [];
     this.outPlayers = [];
     this.unknownPlayers = [];
@@ -33,6 +34,8 @@ PhysEd.PlayerStatusParser = function(thread){
         }, undefined);
         statusArray.push(JSUtil.ArrayUtil.find(people, function(person){ return person.guid === personGuid; }));
     }
+
+    this.inPlayers = this.inPlayers.concat(this.plus1Players);
 };
 
 PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function (message) {
@@ -45,9 +48,19 @@ PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function 
     }
 
     var statusArray = this.unknownPlayers;
-    JSUtil.ArrayUtil.any(words, function(word){
+    JSUtil.ArrayUtil.any(words, function(word, index){
         if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
             statusArray = this.inPlayers;
+
+            var possibleIsIndex = index - (words[index - 1] === 'also' ? 2 : 1);
+            var possiblePlus1PlayerName = words[possibleIsIndex - 1];
+            if(words[possibleIsIndex] === 'is' && possiblePlus1PlayerName) {
+                var plus1Player = GASton.Database.hydrateBy(PhysEd.Person, ['firstName', possiblePlus1PlayerName]) || GASton.Database.hydrateBy(PhysEd.Person, ['lastName', possiblePlus1PlayerName]);
+                if(plus1Player) {
+                    this.plus1Players.push(plus1Player);
+                }
+            }
+
             return true;
         } else if (/^(maybe|50\W?50)\W*$/i.test(word)) {
             statusArray = this.maybePlayers;
