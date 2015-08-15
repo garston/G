@@ -50,17 +50,18 @@ PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function 
     var statusArray = this.unknownPlayers;
     JSUtil.ArrayUtil.any(words, function(word, index){
         if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
-            statusArray = this.inPlayers;
-
             var possibleIsIndex = index - (words[index - 1] === 'also' ? 2 : 1);
             var possiblePlus1PlayerName = words[possibleIsIndex - 1];
             if(words[possibleIsIndex] === 'is' && possiblePlus1PlayerName) {
+                possiblePlus1PlayerName = JSUtil.StringUtil.capitalize(possiblePlus1PlayerName.toLowerCase());
                 var plus1Player = GASton.Database.hydrateBy(PhysEd.Person, ['firstName', possiblePlus1PlayerName]) || GASton.Database.hydrateBy(PhysEd.Person, ['lastName', possiblePlus1PlayerName]);
                 if(plus1Player) {
                     this.plus1Players.push(plus1Player);
+                    return true;
                 }
             }
 
+            statusArray = this.inPlayers;
             return true;
         } else if (/^(maybe|50\W?50)\W*$/i.test(word)) {
             statusArray = this.maybePlayers;
