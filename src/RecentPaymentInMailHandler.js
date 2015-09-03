@@ -9,7 +9,7 @@ LordGarston.RecentPaymentInMailHandler.prototype.doHandle = function(rentPayment
 };
 
 LordGarston.RecentPaymentInMailHandler.prototype.shouldHandle = function(rentPayment) {
-    return GmailApp.search(rentPayment.totalAmount.toFixed(2) +
+    return GmailApp.search(Math.floor(rentPayment.totalAmount) +
             ' to:' + this.toEmail +
             ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, new Date())),
             0, 1).length > 0;
