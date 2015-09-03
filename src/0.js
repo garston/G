@@ -35,11 +35,13 @@ function processTransactions() {
     }
 
     JSUtil.ArrayUtil.forEach(GmailApp.search('from:service@paypal.com subject:"You sent a payment"' + receivedTodaySearchStr), function(thread){
-        var messageBody = thread.getMessages()[0].getBody();
-        var sharingInfo = JSUtil.ArrayUtil.find(sharingInfos, function(sharingInfo){ return JSUtil.StringUtil.contains(messageBody, sharingInfo.prettyName); });
-        if(sharingInfo) {
-            _processMessageReceivedToday(sharingInfo, 'You sent a payment for', messageBody, processedStrings);
-        }
+        JSUtil.ArrayUtil.forEach(thread.getMessages(), function(message){
+            var messageBody = message.getBody();
+            var sharingInfo = JSUtil.ArrayUtil.find(sharingInfos, function(sharingInfo){ return JSUtil.StringUtil.contains(messageBody, sharingInfo.prettyName); });
+            if(sharingInfo) {
+                _processMessageReceivedToday(sharingInfo, 'You sent a payment for', messageBody, processedStrings);
+            }
+        });
     });
 
     if(processedStrings.length || notProcessedStrings.length){
