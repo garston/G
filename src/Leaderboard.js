@@ -11,18 +11,26 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
 
     return 'Leaderboard for ' + sportName + '<br/>' +
         '<table>' +
+            '<tr>' +
+                JSUtil.ArrayUtil.map(['Name', 'Win %', 'Wins', 'Losses', 'Ties', 'Win streak', '+/-', 'Participation %', 'Ins', 'Outs', 'Participation streak'], function(header){
+                    return '<th>' + header + '</th>';
+                }).join('') +
+            '</tr>' +
             JSUtil.ArrayUtil.map(personSports, function(personSport){
                 var rowItems = [
                     personSport.getPerson().getDisplayString(),
                     personSport.getWinPercentage() + '%',
-                    personSport[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] + 'W-' + personSport[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] + 'L-' + personSport[PhysEd.PersonSport.STREAKABLE_PROPS.TIES] + 'T',
+                    personSport[PhysEd.PersonSport.STREAKABLE_PROPS.WINS],
+                    personSport[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES],
+                    personSport[PhysEd.PersonSport.STREAKABLE_PROPS.TIES],
                     {
                         color: streakablePropsColorMap[personSport.streakDir],
                         html: personSport.streak + personSport.streakDir[0].toUpperCase()
                     },
                     (personSport.plusMinus > 0 ? '+' : '') + personSport.plusMinus,
                     personSport.getParticipationPercentage() + '%',
-                    personSport[PhysEd.PersonSport.STREAKABLE_PROPS.INS] + 'ins-' + personSport[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS] + 'outs',
+                    personSport[PhysEd.PersonSport.STREAKABLE_PROPS.INS],
+                    personSport[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS],
                     {
                         color: streakablePropsColorMap[personSport.participationStreakDir],
                         html: personSport.participationStreak + personSport.participationStreakDir
