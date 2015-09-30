@@ -44,12 +44,12 @@ PhysEd.PersonSport.prototype.getPerson = function(){
     return this.person;
 };
 
-PhysEd.PersonSport.prototype.getWinScore = function(){
-    return this._getScore(this[PhysEd.PersonSport.STREAKABLE_PROPS.WINS], this[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES]);
+PhysEd.PersonSport.prototype.getParticipationPercentage = function(){
+    return this._getPercentage(this[PhysEd.PersonSport.STREAKABLE_PROPS.INS], this[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS]);
 };
 
-PhysEd.PersonSport.prototype.getParticipationScore = function(){
-    return this._getScore(this[PhysEd.PersonSport.STREAKABLE_PROPS.INS], this[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS]);
+PhysEd.PersonSport.prototype.getWinPercentage = function(){
+    return this._getPercentage(this[PhysEd.PersonSport.STREAKABLE_PROPS.WINS], this[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES]);
 };
 
 PhysEd.PersonSport.prototype.incrementStreakableProp = function(prop){
@@ -61,7 +61,7 @@ PhysEd.PersonSport.prototype.incrementStreakableProp = function(prop){
     this[streakDirProp] = prop;
 };
 
-PhysEd.PersonSport.prototype._getScore = function(good, bad){
+PhysEd.PersonSport.prototype._getPercentage = function(good, bad){
     var total = good + bad;
-    return total === 0 ? 0 : (good / total).toFixed(3) * 1000;
+    return total === 0 ? 0 : Math.round((good / total) * 100);
 };
