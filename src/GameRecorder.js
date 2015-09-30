@@ -68,6 +68,6 @@ PhysEd.GameRecorder.prototype._sendEmail = function(side1, side2, sportName, all
         '<b>Team 1: ' + side1.score + '</b>. &nbsp;' + JSUtil.ArrayUtil.map(side1.getPeople(), PhysEd.Transformers.personToDisplayString).join(', '),
         '<b>Team 2: ' + side2.score + '</b>. &nbsp;' + JSUtil.ArrayUtil.map(side2.getPeople(), PhysEd.Transformers.personToDisplayString).join(', '),
         '',
-        new PhysEd.Leaderboard().getLeaderboards(sportName, allPersonSports, side1.getPlayerEmails().concat(side2.getPlayerEmails()))
+        PhysEd.Leaderboard.getLeaderboard(sportName, allPersonSports, side1.getPlayerEmails().concat(side2.getPlayerEmails()))
     ].join('<br/>'), PhysEd.Const.PHYS_ED_STATS_EMAIL);
 };
