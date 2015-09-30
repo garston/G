@@ -13,9 +13,9 @@ PhysEd.PlayerStatusParser = function(thread){
     var messagesByPersonGuid = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
 
-        var person = JSUtil.ArrayUtil.find(people, function(person) { return person.firstName === fromParts.firstName && person.lastName === fromParts.lastName; });
+        var person = JSUtil.ArrayUtil.find(people, function(person) { return person.email === fromParts.email || (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName); });
         if(!person){
-            person = GASton.Database.hydrateBy(PhysEd.Person, ['firstName', fromParts.firstName, 'lastName', fromParts.lastName]);
+            person = GASton.Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || GASton.Database.hydrateBy(PhysEd.Person, ['firstName', fromParts.firstName, 'lastName', fromParts.lastName]);
             if(!person){
                 person = new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
                 GASton.Database.persist(PhysEd.Person, person);
