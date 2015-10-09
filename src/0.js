@@ -5,11 +5,11 @@ function notifyPhysEd() {
 }
 
 function notifyFullCourtFriday(){
-    PhysEd.InBasedThread.sendInitialEmail(PhysEd.InBasedThread.BASKETBALL_PRETTY_NAME, 'Friday', PhysEd.Const.PHYS_ED_EMAIL);
+    PhysEd.InBasedThread.sendInitialEmails(PhysEd.InBasedThread.BASKETBALL_PRETTY_NAME, 'Friday');
 }
 
 function notifyVolleyball(){
-    PhysEd.InBasedThread.sendInitialEmail('Volleyball', 'Tomorrow', PhysEd.Const.VOLLEYBALL_EMAIL);
+    PhysEd.InBasedThread.sendInitialEmails('Volleyball', 'Tomorrow');
 }
 
 function checkGameStatus(){

@@ -60,11 +60,7 @@ PhysEd.GameRecorder.prototype._recordSide = function(side, game, sport, opponent
 };
 
 PhysEd.GameRecorder.prototype._sendEmail = function(side1, side2, sportName, allPersonSports){
-    var month = side1.month;
-    var day = side1.day;
-    var year = side1.year;
-
-    GASton.MailSender.sendToList('[PhysEdStats] ' + sportName + ' ' + month + '/' + day + '/' + year, ['Game results',
+    GASton.MailSender.sendToList('[PhysEdStats] ' + sportName + ' ' + side1.month + '/' + side1.day + '/' + side1.year, ['Game results',
         '<b>Team 1: ' + side1.score + '</b>. &nbsp;' + side1.getPeople().map(PhysEd.Transformers.personToDisplayString).join(', '),
         '<b>Team 2: ' + side2.score + '</b>. &nbsp;' + side2.getPeople().map(PhysEd.Transformers.personToDisplayString).join(', '),
         '',

@@ -1,18 +1,18 @@
 PhysEd.InBasedThread = function(thread){
     this.thread = thread;
+    this.mailingListEmail = thread.getMessages()[0].getReplyTo();
+    this.sportName = PhysEd.InBasedThread._translateSportNameToStoredName(thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, ''));
     this.playerStatusParser = new PhysEd.PlayerStatusParser(thread);
-
-    this.sportName = this.thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '');
-    if(this.sportName === PhysEd.InBasedThread.BASKETBALL_PRETTY_NAME) {
-        this.sportName = PhysEd.InBasedThread.BASKETBALL_STORED_NAME;
-    }
 };
 
 PhysEd.InBasedThread.BASKETBALL_PRETTY_NAME = 'Full Court';
 PhysEd.InBasedThread.BASKETBALL_STORED_NAME = 'Basketball';
 
-PhysEd.InBasedThread.sendInitialEmail = function(sportName, dayWord, email){
-    GASton.MailSender.sendToList(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', email);
+PhysEd.InBasedThread.sendInitialEmails = function(sportName, dayWord){
+    var sportMailingLists = GASton.Database.hydrateAllBy(PhysEd.SportMailingList, ['sportGuid', PhysEd.Sport.hydrateByName(this._translateSportNameToStoredName(sportName)).guid]);
+    sportMailingLists.forEach(function(sportMailingList) {
+        GASton.MailSender.sendToList(sportName + ' ' + dayWord + this._generateRandomExclamations(), '', GASton.Database.hydrate(PhysEd.MailingList, sportMailingList.mailingListGuid).email);
+    }, this);
 };
 
 PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerStatusParser) {
@@ -21,7 +21,7 @@ PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerS
         this._toPlayerNames('maybePlayers', 'Maybe', additionalPlayerStatusParser),
         this._toPlayerNames('outPlayers', 'Out', additionalPlayerStatusParser),
         this._toPlayerNames('unknownPlayers', 'Unknown', additionalPlayerStatusParser)
-    ]).join('<br/>'), this.thread.getMessages()[0].getReplyTo());
+    ]).join('<br/>'), this.mailingListEmail);
 };
 
 PhysEd.InBasedThread._generateRandomExclamations = function(){
@@ -38,4 +38,8 @@ PhysEd.InBasedThread.prototype._toPlayerNames = function(playerStatusParserCateg
         var playerStrings = JSUtil.ArrayUtil.unique(players.map(PhysEd.Transformers.personToDisplayString));
         return categoryDisplayString + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
     }
+};
+
+PhysEd.InBasedThread._translateSportNameToStoredName = function(sportName) {
+    return sportName === PhysEd.InBasedThread.BASKETBALL_PRETTY_NAME ? PhysEd.InBasedThread.BASKETBALL_STORED_NAME : sportName;
 };

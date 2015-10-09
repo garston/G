@@ -4,7 +4,7 @@ PhysEd.PhysEdNotifier.TIMES_PER_SPORT_BEFORE_SWITCHING = 2;
 
 PhysEd.PhysEdNotifier.prototype.notifyPhysEd = function(){
     var sport = this._determinePhysEdSport();
-    PhysEd.InBasedThread.sendInitialEmail(sport.name, 'Tomorrow', PhysEd.Const.PHYS_ED_EMAIL);
+    PhysEd.InBasedThread.sendInitialEmails(sport.name, 'Tomorrow');
 
     sport.physEdCount += 1;
     GASton.Database.persist(PhysEd.Sport, sport);
