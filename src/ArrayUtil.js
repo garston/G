@@ -1,8 +1,4 @@
 JSUtil.ArrayUtil = {
-    any: function(a, fn, scope) {
-        return a.some(fn, scope);
-    },
-
     compact: function(a) {
         var result = [];
         for(var i = 0; i < a.length; i++) {
@@ -15,14 +11,6 @@ JSUtil.ArrayUtil = {
 
     contains: function(a, obj) {
         return a.indexOf(obj) !== -1;
-    },
-
-    every: function(a, fn, scope) {
-        return a.every(fn, scope);
-    },
-
-    filter: function(a, fn, scope) {
-        return a.filter(fn, scope);
     },
 
     find: function(a, fn, scope) {
@@ -56,10 +44,6 @@ JSUtil.ArrayUtil = {
         return rFlatten(array);
     },
 
-    forEach: function(a, fn, scope) {
-        a.forEach(fn, scope);
-    },
-
     groupBy: function(a, fn, scope) {
         var groups = {};
         for (var i = 0; i < a.length; i++) {
@@ -71,10 +55,6 @@ JSUtil.ArrayUtil = {
             }
         }
         return groups;
-    },
-
-    map: function(a, fn, scope) {
-        return a.map(fn, scope);
     },
 
     range: function(start, end, step) {
@@ -94,10 +74,6 @@ JSUtil.ArrayUtil = {
         return result;
     },
 
-    reduce: function(a, fn, initialValue) {
-        return arguments.length < 3 ? a.reduce(fn) : a.reduce(fn, initialValue);
-    },
-
     remove: function(a, o){
         var index = a.indexOf(o);
         if(index !== -1){
@@ -106,7 +82,7 @@ JSUtil.ArrayUtil = {
     },
 
     times: function(n, fn, scope) {
-        JSUtil.ArrayUtil.forEach(JSUtil.ArrayUtil.range(n), fn, scope);
+        JSUtil.ArrayUtil.range(n).forEach(fn, scope);
     },
 
     unique: function(arr){
