@@ -13,7 +13,7 @@ GASton.Database.hydrate = function(clazz, guid){
 };
 
 GASton.Database.hydrateAll = function(clazz){
-    return JSUtil.ArrayUtil.map(JSUtil.ArrayUtil.range(this._getFirstRow(clazz), this.getLastRow(clazz) + 1), function(row){
+    return JSUtil.ArrayUtil.range(this._getFirstRow(clazz), this.getLastRow(clazz) + 1).map(function(row){
         return this._hydrateRow(clazz, row);
     }, this);
 };
@@ -40,12 +40,6 @@ GASton.Database.hydrateBy = function(clazz, colNameValuePairs, _startRow){
     }
 };
 
-GASton.Database.hydrateMultiple = function(clazz, guids){
-    return JSUtil.ArrayUtil.map(guids, function(guid){
-        return this.hydrate(clazz, guid);
-    }, this);
-};
-
 GASton.Database.persist = function(clazz, o){
     if(o.__row){
         this._persistUpdateAllProperties(clazz, o);
@@ -55,7 +49,7 @@ GASton.Database.persist = function(clazz, o){
 };
 
 GASton.Database.persistOnly = function(clazz, o, properties){
-    JSUtil.ArrayUtil.forEach(properties, function(property){
+    properties.forEach(function(property){
         this._persistProperty(clazz, o, property);
     }, this);
 };
