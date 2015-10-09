@@ -5,9 +5,10 @@ function processTransactions() {
     var notProcessedStrings = [];
     var sharingInfos = GASton.Database.hydrateAll(HalfZs.SharingInfo);
 
-    JSUtil.ArrayUtil.forEach(GmailApp.search('label:' + HalfZs.Const.CHASE_LABEL), function(thread){
-        JSUtil.ArrayUtil.forEach(thread.getMessages(), function(message){
-            if(!message.isInTrash()){
+    GmailApp.search('label:' + HalfZs.Const.CHASE_LABEL).forEach(function(thread){
+        thread.getMessages().
+            filter(function(message){return !message.isInTrash()}).
+            forEach(function(message){
                 var transactionInfo = /([0-9]+[.][0-9][0-9]) at (.+) has been authorized on 0?([0-9]+)[/][0-9]+[/]([0-9]+)/.exec(message.getPlainBody());
                 var amount = transactionInfo[1];
                 var chaseFullName = transactionInfo[2];
@@ -22,7 +23,6 @@ function processTransactions() {
                 }
 
                 message.moveToTrash();
-            }
         });
     });
 
@@ -34,8 +34,8 @@ function processTransactions() {
         _processMessageReceivedToday(_findSharingInfo('Xcel', sharingInfos), 'Amount Due:', xcelThread.getMessages()[0].getBody(), processedStrings);
     }
 
-    JSUtil.ArrayUtil.forEach(GmailApp.search('from:service@paypal.com subject:"You sent a payment"' + receivedTodaySearchStr), function(thread){
-        JSUtil.ArrayUtil.forEach(thread.getMessages(), function(message){
+    GmailApp.search('from:service@paypal.com subject:"You sent a payment"' + receivedTodaySearchStr).forEach(function(thread){
+        thread.getMessages().forEach(function(message){
             var messageBody = message.getBody();
             var sharingInfo = JSUtil.ArrayUtil.find(sharingInfos, function(sharingInfo){ return JSUtil.StringUtil.contains(messageBody, sharingInfo.prettyName); });
             if(sharingInfo) {
