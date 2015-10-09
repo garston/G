@@ -22,7 +22,7 @@ PhysEd.PhysEdNotifier.prototype._findInProgressSport = function(physEdSports) {
 };
 
 PhysEd.PhysEdNotifier.prototype._findLowestSport = function(physEdSports) {
-    return JSUtil.ArrayUtil.reduce(physEdSports, function(lowestSport, sport){
+    return physEdSports.reduce(function(lowestSport, sport){
         return sport.physEdCount < lowestSport.physEdCount ? sport : lowestSport;
     });
 };

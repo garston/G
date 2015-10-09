@@ -25,7 +25,7 @@ PhysEd.GameRecorder.prototype.record = function(side1, side2){
 };
 
 PhysEd.GameRecorder.prototype._recordParticipation = function(inPersonSportGuids, allPersonSports){
-    JSUtil.ArrayUtil.forEach(allPersonSports, function(personSport){
+    allPersonSports.forEach(function(personSport){
         var isIn = JSUtil.ArrayUtil.contains(inPersonSportGuids, personSport.guid);
         var participationStreakDirBefore = personSport.participationStreakDir;
         personSport.incrementStreakableProp(isIn ? PhysEd.PersonSport.STREAKABLE_PROPS.INS : PhysEd.PersonSport.STREAKABLE_PROPS.OUTS);
@@ -42,7 +42,7 @@ PhysEd.GameRecorder.prototype._recordSide = function(side, game, sport, opponent
     var team = new PhysEd.Team(game.guid, side.score);
     GASton.Database.persist(PhysEd.Team, team);
 
-    return JSUtil.ArrayUtil.map(side.getPeople(), function(person){
+    return side.getPeople().map(function(person){
         GASton.Database.persist(PhysEd.Person, person);
 
         var personTeam = new PhysEd.PersonTeam(person.guid, team.guid);
@@ -65,8 +65,8 @@ PhysEd.GameRecorder.prototype._sendEmail = function(side1, side2, sportName, all
     var year = side1.year;
 
     GASton.MailSender.sendToList('[PhysEdStats] ' + sportName + ' ' + month + '/' + day + '/' + year, ['Game results',
-        '<b>Team 1: ' + side1.score + '</b>. &nbsp;' + JSUtil.ArrayUtil.map(side1.getPeople(), PhysEd.Transformers.personToDisplayString).join(', '),
-        '<b>Team 2: ' + side2.score + '</b>. &nbsp;' + JSUtil.ArrayUtil.map(side2.getPeople(), PhysEd.Transformers.personToDisplayString).join(', '),
+        '<b>Team 1: ' + side1.score + '</b>. &nbsp;' + side1.getPeople().map(PhysEd.Transformers.personToDisplayString).join(', '),
+        '<b>Team 2: ' + side2.score + '</b>. &nbsp;' + side2.getPeople().map(PhysEd.Transformers.personToDisplayString).join(', '),
         '',
         PhysEd.Leaderboard.getLeaderboard(sportName, allPersonSports, side1.getPlayerEmails().concat(side2.getPlayerEmails()))
     ].join('<br/>'), PhysEd.Const.PHYS_ED_STATS_EMAIL);

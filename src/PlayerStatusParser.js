@@ -5,7 +5,7 @@ PhysEd.PlayerStatusParser = function(thread){
     this.outPlayers = [];
     this.unknownPlayers = [];
 
-    var replyMessages = JSUtil.ArrayUtil.filter(thread.getMessages(), function(message){
+    var replyMessages = thread.getMessages().filter(function(message){
         return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending());
     });
 
@@ -28,7 +28,7 @@ PhysEd.PlayerStatusParser = function(thread){
 
     for(var personGuid in messagesByPersonGuid) {
         var playerStatusParser = this;
-        var statusArray = JSUtil.ArrayUtil.reduce(messagesByPersonGuid[personGuid], function(currentStatusArray, message){
+        var statusArray = messagesByPersonGuid[personGuid].reduce(function(currentStatusArray, message){
             var newStatusArray = playerStatusParser._determineStatusArrayFromMessage(message);
             return currentStatusArray && newStatusArray === playerStatusParser.unknownPlayers ? currentStatusArray : newStatusArray;
         }, undefined);
@@ -39,7 +39,7 @@ PhysEd.PlayerStatusParser = function(thread){
 };
 
 PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function (message) {
-    var words = JSUtil.ArrayUtil.reduce(message.getPlainBody().split('\n'), function(allWords, line) {
+    var words = message.getPlainBody().split('\n').reduce(function(allWords, line) {
         return line[0] === '>' ? allWords : allWords.concat(JSUtil.ArrayUtil.compact(line.trim().split(' ')));
     }, []);
 
@@ -48,7 +48,7 @@ PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function 
     }
 
     var statusArray = this.unknownPlayers;
-    JSUtil.ArrayUtil.any(words, function(word, index){
+    words.some(function(word, index){
         if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
             var possibleIsIndex = index - (words[index - 1] === 'also' ? 2 : 1);
             var possiblePlus1PlayerName = words[possibleIsIndex - 1];

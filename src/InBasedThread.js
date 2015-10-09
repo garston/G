@@ -27,18 +27,15 @@ PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerS
 PhysEd.InBasedThread._generateRandomExclamations = function(){
     var maxExclamations = 5;
     var num = Math.floor(Math.random() * (maxExclamations + 1));
-    return JSUtil.ArrayUtil.reduce(JSUtil.ArrayUtil.range(num), function(str){
-        return str + '!';
-    }, '');
+    return JSUtil.ArrayUtil.range(num).reduce(function(str){ return str + '!'; }, '');
 };
 
 PhysEd.InBasedThread.prototype._toPlayerNames = function(playerStatusParserCategoryName, categoryDisplayString, additionalPlayerStatusParser) {
-    var playerStatusParsers = JSUtil.ArrayUtil.compact([this.playerStatusParser, additionalPlayerStatusParser]);
-    var players = JSUtil.ArrayUtil.reduce(playerStatusParsers, function(players, playerStatusParser){
+    var players = JSUtil.ArrayUtil.compact([this.playerStatusParser, additionalPlayerStatusParser]).reduce(function(players, playerStatusParser){
         return players.concat(playerStatusParser[playerStatusParserCategoryName]);
     }, []);
     if(players.length){
-        var playerStrings = JSUtil.ArrayUtil.unique(JSUtil.ArrayUtil.map(players, PhysEd.Transformers.personToDisplayString));
+        var playerStrings = JSUtil.ArrayUtil.unique(players.map(PhysEd.Transformers.personToDisplayString));
         return categoryDisplayString + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
     }
 };

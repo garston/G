@@ -73,13 +73,13 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
     return 'Leaderboard for ' + sportName + ' (ranks in parens)<br/>' +
         '<table>' +
             '<tr>' +
-                JSUtil.ArrayUtil.map(columns, function(column){
+                columns.map(function(column){
                     return '<th>' + column.header + '</th>';
                 }).join('') +
             '</tr>' +
-            JSUtil.ArrayUtil.map(columns[sortColumnIndex].sorted, function(personSport){
+            columns[sortColumnIndex].sorted.map(function(personSport){
                 return '<tr' + (JSUtil.ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' style="font-weight: bold;"' : '') + '>' +
-                        JSUtil.ArrayUtil.map(columns, function(column, columnIndex){
+                        columns.map(function(column, columnIndex){
                             var rowItem = column.getValue(personSport);
                             return '<td' + (rowItem.color ? ' style="color: ' + rowItem.color + ';"' : '') + '>' +
                                     (rowItem.html || rowItem) + (columnIndex === sortColumnIndex ? '' : ' (' + (column.sorted.indexOf(personSport) + 1) + ')') +

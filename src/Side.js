@@ -15,7 +15,7 @@ PhysEd.Side = function(month, day, year, sportName, score, playerEmails) {
 PhysEd.Side.MAX_PLAYERS = 14;
 
 PhysEd.Side.prototype.getPeople = function(){
-    this.people = this.people || JSUtil.ArrayUtil.map(this.getPlayerEmails(), function(email){
+    this.people = this.people || this.getPlayerEmails().map(function(email){
         return GASton.Database.hydrateBy(PhysEd.Person, ['email', email]) || new PhysEd.Person(email);
     });
 
@@ -23,9 +23,7 @@ PhysEd.Side.prototype.getPeople = function(){
 };
 
 PhysEd.Side.prototype.getPlayerEmails = function() {
-    return JSUtil.ArrayUtil.compact(JSUtil.ArrayUtil.map(JSUtil.ArrayUtil.range(PhysEd.Side.MAX_PLAYERS), function(i){
-        return this['playerEmail' + i];
-    }, this));
+    return JSUtil.ArrayUtil.compact(JSUtil.ArrayUtil.range(PhysEd.Side.MAX_PLAYERS).map(function(i){ return this['playerEmail' + i]; }, this));
 };
 
 PhysEd.Side.__tableName = 'GAME_RECORDER';

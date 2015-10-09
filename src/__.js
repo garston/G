@@ -3,21 +3,21 @@ function __computePlusMinus() {
     var teams = GASton.Database.hydrateAll(PhysEd.Team);
     var personTeams = GASton.Database.hydrateAll(PhysEd.PersonTeam);
 
-    JSUtil.ArrayUtil.forEach(GASton.Database.hydrateAll(PhysEd.PersonSport), function(personSport){
+    GASton.Database.hydrateAll(PhysEd.PersonSport).forEach(function(personSport){
         personSport.plusMinus = 0;
 
-        var personTeamsForPerson = JSUtil.ArrayUtil.filter(personTeams, function(personTeam){
-            return personTeam.personGuid === personSport.personGuid;
-        });
+        var teamsForPersonAndSportWithScore = JSUtil.ArrayUtil.compact(
+            personTeams.
+                filter(function(personTeam){ return personTeam.personGuid === personSport.personGuid; }).
+                map(function(personTeam) {
+                    var teamForPerson = JSUtil.ArrayUtil.find(teams, function(team){ return team.guid === personTeam.teamGuid; });
+                    return typeof teamForPerson.score === 'number' &&
+                        JSUtil.ArrayUtil.find(games, function(game){ return game.guid === teamForPerson.gameGuid; }).sportGuid === personSport.sportGuid &&
+                        teamForPerson;
+                })
+        );
 
-        var teamsForPersonAndSportWithScore = JSUtil.ArrayUtil.compact(JSUtil.ArrayUtil.map(personTeamsForPerson, function(personTeam) {
-            var teamForPerson = JSUtil.ArrayUtil.find(teams, function(team){ return team.guid === personTeam.teamGuid; });
-            return typeof teamForPerson.score === 'number' &&
-                JSUtil.ArrayUtil.find(games, function(game){ return game.guid === teamForPerson.gameGuid; }).sportGuid === personSport.sportGuid &&
-                teamForPerson;
-        }));
-
-        JSUtil.ArrayUtil.forEach(teamsForPersonAndSportWithScore, function(teamForPerson){
+        teamsForPersonAndSportWithScore.forEach(function(teamForPerson){
             var opposingTeam = JSUtil.ArrayUtil.find(teams, function(team){ return team.gameGuid === teamForPerson.gameGuid && team !== teamForPerson; });
             personSport.plusMinus += teamForPerson.score - opposingTeam.score;
         });
