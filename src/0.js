@@ -1,14 +1,15 @@
 LordGarston = {};
 
 function createRentPayment(){
-    var activeRenters = JSUtil.ArrayUtil.filter(LordGarston.Const.RENTERS, function(renter){ return renter.isActive; });
-    JSUtil.ArrayUtil.forEach(activeRenters, function(renter){
-        var dueDate = JSUtil.DateUtil.startOfDay(JSUtil.DateUtil.lastDayOfMonth(new Date()));
-        var newRowNum = GASton.Database.getLastRow(LordGarston.RentPayment) + 1;
-        GASton.Database.persist(LordGarston.RentPayment, new LordGarston.RentPayment(
-            dueDate, renter.name, renter.baseAmount, renter.getAdditionalAmountValue(dueDate), '=C' + newRowNum + ' + ' + 'D' + newRowNum, ''
-        ));
-    });
+    LordGarston.Const.RENTERS.
+        filter(function(renter){ return renter.isActive; }).
+        forEach(function(renter){
+            var dueDate = JSUtil.DateUtil.startOfDay(JSUtil.DateUtil.lastDayOfMonth(new Date()));
+            var newRowNum = GASton.Database.getLastRow(LordGarston.RentPayment) + 1;
+            GASton.Database.persist(LordGarston.RentPayment, new LordGarston.RentPayment(
+                dueDate, renter.name, renter.baseAmount, renter.getAdditionalAmountValue(dueDate), '=C' + newRowNum + ' + ' + 'D' + newRowNum, ''
+            ));
+        });
 }
 
 function hourly(){
@@ -19,7 +20,7 @@ function hourly(){
         new LordGarston.LatePaymentHandler()
     ];
 
-    JSUtil.ArrayUtil.forEach(GASton.Database.hydrateAllBy(LordGarston.RentPayment, ['paidWith', '']), function(rentPayment){
+    GASton.Database.hydrateAllBy(LordGarston.RentPayment, ['paidWith', '']).forEach(function(rentPayment){
         var handler = JSUtil.ArrayUtil.find(handlers, function(handler){ return handler.shouldHandle(rentPayment); });
         if(handler) {
             handler.doHandle(rentPayment);
