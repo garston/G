@@ -1,7 +1,7 @@
 PhysEd = {};
 
 function notifyPhysEd() {
-    new PhysEd.PhysEdNotifier().notifyPhysEd();
+    PhysEd.PhysEdNotifier.notifyPhysEd();
 }
 
 function notifyFullCourtFriday(){

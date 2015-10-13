@@ -1,8 +1,6 @@
-PhysEd.PhysEdNotifier = function(){};
+PhysEd.PhysEdNotifier = {};
 
-PhysEd.PhysEdNotifier.TIMES_PER_SPORT_BEFORE_SWITCHING = 2;
-
-PhysEd.PhysEdNotifier.prototype.notifyPhysEd = function(){
+PhysEd.PhysEdNotifier.notifyPhysEd = function(){
     var sport = this._determinePhysEdSport();
     PhysEd.InBasedThread.sendInitialEmails(sport.name, 'Tomorrow');
 
@@ -10,18 +8,19 @@ PhysEd.PhysEdNotifier.prototype.notifyPhysEd = function(){
     GASton.Database.persist(PhysEd.Sport, sport);
 };
 
-PhysEd.PhysEdNotifier.prototype._determinePhysEdSport = function(){
+PhysEd.PhysEdNotifier._determinePhysEdSport = function(){
     var physEdSports = GASton.Database.hydrateAllBy(PhysEd.Sport, ['isInPhysEdRotation', 1]);
     return this._findInProgressSport(physEdSports) || this._findLowestSport(physEdSports);
 };
 
-PhysEd.PhysEdNotifier.prototype._findInProgressSport = function(physEdSports) {
+PhysEd.PhysEdNotifier._findInProgressSport = function(physEdSports) {
+    var timesPerSportBeforeSwitching = 2;
     return JSUtil.ArrayUtil.find(physEdSports, function(sport){
-        return sport.physEdCount % PhysEd.PhysEdNotifier.TIMES_PER_SPORT_BEFORE_SWITCHING !== 0;
+        return sport.physEdCount % timesPerSportBeforeSwitching !== 0;
     });
 };
 
-PhysEd.PhysEdNotifier.prototype._findLowestSport = function(physEdSports) {
+PhysEd.PhysEdNotifier._findLowestSport = function(physEdSports) {
     return physEdSports.reduce(function(lowestSport, sport){
         return sport.physEdCount < lowestSport.physEdCount ? sport : lowestSport;
     });
