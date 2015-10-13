@@ -1,27 +1,26 @@
 PhysEd.PhysEdNotifier = {};
 
 PhysEd.PhysEdNotifier.notifyPhysEd = function(){
-    var sport = this._determinePhysEdSport();
-    PhysEd.InBasedThread.sendInitialEmails(sport.name, 'Tomorrow');
+    var sport = this._determineSport();
+    if(sport){
+        PhysEd.InBasedThread.sendInitialEmails(sport);
 
-    sport.physEdCount += 1;
-    GASton.Database.persist(PhysEd.Sport, sport);
+        sport.gameDayCount += 1;
+        GASton.Database.persist(PhysEd.Sport, sport);
+    }
 };
 
-PhysEd.PhysEdNotifier._determinePhysEdSport = function(){
-    var physEdSports = GASton.Database.hydrateAllBy(PhysEd.Sport, ['isInPhysEdRotation', 1]);
-    return this._findInProgressSport(physEdSports) || this._findLowestSport(physEdSports);
+PhysEd.PhysEdNotifier._determineSport = function(){
+    var tomorrowDay = (new Date().getDay() + 1) % 7;
+    var sports = GASton.Database.hydrateAll(PhysEd.Sport).filter(function (sport) { return JSUtil.StringUtil.contains(sport.gameDays.toString(), tomorrowDay); });
+    return sports.length && (sports.length === 1 ? sports[0] : this._findInProgressSport(sports) || this._findLowestSport(sports));
 };
 
-PhysEd.PhysEdNotifier._findInProgressSport = function(physEdSports) {
+PhysEd.PhysEdNotifier._findInProgressSport = function(sports) {
     var timesPerSportBeforeSwitching = 2;
-    return JSUtil.ArrayUtil.find(physEdSports, function(sport){
-        return sport.physEdCount % timesPerSportBeforeSwitching !== 0;
-    });
+    return JSUtil.ArrayUtil.find(sports, function(sport){ return sport.gameDayCount % timesPerSportBeforeSwitching !== 0; });
 };
 
-PhysEd.PhysEdNotifier._findLowestSport = function(physEdSports) {
-    return physEdSports.reduce(function(lowestSport, sport){
-        return sport.physEdCount < lowestSport.physEdCount ? sport : lowestSport;
-    });
+PhysEd.PhysEdNotifier._findLowestSport = function(sports) {
+    return sports.reduce(function(lowestSport, sport){ return sport.gameDayCount < lowestSport.gameDayCount ? sport : lowestSport; });
 };

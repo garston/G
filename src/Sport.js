@@ -1,9 +1,10 @@
-PhysEd.Sport = function(name, isInPhysEdRotation, physEdCount) {
+PhysEd.Sport = function(name, gameDays, prePersistSides, gameDayCount) {
     this.guid = JSUtil.GuidUtil.generate();
     this.creationDate = new Date();
     this.name = name;
-    this.isInPhysEdRotation = isInPhysEdRotation || 0;
-    this.physEdCount = physEdCount || 0;
+    this.gameDays = gameDays || '';
+    this.prePersistSides = prePersistSides || 0;
+    this.gameDayCount = gameDayCount || 0;
 };
 
 PhysEd.Sport.hydrateByName = function(name) {
@@ -15,6 +16,7 @@ PhysEd.Sport.__propsToCol = {
     guid: 1,
     creationDate: 2,
     name: 3,
-    isInPhysEdRotation: 4,
-    physEdCount: 5
+    gameDays: 4,
+    prePersistSides: 5,
+    gameDayCount: 6
 };

@@ -1,15 +1,7 @@
 PhysEd = {};
 
-function notifyPhysEd() {
+function notifyGameTomorrow(){
     PhysEd.PhysEdNotifier.notifyPhysEd();
-}
-
-function notifyFullCourtFriday(){
-    PhysEd.InBasedThread.sendInitialEmails(PhysEd.InBasedThread.BASKETBALL_PRETTY_NAME, 'Friday');
-}
-
-function notifyVolleyball(){
-    PhysEd.InBasedThread.sendInitialEmails('Volleyball', 'Tomorrow');
 }
 
 function checkGameStatus(){

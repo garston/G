@@ -54,7 +54,7 @@ PhysEd.TodayGameService.prototype._parseEarlyWarningThread = function(sportMaili
 };
 
 PhysEd.TodayGameService.prototype._persistSides = function(inPlayers, sport){
-    if(sport.isInPhysEdRotation) {
+    if(sport.prePersistSides) {
         var teams = [[], []];
         inPlayers.forEach(function(player, index){
             teams[index % teams.length].push(player.email);
