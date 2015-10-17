@@ -1,15 +1,15 @@
 PhysEd = {};
 
 function notifyGameTomorrow(){
-    PhysEd.PhysEdNotifier.notifyPhysEd();
+    new PhysEd.GamePreparer().notifyGameTomorrow();
 }
 
 function checkGameStatus(){
-    new PhysEd.TodayGameService().checkGameStatus();
+    new PhysEd.GamePreparer().checkGameStatus();
 }
 
 function earlyWarnGameStatus(){
-    new PhysEd.TodayGameService().sendEarlyWarning();
+    new PhysEd.GamePreparer().sendEarlyWarning();
 }
 
 function recordGames(){
