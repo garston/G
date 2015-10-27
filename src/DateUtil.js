@@ -9,6 +9,10 @@ JSUtil.DateUtil = {
         return Math.floor((date2 - date1) / 86400000);
     },
 
+    dayOfWeekString: function(dayOfWeek) {
+        return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+    },
+
     lastDayOfMonth: function(date) {
         var newDate = new Date(date);
         newDate.setFullYear(newDate.getFullYear(), newDate.getMonth() + 1, 0)
