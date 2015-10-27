@@ -5,11 +5,13 @@ PhysEd.InBasedThread = function(thread){
     this.playerStatusParser = new PhysEd.PlayerStatusParser(thread);
 };
 
-PhysEd.InBasedThread.sendInitialEmails = function(sport){
-    var subject = (sport.name === 'Basketball' ? 'Full Court Friday' : sport.name + ' Tomorrow') + this._generateRandomExclamations();
-    GASton.Database.hydrateAllBy(PhysEd.SportMailingList, ['sportGuid', sport.guid]).forEach(function(sportMailingList) {
-        GASton.MailSender.sendToList(subject, '', GASton.Database.hydrate(PhysEd.MailingList, sportMailingList.mailingListGuid).email);
-    });
+PhysEd.InBasedThread.sendInitialEmail = function(sportMailingList){
+    var sport = GASton.Database.hydrate(PhysEd.Sport, sportMailingList.sportGuid);
+    GASton.MailSender.sendToList(
+        (sport.name === 'Basketball' ? 'Full Court Friday' : sport.name + ' Tomorrow') + this._generateRandomExclamations(),
+        '',
+        GASton.Database.hydrate(PhysEd.MailingList, sportMailingList.mailingListGuid).email
+    );
 };
 
 PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(additionalPlayerStatusParser) {
