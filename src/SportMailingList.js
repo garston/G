@@ -9,6 +9,14 @@ PhysEd.SportMailingList = function(sportGuid, mailingListGuid, earlyWarningEmail
     this.prePersistSides = prePersistSides || 0;
 };
 
+PhysEd.SportMailingList.prototype.getGameDays = function(){
+    return this.gameDays.toString();
+};
+
+PhysEd.SportMailingList.prototype.getGameDaysArray = function(){
+    return this.getGameDays().split(',');
+};
+
 PhysEd.SportMailingList.__propsToCol = {
     guid: 1,
     sportGuid: 2,

@@ -35,7 +35,7 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
 
 PhysEd.GamePreparer.prototype._determineSport = function(sportMailingLists){
     var tomorrowDay = (this.today.getDay() + 1) % 7;
-    var tomorrowSports = sportMailingLists.filter(function (sportMailingList) { return JSUtil.StringUtil.contains(sportMailingList.gameDays.toString(), tomorrowDay); });
+    var tomorrowSports = sportMailingLists.filter(function (sportMailingList) { return JSUtil.StringUtil.contains(sportMailingList.getGameDays(), tomorrowDay); });
     return tomorrowSports.length && (tomorrowSports.length === 1 ? tomorrowSports[0] : this._findInProgressSport(tomorrowSports) || this._findLowestSport(tomorrowSports));
 };
 
@@ -64,8 +64,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
 };
 
 PhysEd.GamePreparer.prototype._findInProgressSport = function(sportMailingLists) {
-    var timesPerSportBeforeSwitching = 2;
-    return JSUtil.ArrayUtil.find(sportMailingLists, function(sportMailingList){ return sportMailingList.gameDayCount % timesPerSportBeforeSwitching !== 0; });
+    return JSUtil.ArrayUtil.find(sportMailingLists, function(sportMailingList){ return sportMailingList.gameDayCount % sportMailingList.getGameDaysArray().length !== 0; });
 };
 
 PhysEd.GamePreparer.prototype._findLowestSport = function(sportMailingLists) {
