@@ -15,9 +15,11 @@ PhysEd.GamePreparer.prototype.checkGameStatus = function(){
 PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
     var sportMailingListsByMailingListGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrateAll(PhysEd.SportMailingList), function(sportMailingList){ return sportMailingList.mailingListGuid; });
     for(var mailingListGuid in sportMailingListsByMailingListGuid) {
-        var sportMailingList = this._determineSport(sportMailingListsByMailingListGuid[mailingListGuid]);
-        if(sportMailingList){
-            PhysEd.InBasedThread.sendInitialEmail(sportMailingList);
+        var tomorrowDay = (this.today.getDay() + 1) % 7;
+        var tomorrowSports = sportMailingListsByMailingListGuid[mailingListGuid].filter(function (sportMailingList) { return JSUtil.StringUtil.contains(sportMailingList.getGameDays(), tomorrowDay); });
+        if(tomorrowSports.length){
+            var sportMailingList = tomorrowSports.length === 1 ? tomorrowSports[0] : this._findInProgressSport(tomorrowSports) || this._findLowestSport(tomorrowSports);
+            PhysEd.InBasedThread.sendInitialEmail(sportMailingList, tomorrowDay);
 
             sportMailingList.gameDayCount += 1;
             GASton.Database.persistOnly(PhysEd.SportMailingList, sportMailingList, ['gameDayCount']);
@@ -31,12 +33,6 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
             GASton.MailSender.sendToList(JSUtil.DateUtil.toPrettyString(this.today), PhysEd.Const.generateEarlyWarningEmailBody(opts.numInPlayers), opts.sportMailingList.earlyWarningEmail);
         }
     });
-};
-
-PhysEd.GamePreparer.prototype._determineSport = function(sportMailingLists){
-    var tomorrowDay = (this.today.getDay() + 1) % 7;
-    var tomorrowSports = sportMailingLists.filter(function (sportMailingList) { return JSUtil.StringUtil.contains(sportMailingList.getGameDays(), tomorrowDay); });
-    return tomorrowSports.length && (tomorrowSports.length === 1 ? tomorrowSports[0] : this._findInProgressSport(tomorrowSports) || this._findLowestSport(tomorrowSports));
 };
 
 PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
