@@ -1,9 +1,10 @@
-PhysEd.Person = function(email, firstName, lastName) {
+PhysEd.Person = function(email, firstName, lastName, alternateName) {
     this.guid = JSUtil.GuidUtil.generate();
     this.creationDate = new Date();
     this.email = email;
     this.firstName = firstName || '';
     this.lastName = lastName || '';
+    this.alternateName = alternateName || '';
 };
 
 PhysEd.Person.prototype.getDisplayString = function(){
@@ -20,5 +21,6 @@ PhysEd.Person.__propsToCol = {
     creationDate: 2,
     email: 3,
     firstName: 4,
-    lastName: 5
+    lastName: 5,
+    alternateName: 6
 };

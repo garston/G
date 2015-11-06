@@ -9,17 +9,16 @@ PhysEd.PlayerStatusParser = function(thread){
         return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending());
     });
 
-    var people = [];
+    var people = GASton.Database.hydrateAll(PhysEd.Person);
     var messagesByPersonGuid = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
 
-        var person = JSUtil.ArrayUtil.find(people, function(person) { return person.email === fromParts.email || (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName); });
+        var person = JSUtil.ArrayUtil.find(people, function(person) {
+            return person.email === fromParts.email || (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) || person.alternateName === fromParts.fullName;
+        });
         if(!person){
-            person = GASton.Database.hydrateBy(PhysEd.Person, ['email', fromParts.email]) || GASton.Database.hydrateBy(PhysEd.Person, ['firstName', fromParts.firstName, 'lastName', fromParts.lastName]);
-            if(!person){
-                person = new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
-                GASton.Database.persist(PhysEd.Person, person);
-            }
+            person = new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
+            GASton.Database.persist(PhysEd.Person, person);
             people.push(person);
         }
 
@@ -87,6 +86,7 @@ PhysEd.PlayerStatusParser.prototype._parseFromString = function(fromString){
     }
 
     parsed.lastName = parts.join(' ');
+    parsed.fullName = parsed.firstName + ' ' + parsed.lastName;
 
     return parsed;
 };
