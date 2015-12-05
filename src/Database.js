@@ -63,7 +63,7 @@ GASton.Database.remove = function(clazz, o){
 };
 
 GASton.Database._getCell = function(clazz, row, colName){
-    return this._getSheet(clazz).getRange(row, this._getClassMetadataValue(clazz, '__propsToCol')[colName]);
+    return this._getSheet(clazz).getRange(row, this._getClassMetadataValue(clazz, '__props').indexOf(colName) + 1);
 };
 
 GASton.Database._getCellValue = function(clazz, row, colName){
@@ -76,6 +76,10 @@ GASton.Database._getFirstRow = function(clazz){
 
 GASton.Database._getClassMetadataValue = function(clazz, fieldName) {
     return typeof(clazz[fieldName]) === 'function' ? clazz[fieldName].call(clazz) : clazz[fieldName];
+};
+
+GASton.Database._getClassPropsMetadataManagedPropsOnly = function(clazz) {
+    return this._getClassMetadataValue(clazz, '__props').filter(function(prop){ return prop; });
 };
 
 GASton.Database._getRowNumBy = function(clazz, colNameValuePairs, startRow){
@@ -99,18 +103,14 @@ GASton.Database._getSheet = function(clazz){
 GASton.Database._hydrateRow = function(clazz, row){
     var o = new clazz();
     o.__row = row;
-    for(var prop in this._getClassMetadataValue(clazz, '__propsToCol')){
+    this._getClassPropsMetadataManagedPropsOnly(clazz).forEach(function(prop){
         o[prop] = this._getCellValue(clazz, row, prop);
-    }
+    }, this);
     return o;
 };
 
 GASton.Database._persistNew = function(clazz, o){
-    var newRow = [];
-    var propsToCol = this._getClassMetadataValue(clazz, '__propsToCol');
-    for(var prop in propsToCol){
-        newRow[propsToCol[prop] - 1] = o[prop];
-    }
+    var newRow = this._getClassMetadataValue(clazz, '__props').map(function(prop){ return prop ? o[prop] : ''; });
 
     if(GASton.PROD_MODE){
         this._getSheet(clazz).appendRow(newRow);
@@ -128,7 +128,7 @@ GASton.Database._persistProperty = function(clazz, o, property){
 };
 
 GASton.Database._persistUpdateAllProperties = function(clazz, o){
-    for(var property in this._getClassMetadataValue(clazz, '__propsToCol')){
+    this._getClassPropsMetadataManagedPropsOnly(clazz).forEach(function(property){
         this._persistProperty(clazz, o, property);
-    }
+    }, this);
 };
