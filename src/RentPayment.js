@@ -15,11 +15,4 @@ LordGarston.RentPayment.prototype.getRenter = function() {
 
 LordGarston.RentPayment.__tableName = 'Rent payments';
 LordGarston.RentPayment.__firstRow = 2;
-LordGarston.RentPayment.__propsToCol = {
-    dueDate: 1,
-    renterName: 2,
-    baseAmount: 3,
-    additionalAmount: 4,
-    totalAmount: 5,
-    paidWith: 6
-};
+LordGarston.RentPayment.__props = ['dueDate', 'renterName', 'baseAmount', 'additionalAmount', 'totalAmount', 'paidWith'];
