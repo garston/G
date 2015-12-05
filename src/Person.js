@@ -15,12 +15,5 @@ PhysEd.Person.prototype.getPersonSport = function(sport){
     return GASton.Database.hydrateBy(PhysEd.PersonSport, ['personGuid', this.guid, 'sportGuid', sport.guid]) || new PhysEd.PersonSport(this.guid, sport.guid)
 };
 
+PhysEd.Person.__props = ['guid', 'creationDate', 'email', 'firstName', 'lastName', 'alternateName'];
 PhysEd.Person.__tableName = 'PERSON';
-PhysEd.Person.__propsToCol = {
-    guid: 1,
-    creationDate: 2,
-    email: 3,
-    firstName: 4,
-    lastName: 5,
-    alternateName: 6
-};

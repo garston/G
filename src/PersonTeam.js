@@ -5,10 +5,5 @@ PhysEd.PersonTeam = function(personGuid, teamGuid) {
     this.teamGuid = teamGuid;
 };
 
+PhysEd.PersonTeam.__props = ['guid', 'creationDate', 'personGuid', 'teamGuid'];
 PhysEd.PersonTeam.__tableName = 'PERSON_TEAM';
-PhysEd.PersonTeam.__propsToCol = {
-    guid: 1,
-    creationDate: 2,
-    personGuid: 3,
-    teamGuid: 4
-};

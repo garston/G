@@ -26,19 +26,12 @@ PhysEd.Side.prototype.getPlayerEmails = function() {
     return JSUtil.ArrayUtil.compact(JSUtil.ArrayUtil.range(PhysEd.Side.MAX_PLAYERS).map(function(i){ return this['playerEmail' + i]; }, this));
 };
 
-PhysEd.Side.__tableName = 'GAME_RECORDER';
 PhysEd.Side.__firstRow = 2;
-PhysEd.Side.__propsToCol = function() {
-    var propsToCol = {
-        guid: 1,
-        month: 2,
-        day: 3,
-        year: 4,
-        sportName: 5,
-        score: 6
-    };
+PhysEd.Side.__props = function() {
+    var propsToCol = ['guid', 'month', 'day', 'year', 'sportName', 'score'];
     JSUtil.ArrayUtil.times(this.MAX_PLAYERS, function(i){
-        propsToCol['playerEmail' + i] = i + 7;
+        propsToCol.push('playerEmail' + i);
     });
     return propsToCol;
 };
+PhysEd.Side.__tableName = 'GAME_RECORDER';

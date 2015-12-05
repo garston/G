@@ -21,23 +21,13 @@ PhysEd.PersonSport.STREAKABLE_PROPS = {
     OUTS: 'outs'
 };
 
+PhysEd.PersonSport.__props = [
+    'guid', 'creationDate', 'personGuid', 'sportGuid',
+    PhysEd.PersonSport.STREAKABLE_PROPS.WINS, PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES, PhysEd.PersonSport.STREAKABLE_PROPS.TIES,
+    PhysEd.PersonSport.STREAKABLE_PROPS.INS, PhysEd.PersonSport.STREAKABLE_PROPS.OUTS,
+    'streakDir', 'streak', 'participationStreakDir', 'participationStreak', 'plusMinus'
+];
 PhysEd.PersonSport.__tableName = 'PERSON_SPORT';
-PhysEd.PersonSport.__propsToCol = {
-    guid: 1,
-    creationDate: 2,
-    personGuid: 3,
-    sportGuid: 4,
-    streakDir: 10,
-    streak: 11,
-    participationStreakDir: 12,
-    participationStreak: 13,
-    plusMinus: 14
-};
-PhysEd.PersonSport.__propsToCol[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] = 5;
-PhysEd.PersonSport.__propsToCol[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] = 6;
-PhysEd.PersonSport.__propsToCol[PhysEd.PersonSport.STREAKABLE_PROPS.TIES] = 7;
-PhysEd.PersonSport.__propsToCol[PhysEd.PersonSport.STREAKABLE_PROPS.INS] = 8;
-PhysEd.PersonSport.__propsToCol[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS] = 9;
 
 PhysEd.PersonSport.prototype.getPerson = function(){
     this.person = this.person || GASton.Database.hydrate(PhysEd.Person, this.personGuid);

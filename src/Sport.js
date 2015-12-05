@@ -8,9 +8,5 @@ PhysEd.Sport.hydrateByName = function(name) {
     return GASton.Database.hydrateBy(PhysEd.Sport, ['name', name]) || new PhysEd.Sport(name);
 };
 
+PhysEd.Sport.__props = ['guid', 'creationDate', 'name'];
 PhysEd.Sport.__tableName = 'SPORT';
-PhysEd.Sport.__propsToCol = {
-    guid: 1,
-    creationDate: 2,
-    name: 3
-};

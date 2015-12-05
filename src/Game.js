@@ -7,12 +7,5 @@ PhysEd.Game = function(month, day, year, sportGuid) {
     this.sportGuid = sportGuid;
 };
 
+PhysEd.Game.__props = ['guid', 'creationDate', 'month', 'day', 'year', 'sportGuid'];
 PhysEd.Game.__tableName = 'GAME';
-PhysEd.Game.__propsToCol = {
-    guid: 1,
-    creationDate: 2,
-    month: 3,
-    day: 4,
-    year: 5,
-    sportGuid: 6
-};

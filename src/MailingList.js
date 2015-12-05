@@ -3,8 +3,5 @@ PhysEd.MailingList = function(email) {
     this.email = email;
 };
 
-PhysEd.MailingList.__propsToCol = {
-    guid: 1,
-    email: 2
-};
+PhysEd.MailingList.__props = ['guid', 'email'];
 PhysEd.MailingList.__tableName = 'MAILING_LIST';
