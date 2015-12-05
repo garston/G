@@ -23,7 +23,7 @@ function processTransactions() {
                 }
 
                 message.moveToTrash();
-        });
+            });
     });
 
     var now = new Date();
