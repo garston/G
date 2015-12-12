@@ -1,13 +1,13 @@
-PhysEd.PlayerStatusParser = function(thread){
+PhysEd.PlayerStatusParser = function(threads){
     this.inPlayers = [];
     this.plus1Players = [];
     this.maybePlayers = [];
     this.outPlayers = [];
     this.unknownPlayers = [];
 
-    var replyMessages = thread.getMessages().filter(function(message){
-        return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending());
-    });
+    var replyMessages = JSUtil.ArrayUtil.flatten(threads.map(function(thread){ return thread.getMessages(); })).
+        filter(function(message){ return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending()); }).
+        sort(function(m1, m2){ return m2.getDate() - m1.getDate(); });
 
     var people = GASton.Database.hydrateAll(PhysEd.Person);
     var messagesByPersonGuid = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){

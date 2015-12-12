@@ -5,9 +5,8 @@ PhysEd.GamePreparer = function() {
 PhysEd.GamePreparer.prototype.checkGameStatus = function(){
     this._eachTodayThread(function(opts){
         if(opts.numInPlayers){
-            var additionalPlayerStatusParser = this._parseEarlyWarningThread(opts.sportMailingList);
-            opts.inBasedThread.sendPlayerCountEmail(additionalPlayerStatusParser);
-            this._persistSides(opts, additionalPlayerStatusParser);
+            opts.inBasedThread.sendPlayerCountEmail(opts.playerStatusParser);
+            this._persistSides(opts);
         }
     });
 };
@@ -44,17 +43,26 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
         0, 1);
     threads.forEach(function(thread){
         var inBasedThread = new PhysEd.InBasedThread(thread);
-        var inPlayers = inBasedThread.playerStatusParser.inPlayers;
         var sport = PhysEd.Sport.hydrateByName(inBasedThread.sportName);
+        var sportMailingList = GASton.Database.hydrateBy(PhysEd.SportMailingList, [
+            'sportGuid', sport.guid,
+            'mailingListGuid', GASton.Database.hydrateBy(PhysEd.MailingList, ['email', inBasedThread.mailingListEmail]).guid
+        ]);
+        var earlyWarningThread = sportMailingList.earlyWarningEmail &&
+            GmailApp.search('from:' + GASton.MailSender.getNameUsedForSending() +
+                ' to:' + sportMailingList.earlyWarningEmail +
+                ' subject:' + JSUtil.DateUtil.toPrettyString(this.today), 0, 1
+            )[0];
+        var playerStatusParser = new PhysEd.PlayerStatusParser([thread].concat(earlyWarningThread ? [earlyWarningThread] : []));
+        var inPlayers = playerStatusParser.inPlayers;
+
         callback.call(this, {
             inBasedThread: inBasedThread,
             inPlayers: inPlayers,
             numInPlayers: inPlayers.length,
+            playerStatusParser: playerStatusParser,
             sport: sport,
-            sportMailingList: GASton.Database.hydrateBy(PhysEd.SportMailingList, [
-                'sportGuid', sport.guid,
-                'mailingListGuid', GASton.Database.hydrateBy(PhysEd.MailingList, ['email', inBasedThread.mailingListEmail]).guid
-            ])
+            sportMailingList: sportMailingList
         });
     }, this);
 };
@@ -67,19 +75,10 @@ PhysEd.GamePreparer.prototype._findLowestSport = function(sportMailingLists) {
     return sportMailingLists.reduce(function(lowestSport, sportMailingList){ return sportMailingList.gameDayCount < lowestSport.gameDayCount ? sportMailingList : lowestSport; });
 };
 
-PhysEd.GamePreparer.prototype._parseEarlyWarningThread = function(sportMailingList) {
-    if(sportMailingList.earlyWarningEmail){
-        var earlyWarningThread = GmailApp.search('from:' + GASton.MailSender.getNameUsedForSending() + ' to:' + sportMailingList.earlyWarningEmail + ' subject:' + JSUtil.DateUtil.toPrettyString(this.today), 0, 1)[0];
-        if(earlyWarningThread) {
-            return new PhysEd.PlayerStatusParser(earlyWarningThread);
-        }
-    }
-};
-
-PhysEd.GamePreparer.prototype._persistSides = function(opts, additionalPlayerStatusParser){
+PhysEd.GamePreparer.prototype._persistSides = function(opts){
     if(opts.sportMailingList.prePersistSides) {
         var teams = [[], []];
-        opts.inPlayers.concat(additionalPlayerStatusParser ? additionalPlayerStatusParser.inPlayers : []).forEach(function(player, index){
+        opts.inPlayers.forEach(function(player, index){
             teams[index % teams.length].push(player.email);
         });
 
