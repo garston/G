@@ -10,11 +10,7 @@ PhysEd.SportMailingList = function(sportGuid, mailingListGuid, earlyWarningEmail
 };
 
 PhysEd.SportMailingList.prototype.getGameDays = function(){
-    return this.gameDays.toString();
-};
-
-PhysEd.SportMailingList.prototype.getGameDaysArray = function(){
-    return this.getGameDays().split(',');
+    return this.gameDays.toString().split(',').map(function(day){ return parseInt(day); });
 };
 
 PhysEd.SportMailingList.__props = ['guid', 'sportGuid', 'mailingListGuid','earlyWarningEmail', 'earlyWarningThreshold', 'gameDays', 'gameDayCount', 'prePersistSides'];

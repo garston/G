@@ -16,7 +16,7 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
     var sportMailingListsByMailingListGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrateAll(PhysEd.SportMailingList), function(sportMailingList){ return sportMailingList.mailingListGuid; });
     for(var mailingListGuid in sportMailingListsByMailingListGuid) {
         var tomorrowDay = (this.today.getDay() + 1) % 7;
-        var tomorrowSports = sportMailingListsByMailingListGuid[mailingListGuid].filter(function (sportMailingList) { return JSUtil.StringUtil.contains(sportMailingList.getGameDays(), tomorrowDay); });
+        var tomorrowSports = sportMailingListsByMailingListGuid[mailingListGuid].filter(function (sportMailingList) { return JSUtil.ArrayUtil.contains(sportMailingList.getGameDays(), tomorrowDay); });
         if(tomorrowSports.length){
             var sportMailingList = tomorrowSports.length === 1 ? tomorrowSports[0] : this._findInProgressSport(tomorrowSports) || this._findLowestSport(tomorrowSports);
             PhysEd.InBasedThread.sendInitialEmail(sportMailingList, tomorrowDay);
@@ -60,7 +60,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
 };
 
 PhysEd.GamePreparer.prototype._findInProgressSport = function(sportMailingLists) {
-    return JSUtil.ArrayUtil.find(sportMailingLists, function(sportMailingList){ return sportMailingList.gameDayCount % sportMailingList.getGameDaysArray().length !== 0; });
+    return JSUtil.ArrayUtil.find(sportMailingLists, function(sportMailingList){ return sportMailingList.gameDayCount % sportMailingList.getGameDays().length !== 0; });
 };
 
 PhysEd.GamePreparer.prototype._findLowestSport = function(sportMailingLists) {
