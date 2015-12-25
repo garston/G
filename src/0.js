@@ -3,7 +3,7 @@ HalfZs = {};
 function processTransactions() {
     var processedStrings = [];
     var notProcessedStrings = [];
-    var sharingInfos = GASton.Database.hydrateAll(HalfZs.SharingInfo);
+    var sharingInfos = GASton.Database.hydrate(HalfZs.SharingInfo);
 
     GmailApp.search('label:' + HalfZs.Const.CHASE_LABEL).forEach(function(thread){
         thread.getMessages().
@@ -58,7 +58,7 @@ function _findSharingInfo(name, sharingInfos) {
 }
 
 function _newSharedTransaction(month, year, iPayed, sharingInfo, processedStrings) {
-    var sharedTransaction = GASton.Database.hydrateBy(HalfZs.SharedTransaction, ['month', '']);
+    var sharedTransaction = JSUtil.ArrayUtil.find(GASton.Database.hydrate(HalfZs.SharedTransaction), function(sharedTransaction){ return sharedTransaction.month === ''; });
     sharedTransaction.month = month;
     sharedTransaction.year = year;
     sharedTransaction.what = sharingInfo.prettyName;
