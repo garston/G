@@ -5,7 +5,9 @@ PhysEd.GameRecorder.prototype.record = function(side1, side2){
     var sport = PhysEd.Sport.hydrateByName(sportName);
     GASton.Database.persist(PhysEd.Sport, sport);
 
-    var isFirstGameOfDay = !GASton.Database.hasObject(PhysEd.Game, ['month', side1.month, 'day', side1.day, 'year', side1.year, 'sportGuid', sport.guid]);
+    var isFirstGameOfDay = !GASton.Database.hydrate(PhysEd.Game).some(function(game){
+        return game.month === side1.month && game.day === side1.day && game.year === side1.year && game.sportGuid === sport.guid;
+    });
 
     var game = new PhysEd.Game(side1.month, side1.day, side1.year, sport.guid);
     GASton.Database.persist(PhysEd.Game, game);
@@ -13,7 +15,7 @@ PhysEd.GameRecorder.prototype.record = function(side1, side2){
     var personSportsGuids1 = this._recordSide(side1, game, sport, side2.score);
     var personSportsGuids2 = this._recordSide(side2, game, sport, side1.score);
 
-    var allPersonSports = GASton.Database.hydrateAllBy(PhysEd.PersonSport, ['sportGuid', sport.guid]);
+    var allPersonSports = GASton.Database.hydrate(PhysEd.PersonSport).filter(function(personSport){ return personSport.sportGuid === sport.guid; });
     if(isFirstGameOfDay){
         this._recordParticipation(JSUtil.ArrayUtil.unique(personSportsGuids1.concat(personSportsGuids2)), allPersonSports);
     }

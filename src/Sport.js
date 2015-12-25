@@ -5,7 +5,7 @@ PhysEd.Sport = function(name) {
 };
 
 PhysEd.Sport.hydrateByName = function(name) {
-    return GASton.Database.hydrateBy(PhysEd.Sport, ['name', name]) || new PhysEd.Sport(name);
+    return JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Sport), function(sport){ return sport.name === name; }) || new PhysEd.Sport(name);
 };
 
 PhysEd.Sport.__props = ['guid', 'creationDate', 'name'];

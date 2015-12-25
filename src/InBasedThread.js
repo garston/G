@@ -5,11 +5,11 @@ PhysEd.InBasedThread = function(thread){
 };
 
 PhysEd.InBasedThread.sendInitialEmail = function(sportMailingList, dayOfWeek){
-    var sport = GASton.Database.hydrate(PhysEd.Sport, sportMailingList.sportGuid);
+    var sport = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Sport), function(sport){ return sport.guid === sportMailingList.sportGuid; });
     GASton.MailSender.sendToList(
         (sport.name === 'Basketball' ? 'Full Court ' + JSUtil.DateUtil.dayOfWeekString(dayOfWeek) : sport.name + ' Tomorrow') + this._generateRandomExclamations(),
         '',
-        GASton.Database.hydrate(PhysEd.MailingList, sportMailingList.mailingListGuid).email
+        JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.MailingList), function(mailingList){ return mailingList.guid === sportMailingList.mailingListGuid; }).email
     );
 };
 

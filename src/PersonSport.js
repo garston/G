@@ -30,7 +30,7 @@ PhysEd.PersonSport.__props = [
 PhysEd.PersonSport.__tableName = 'PERSON_SPORT';
 
 PhysEd.PersonSport.prototype.getPerson = function(){
-    this.person = this.person || GASton.Database.hydrate(PhysEd.Person, this.personGuid);
+    this.person = this.person || JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){ return person.guid === this.personGuid; }, this);
     return this.person;
 };
 

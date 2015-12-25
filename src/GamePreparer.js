@@ -12,7 +12,7 @@ PhysEd.GamePreparer.prototype.checkGameStatus = function(){
 };
 
 PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
-    var sportMailingListsByMailingListGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrateAll(PhysEd.SportMailingList), function(sportMailingList){ return sportMailingList.mailingListGuid; });
+    var sportMailingListsByMailingListGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrate(PhysEd.SportMailingList), function(sportMailingList){ return sportMailingList.mailingListGuid; });
     for(var mailingListGuid in sportMailingListsByMailingListGuid) {
         var tomorrowDay = (this.today.getDay() + 1) % 7;
         var tomorrowSports = sportMailingListsByMailingListGuid[mailingListGuid].filter(function (sportMailingList) { return JSUtil.ArrayUtil.contains(sportMailingList.getGameDays(), tomorrowDay); });
@@ -37,17 +37,19 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
 PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + GASton.MailSender.getNameUsedForSending() +
-        ' (' + GASton.Database.hydrateAll(PhysEd.MailingList).map(function(mailingList){return 'to:' + mailingList.email; }).join(' OR ') + ')' +
+        ' (' + GASton.Database.hydrate(PhysEd.MailingList).map(function(mailingList){ return 'to:' + mailingList.email; }).join(' OR ') + ')' +
         ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, this.today)) +
         ' before:' + JSUtil.DateUtil.toSearchString(this.today),
         0, 1);
     threads.forEach(function(thread){
         var inBasedThread = new PhysEd.InBasedThread(thread);
         var sport = PhysEd.Sport.hydrateByName(inBasedThread.sportName);
-        var sportMailingList = GASton.Database.hydrateBy(PhysEd.SportMailingList, [
-            'sportGuid', sport.guid,
-            'mailingListGuid', GASton.Database.hydrateBy(PhysEd.MailingList, ['email', inBasedThread.mailingListEmail]).guid
-        ]);
+        var mailingListGuid = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.MailingList), function(mailingList){
+            return mailingList.email === inBasedThread.mailingListEmail;
+        }).guid;
+        var sportMailingList = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.SportMailingList), function(sportMailingList){
+            return sportMailingList.sportGuid === sport.guid && sportMailingList.mailingListGuid === mailingListGuid;
+        });
         var earlyWarningThread = sportMailingList.earlyWarningEmail &&
             GmailApp.search('from:' + GASton.MailSender.getNameUsedForSending() +
                 ' to:' + sportMailingList.earlyWarningEmail +

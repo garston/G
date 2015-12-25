@@ -9,7 +9,7 @@ PhysEd.PlayerStatusParser = function(threads){
         filter(function(message){ return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending()); }).
         sort(function(m1, m2){ return m2.getDate() - m1.getDate(); });
 
-    var people = GASton.Database.hydrateAll(PhysEd.Person);
+    var people = GASton.Database.hydrate(PhysEd.Person);
     var messagesByPersonGuid = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){
         var fromParts = this._parseFromString(message.getFrom());
 
@@ -53,7 +53,9 @@ PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function 
             var possiblePlus1PlayerName = words[possibleIsIndex - 1];
             if(words[possibleIsIndex] === 'is' && possiblePlus1PlayerName) {
                 possiblePlus1PlayerName = JSUtil.StringUtil.capitalize(possiblePlus1PlayerName.toLowerCase());
-                var plus1Player = GASton.Database.hydrateBy(PhysEd.Person, ['firstName', possiblePlus1PlayerName]) || GASton.Database.hydrateBy(PhysEd.Person, ['lastName', possiblePlus1PlayerName]);
+                var plus1Player = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){
+                    return JSUtil.ArrayUtil.contains([person.firstName, person.lastName], possiblePlus1PlayerName);
+                });
                 if(plus1Player) {
                     this.plus1Players.push(plus1Player);
                     return true;

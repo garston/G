@@ -16,7 +16,9 @@ PhysEd.Person.prototype.getDisplayString = function(){
 };
 
 PhysEd.Person.prototype.getPersonSport = function(sport){
-    return GASton.Database.hydrateBy(PhysEd.PersonSport, ['personGuid', this.guid, 'sportGuid', sport.guid]) || new PhysEd.PersonSport(this.guid, sport.guid)
+    return JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.PersonSport), function(personSport){
+        return personSport.personGuid === this.guid && personSport.sportGuid === sport.guid;
+    }, this) || new PhysEd.PersonSport(this.guid, sport.guid)
 };
 
 PhysEd.Person.__props = ['guid', 'creationDate', 'email', 'firstName', 'lastName', 'alternateNames'];

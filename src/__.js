@@ -1,9 +1,9 @@
 function __computePlusMinus() {
-    var games = GASton.Database.hydrateAll(PhysEd.Game);
-    var teams = GASton.Database.hydrateAll(PhysEd.Team);
-    var personTeams = GASton.Database.hydrateAll(PhysEd.PersonTeam);
+    var games = GASton.Database.hydrate(PhysEd.Game);
+    var teams = GASton.Database.hydrate(PhysEd.Team);
+    var personTeams = GASton.Database.hydrate(PhysEd.PersonTeam);
 
-    GASton.Database.hydrateAll(PhysEd.PersonSport).forEach(function(personSport){
+    GASton.Database.hydrate(PhysEd.PersonSport).forEach(function(personSport){
         personSport.plusMinus = 0;
 
         var teamsForPersonAndSportWithScore = JSUtil.ArrayUtil.compact(
