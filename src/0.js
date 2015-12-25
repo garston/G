@@ -5,7 +5,7 @@ function createRentPayment(){
         filter(function(renter){ return renter.isActive; }).
         forEach(function(renter){
             var dueDate = JSUtil.DateUtil.startOfDay(JSUtil.DateUtil.lastDayOfMonth(new Date()));
-            var newRowNum = GASton.Database.getLastRow(LordGarston.RentPayment) + 1;
+            var newRowNum = GASton.Database.hydrate(LordGarston.RentPayment).length + 1;
             GASton.Database.persist(LordGarston.RentPayment, new LordGarston.RentPayment(
                 dueDate, renter.name, renter.baseAmount, renter.getAdditionalAmountValue(dueDate), '=C' + newRowNum + ' + ' + 'D' + newRowNum, ''
             ));
@@ -20,12 +20,14 @@ function hourly(){
         new LordGarston.LatePaymentHandler()
     ];
 
-    GASton.Database.hydrateAllBy(LordGarston.RentPayment, ['paidWith', '']).forEach(function(rentPayment){
-        var handler = JSUtil.ArrayUtil.find(handlers, function(handler){ return handler.shouldHandle(rentPayment); });
-        if(handler) {
-            handler.doHandle(rentPayment);
-        }
-    });
+    GASton.Database.hydrate(LordGarston.RentPayment).
+        filter(function(rentPayment){ return rentPayment.paidWith === ''; }).
+        forEach(function(rentPayment){
+            var handler = JSUtil.ArrayUtil.find(handlers, function(handler){ return handler.shouldHandle(rentPayment); });
+            if(handler) {
+                handler.doHandle(rentPayment);
+            }
+        });
 }
 
 function _shouldSendMail(timesPerDay){
