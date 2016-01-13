@@ -7,7 +7,7 @@ PhysEd.PlayerStatusParser = function(threads){
 
     var replyMessages = JSUtil.ArrayUtil.flatten(threads.map(function(thread){ return thread.getMessages(); })).
         filter(function(message){ return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending()); }).
-        sort(function(m1, m2){ return m2.getDate() - m1.getDate(); });
+        sort(function(m1, m2){ return m1.getDate() - m2.getDate(); });
 
     var people = GASton.Database.hydrate(PhysEd.Person);
     var messagesByPersonGuid = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){
