@@ -1,8 +1,5 @@
-PhysEd.PersonSport = function(personGuid, sportGuid) {
-    this.guid = JSUtil.GuidUtil.generate();
-    this.creationDate = new Date();
+PhysEd.PersonSport = function(personGuid) {
     this.personGuid = personGuid;
-    this.sportGuid = sportGuid;
     for(var streakableProp in PhysEd.PersonSport.STREAKABLE_PROPS) {
         this[PhysEd.PersonSport.STREAKABLE_PROPS[streakableProp]] = 0;
     }
@@ -20,14 +17,6 @@ PhysEd.PersonSport.STREAKABLE_PROPS = {
     INS: 'ins',
     OUTS: 'outs'
 };
-
-PhysEd.PersonSport.__props = [
-    'guid', 'creationDate', 'personGuid', 'sportGuid',
-    PhysEd.PersonSport.STREAKABLE_PROPS.WINS, PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES, PhysEd.PersonSport.STREAKABLE_PROPS.TIES,
-    PhysEd.PersonSport.STREAKABLE_PROPS.INS, PhysEd.PersonSport.STREAKABLE_PROPS.OUTS,
-    'streakDir', 'streak', 'participationStreakDir', 'participationStreak', 'plusMinus'
-];
-PhysEd.PersonSport.__tableName = 'PERSON_SPORT';
 
 PhysEd.PersonSport.prototype.getPerson = function(){
     this.person = this.person || JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){ return person.guid === this.personGuid; }, this);

@@ -18,7 +18,7 @@ function recordGames(){
         var side1 = sides[0];
         var side2 = sides[1];
         if(side1.score !== '' && side2.score !== ''){
-            new PhysEd.GameRecorder().record(side1, side2);
+            PhysEd.GameRecorder.record(side1, side2);
         }
     }
 }
