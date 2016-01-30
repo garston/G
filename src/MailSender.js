@@ -33,10 +33,6 @@ GASton.MailSender._getOptions = function(body, replyTo){
     };
 };
 
-GASton.MailSender._getPlainBody = function(body){
-    return body.replace(/(<([^>]+)>)/ig, '');
-};
-
 GASton.MailSender._sendNewEmail = function(subject, body, email, replyTo) {
-    MailApp.sendEmail(this._getEmail(email), subject, this._getPlainBody(body), this._getOptions(body, replyTo));
+    MailApp.sendEmail(this._getEmail(email), subject, JSUtil.StringUtil.stripTags(body), this._getOptions(body, replyTo));
 }
