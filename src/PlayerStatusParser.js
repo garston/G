@@ -38,13 +38,13 @@ PhysEd.PlayerStatusParser = function(threads){
 };
 
 PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function (message) {
-    var messageBody = message.getPlainBody();
-    if(!messageBody) {
-        return this.unknownPlayers;
-    }
+    var words = [];
+    JSUtil.StringUtil.stripTags(message.getBody()).split('\n').some(function(line) {
+        if(JSUtil.StringUtil.startsWith(line, '__________') || JSUtil.StringUtil.startsWith(line, 'From:') || /^On .+ wrote:/.test(line) || /^In a message dated .+ writes:/.test(line)) {
+            return true;
+        }
 
-    var words = messageBody.split('\n').reduce(function(allWords, line) {
-        return line[0] === '>' ? allWords : allWords.concat(JSUtil.ArrayUtil.compact(line.trim().split(' ')));
+        words = words.concat(JSUtil.ArrayUtil.compact(line.trim().split(' ')));
     }, []);
 
     if(words.length === 0){
