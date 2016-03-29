@@ -1,6 +1,10 @@
 PhysEd.Leaderboard = {};
 
+PhysEd.Leaderboard.MIN_PARTICIPATION_PERCENTAGE = 20;
+
 PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayerEmails){
+    personSports = personSports.filter(function(personSport){ return personSport.getParticipationPercentage() >= this.MIN_PARTICIPATION_PERCENTAGE; }, this);
+
     var columns = [
         {
             header: 'Name',
@@ -70,7 +74,7 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
     ];
 
     var sortColumnIndex = 0;
-    return 'Leaderboard for ' + sportName + ' (ranks in parens)<br/>' +
+    return 'Leaderboard for ' + sportName + ' (min. ' + this.MIN_PARTICIPATION_PERCENTAGE + '% participation, ranks in parens)<br/>' +
         '<table>' +
             '<tr>' +
                 columns.map(function(column){
