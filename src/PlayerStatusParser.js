@@ -44,7 +44,7 @@ PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function 
             return true;
         }
 
-        words = words.concat(JSUtil.ArrayUtil.compact(line.trim().replace(/\s/g, ' ').split(' ')));
+        words = words.concat(JSUtil.ArrayUtil.compact(line.trim().replace(/\s|&nbsp;/gi, ' ').split(' ')));
     });
 
     if(words.length === 0){
