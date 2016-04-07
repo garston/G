@@ -28,37 +28,51 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
 
 PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
     this._eachTodayThread(function(opts){
-        if(opts.sportMailingList.earlyWarningEmail && opts.numInPlayers > opts.sportMailingList.earlyWarningThreshold) {
-            GASton.MailSender.sendToList(JSUtil.DateUtil.toPrettyString(this.today), PhysEd.Const.generateEarlyWarningEmailBody(opts.numInPlayers), opts.sportMailingList.earlyWarningEmail);
+        if(opts.earlyWarningMailingList && opts.numInPlayers > opts.sportMailingList.earlyWarningThreshold) {
+            GASton.MailSender.sendToList(JSUtil.DateUtil.toPrettyString(this.today), PhysEd.Const.generateEarlyWarningEmailBody(opts.numInPlayers), opts.earlyWarningMailingList.email);
         }
     });
 };
 
 PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
+    var mailingLists = GASton.Database.hydrate(PhysEd.MailingList);
+    var sportMailingLists = GASton.Database.hydrate(PhysEd.SportMailingList);
+    var primaryMailingLists = JSUtil.ArrayUtil.unique(sportMailingLists.map(function(sportMailingList){
+        return JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.guid === sportMailingList.mailingListGuid; });
+    }));
+
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + GASton.MailSender.getNameUsedForSending() +
-        ' (' + GASton.Database.hydrate(PhysEd.MailingList).map(function(mailingList){ return 'to:' + mailingList.email; }).join(' OR ') + ')' +
+        ' (' + primaryMailingLists.map(function(mailingList){ return 'to:' + mailingList.email; }).join(' OR ') + ')' +
         ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, this.today)) +
-        ' before:' + JSUtil.DateUtil.toSearchString(this.today),
-        0, 1);
+        ' before:' + JSUtil.DateUtil.toSearchString(this.today)
+    );
     threads.forEach(function(thread){
         var inBasedThread = new PhysEd.InBasedThread(thread);
         var sport = PhysEd.Sport.hydrateByName(inBasedThread.sportName);
-        var mailingListGuid = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.MailingList), function(mailingList){
-            return mailingList.email === inBasedThread.mailingListEmail;
-        }).guid;
-        var sportMailingList = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.SportMailingList), function(sportMailingList){
+
+        var mailingListGuid = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.email === inBasedThread.mailingListEmail; }).guid;
+        var sportMailingList = JSUtil.ArrayUtil.find(sportMailingLists, function(sportMailingList){
             return sportMailingList.sportGuid === sport.guid && sportMailingList.mailingListGuid === mailingListGuid;
         });
-        var earlyWarningThread = sportMailingList.earlyWarningEmail &&
-            GmailApp.search('from:' + GASton.MailSender.getNameUsedForSending() +
-                ' to:' + sportMailingList.earlyWarningEmail +
-                ' subject:' + JSUtil.DateUtil.toPrettyString(this.today), 0, 1
-            )[0];
-        var playerStatusParser = new PhysEd.PlayerStatusParser([thread].concat(earlyWarningThread ? [earlyWarningThread] : []));
+
+        var threads = [thread];
+        var earlyWarningMailingList;
+        var earlyWarningMailingListGuid = sportMailingList.earlyWarningMailingListGuid;
+        if(earlyWarningMailingListGuid) {
+            earlyWarningMailingList = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.guid === earlyWarningMailingListGuid; });
+            threads.push(GmailApp.search(
+                'from:' + GASton.MailSender.getNameUsedForSending() +
+                ' to:' + earlyWarningMailingList.email +
+                ' subject:' + JSUtil.DateUtil.toPrettyString(this.today),
+            0, 1)[0]);
+        }
+
+        var playerStatusParser = new PhysEd.PlayerStatusParser(threads);
         var inPlayers = playerStatusParser.inPlayers;
 
         callback.call(this, {
+            earlyWarningMailingList: earlyWarningMailingList,
             inBasedThread: inBasedThread,
             inPlayers: inPlayers,
             numInPlayers: inPlayers.length,
