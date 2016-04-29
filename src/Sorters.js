@@ -12,6 +12,7 @@ PhysEd.Sorters = {
         },
         byPersonName: function(ps1, ps2){ return ps1.getPerson().getDisplayString().localeCompare(ps2.getPerson().getDisplayString()); },
         byPlusMinus: function(ps1, ps2){ return ps2.plusMinus - ps1.plusMinus; },
+        byPlusMinusPerGame: function(ps1, ps2){ return ps2.getPlusMinusPerGame() - ps1.getPlusMinusPerGame(); },
         byTies: function(ps1, ps2){ return ps2[PhysEd.PersonSport.STREAKABLE_PROPS.TIES] - ps1[PhysEd.PersonSport.STREAKABLE_PROPS.TIES]; },
         byWins: function(ps1, ps2){ return ps2[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] - ps1[PhysEd.PersonSport.STREAKABLE_PROPS.WINS]; },
         byWinPercentage: function(ps1, ps2){ return ps2.getWinPercentage() - ps1.getWinPercentage(); },

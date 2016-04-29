@@ -1,6 +1,7 @@
 PhysEd.Leaderboard = {};
 
 PhysEd.Leaderboard.MIN_PARTICIPATION_PERCENTAGE = 20;
+PhysEd.Leaderboard.toPrettyPlusMinus = function(plusMinus){ return (plusMinus > 0 ? '+' : '') + plusMinus; };
 
 PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayerEmails){
     personSports = personSports.filter(function(personSport){ return personSport.getParticipationPercentage() >= this.MIN_PARTICIPATION_PERCENTAGE; }, this);
@@ -14,22 +15,22 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
         {
             header: 'Win %',
             getValue: function(personSport){return personSport.getWinPercentage() + '%';},
-            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byPlusMinus])
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byPlusMinusPerGame])
         },
         {
             header: 'Wins',
             getValue: function(personSport){return personSport[PhysEd.PersonSport.STREAKABLE_PROPS.WINS];},
-            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byPlusMinus])
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byPlusMinusPerGame])
         },
         {
             header: 'Losses',
             getValue: function(personSport){return personSport[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES];},
-            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byLosses, PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byPlusMinus])
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byLosses, PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byPlusMinusPerGame])
         },
         {
             header: 'Ties',
             getValue: function(personSport){return personSport[PhysEd.PersonSport.STREAKABLE_PROPS.TIES];},
-            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byTies, PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byPlusMinus])
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byTies, PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byPlusMinusPerGame])
         },
         {
             header: 'Win streak',
@@ -39,12 +40,17 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
                     html: personSport.streak + personSport.streakDir[0].toUpperCase()
                 };
             },
-            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byWinStreak, PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byPlusMinus])
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byWinStreak, PhysEd.Sorters.PersonSports.byWinPercentage])
         },
         {
             header: '+/-',
-            getValue: function(personSport){return (personSport.plusMinus > 0 ? '+' : '') + personSport.plusMinus;},
-            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byPlusMinus, PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byWins])
+            getValue: function(personSport){ return PhysEd.Leaderboard.toPrettyPlusMinus(personSport.plusMinus); },
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byPlusMinus, PhysEd.Sorters.PersonSports.byPlusMinusPerGame])
+        },
+        {
+            header: '+/- per game',
+            getValue: function(personSport){ return PhysEd.Leaderboard.toPrettyPlusMinus(personSport.getPlusMinusPerGame()); },
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byPlusMinusPerGame, PhysEd.Sorters.PersonSports.byPlusMinus])
         },
         {
             header: 'Participation %',
