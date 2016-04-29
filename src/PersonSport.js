@@ -29,7 +29,7 @@ PhysEd.PersonSport.prototype.getPerson = function(){
 
 PhysEd.PersonSport.prototype.getPlusMinusPerGame = function(){
     var numGames = this[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] + this[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] + this[PhysEd.PersonSport.STREAKABLE_PROPS.TIES];
-    return numGames ? (this.plusMinus / numGames).toFixed(2) : 0;
+    return numGames ? this.plusMinus/numGames : 0;
 };
 
 PhysEd.PersonSport.prototype.getWinPercentage = function(){

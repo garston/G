@@ -1,7 +1,6 @@
 PhysEd.Leaderboard = {};
 
 PhysEd.Leaderboard.MIN_PARTICIPATION_PERCENTAGE = 20;
-PhysEd.Leaderboard.toPrettyPlusMinus = function(plusMinus){ return (plusMinus > 0 ? '+' : '') + plusMinus; };
 
 PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayerEmails){
     personSports = personSports.filter(function(personSport){ return personSport.getParticipationPercentage() >= this.MIN_PARTICIPATION_PERCENTAGE; }, this);
@@ -44,12 +43,12 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
         },
         {
             header: '+/-',
-            getValue: function(personSport){ return PhysEd.Leaderboard.toPrettyPlusMinus(personSport.plusMinus); },
+            getValue: function(personSport){ return PhysEd.Leaderboard._toPrettyPlusMinus(personSport.plusMinus); },
             sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byPlusMinus, PhysEd.Sorters.PersonSports.byPlusMinusPerGame])
         },
         {
             header: '+/- per game',
-            getValue: function(personSport){ return PhysEd.Leaderboard.toPrettyPlusMinus(personSport.getPlusMinusPerGame()); },
+            getValue: function(personSport){ return PhysEd.Leaderboard._toPrettyPlusMinus(personSport.getPlusMinusPerGame().toFixed(2)); },
             sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byPlusMinusPerGame, PhysEd.Sorters.PersonSports.byPlusMinus])
         },
         {
@@ -80,18 +79,19 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
     ];
 
     var sortColumnIndex = 0;
+    var cellStyle = 'border: 1px solid black; padding: 4px;';
     return 'Leaderboard for ' + sportName + ' (min. ' + this.MIN_PARTICIPATION_PERCENTAGE + '% participation, ranks in parens)<br/>' +
-        '<table>' +
+        '<table style="border-collapse: collapse;">' +
             '<tr>' +
                 columns.map(function(column){
-                    return '<th>' + column.header + '</th>';
+                    return '<th style="' + cellStyle + '">' + column.header + '</th>';
                 }).join('') +
             '</tr>' +
-            columns[sortColumnIndex].sorted.map(function(personSport){
-                return '<tr' + (JSUtil.ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' style="font-weight: bold;"' : '') + '>' +
+            columns[sortColumnIndex].sorted.map(function(personSport, rowIndex){
+                return '<tr style="' + (rowIndex % 2 ? '' : 'background-color: lightgray;') + (JSUtil.ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' font-weight: bold;' : '') + '">' +
                         columns.map(function(column, columnIndex){
                             var rowItem = column.getValue(personSport);
-                            return '<td' + (rowItem.color ? ' style="color: ' + rowItem.color + ';"' : '') + '>' +
+                            return '<td style="' + cellStyle + (rowItem.color ? ' color: ' + rowItem.color + ';' : '') + '">' +
                                     (rowItem.html || rowItem) + (columnIndex === sortColumnIndex ? '' : ' (' + (column.sorted.indexOf(personSport) + 1) + ')') +
                                 '</td>';
                         }).join('') +
@@ -109,3 +109,5 @@ PhysEd.Leaderboard._sort = function(personSports, sorters){
         }) ? sortVal : 0;
     });
 };
+
+PhysEd.Leaderboard._toPrettyPlusMinus = function(plusMinus){ return (plusMinus > 0 ? '+' : '') + plusMinus; };
