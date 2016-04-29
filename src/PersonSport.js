@@ -18,13 +18,18 @@ PhysEd.PersonSport.STREAKABLE_PROPS = {
     OUTS: 'outs'
 };
 
+PhysEd.PersonSport.prototype.getParticipationPercentage = function(){
+    return this._getPercentage(this[PhysEd.PersonSport.STREAKABLE_PROPS.INS], this[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS]);
+};
+
 PhysEd.PersonSport.prototype.getPerson = function(){
     this.person = this.person || JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){ return person.guid === this.personGuid; }, this);
     return this.person;
 };
 
-PhysEd.PersonSport.prototype.getParticipationPercentage = function(){
-    return this._getPercentage(this[PhysEd.PersonSport.STREAKABLE_PROPS.INS], this[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS]);
+PhysEd.PersonSport.prototype.getPlusMinusAverage = function(){
+    var numGames = this.wins + this.losses + this.ties;
+    return numGames === 0 ? 0 : Math.round(this.plusMinus / numGames);
 };
 
 PhysEd.PersonSport.prototype.getWinPercentage = function(){
