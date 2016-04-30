@@ -13,6 +13,7 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
         },
         {
             header: 'Win %',
+            borderBefore: true,
             getValue: function(personSport){return personSport.getWinPercentage() + '%';},
             sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byWinPercentage, PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byPlusMinusPerGame])
         },
@@ -43,6 +44,7 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
         },
         {
             header: '+/-',
+            borderBefore: true,
             getValue: function(personSport){ return PhysEd.Leaderboard._toPrettyPlusMinus(personSport.plusMinus); },
             sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byPlusMinus, PhysEd.Sorters.PersonSports.byPlusMinusPerGame])
         },
@@ -53,6 +55,7 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
         },
         {
             header: 'Participation %',
+            borderBefore: true,
             getValue: function(personSport){return personSport.getParticipationPercentage() + '%';},
             sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byParticipationPercentage, PhysEd.Sorters.PersonSports.byIns])
         },
@@ -79,26 +82,27 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
     ];
 
     var sortColumnIndex = 0;
-    var cellStyle = 'border: 1px solid black; padding: 4px;';
     return 'Leaderboard for ' + sportName + ' (min. ' + this.MIN_PARTICIPATION_PERCENTAGE + '% participation, ranks in parens)<br/>' +
         '<table style="border-collapse: collapse;">' +
             '<tr>' +
                 columns.map(function(column){
-                    return '<th style="' + cellStyle + '">' + column.header + '</th>';
-                }).join('') +
+                    return '<th style="' + this._getCellStyle(column) + '">' + column.header + '</th>';
+                }, this).join('') +
             '</tr>' +
             columns[sortColumnIndex].sorted.map(function(personSport, rowIndex){
                 return '<tr style="' + (rowIndex % 2 ? '' : 'background-color: lightgray;') + (JSUtil.ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' font-weight: bold;' : '') + '">' +
                         columns.map(function(column, columnIndex){
                             var rowItem = column.getValue(personSport);
-                            return '<td style="' + cellStyle + (rowItem.color ? ' color: ' + rowItem.color + ';' : '') + '">' +
+                            return '<td style="' + this._getCellStyle(column) + (rowItem.color ? ' color: ' + rowItem.color + ';' : '') + '">' +
                                     (rowItem.html || rowItem) + (columnIndex === sortColumnIndex ? '' : ' (' + (column.sorted.indexOf(personSport) + 1) + ')') +
                                 '</td>';
-                        }).join('') +
+                        }, this).join('') +
                     '</tr>';
-            }).join('') +
+            }, this).join('') +
         '</table><br/><br/>';
 };
+
+PhysEd.Leaderboard._getCellStyle = function(column){ return 'border: 1px solid black;' + (column.borderBefore ? ' border-left-width: 3px;' : '') + ' padding: 4px;'; };
 
 PhysEd.Leaderboard._sort = function(personSports, sorters){
     return personSports.map(function(personSport){return personSport;}).sort(function(ps1, ps2){
