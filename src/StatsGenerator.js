@@ -2,37 +2,47 @@ PhysEd.StatsGenerator = {};
 
 PhysEd.StatsGenerator.generateStats = function(sport){
     var allPersonSports = [];
-    var allTeams = GASton.Database.hydrate(PhysEd.Team);
-    var allPersonTeams = GASton.Database.hydrate(PhysEd.PersonTeam);
+    var teamsByGameGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrate(PhysEd.Team), function(team){ return team.gameGuid; })
+    var personTeamsByTeamGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrate(PhysEd.PersonTeam), function(personTeam){ return personTeam.teamGuid; });
 
     GASton.Database.hydrate(PhysEd.Game).filter(function(game){ return game.sportGuid === sport.guid; }).forEach(function(game, gameIndex, games){
-        var inPersonSports = [];
-        allTeams.filter(function(team){ return team.gameGuid === game.guid; }).forEach(function(team, teamIndex, teams){
-            var otherTeam = teams[teamIndex === 0 ? 1 : 0];
+        var teams = teamsByGameGuid[game.guid];
+        var team1 = teams[0];
+        var team2 = teams[1];
+        var personSports1 = this._mapPersonTeamsToPersonSports(personTeamsByTeamGuid[team1.guid], allPersonSports);
+        var personSports2 = this._mapPersonTeamsToPersonSports(personTeamsByTeamGuid[team2.guid], allPersonSports);
 
-            allPersonTeams.filter(function(personTeam){ return personTeam.teamGuid === team.guid; }).forEach(function(personTeam){
-                var personSport = JSUtil.ArrayUtil.find(allPersonSports, function(personSport){ return personSport.personGuid === personTeam.personGuid; });
-                if(!personSport) {
-                    personSport = new PhysEd.PersonSport(personTeam.personGuid);
-                    allPersonSports.push(personSport);
-                }
-                inPersonSports.push(personSport);
-
-                if(typeof team.score === 'number' && typeof otherTeam.score === 'number'){
-                    personSport.incrementStreakableProp(team.score === otherTeam.score ? PhysEd.PersonSport.STREAKABLE_PROPS.TIES : (team.score > otherTeam.score ? PhysEd.PersonSport.STREAKABLE_PROPS.WINS : PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES));
-                    personSport.plusMinus += team.score - otherTeam.score;
-                }
-            });
-        });
+        this._recordScoredGame(personSports1, team1.score, team2.score);
+        this._recordScoredGame(personSports2, team2.score, team1.score);
 
         var isFirstGameOfDay = JSUtil.ArrayUtil.find(games, function(processedGame){ return processedGame.month === game.month && processedGame.day === game.day && processedGame.year === game.year; }) === game;
         if(isFirstGameOfDay){
-            inPersonSports = JSUtil.ArrayUtil.unique(inPersonSports);
+            var personSports = JSUtil.ArrayUtil.unique(personSports1.concat(personSports2));
             allPersonSports.forEach(function(personSport){
-                personSport.incrementStreakableProp(JSUtil.ArrayUtil.contains(inPersonSports, personSport) ? PhysEd.PersonSport.STREAKABLE_PROPS.INS : PhysEd.PersonSport.STREAKABLE_PROPS.OUTS);
+                personSport.incrementStreakableProp(JSUtil.ArrayUtil.contains(personSports, personSport) ? PhysEd.PersonSport.STREAKABLE_PROPS.INS : PhysEd.PersonSport.STREAKABLE_PROPS.OUTS);
             });
         }
-    });
+    }, this);
 
     return allPersonSports;
+};
+
+PhysEd.StatsGenerator._mapPersonTeamsToPersonSports = function(personTeams, allPersonSports) {
+    return personTeams.map(function(personTeam){
+        var personSport = JSUtil.ArrayUtil.find(allPersonSports, function(personSport){ return personSport.personGuid === personTeam.personGuid; });
+        if(!personSport) {
+            personSport = new PhysEd.PersonSport(personTeam.personGuid);
+            allPersonSports.push(personSport);
+        }
+        return personSport;
+    });
+};
+
+PhysEd.StatsGenerator._recordScoredGame = function(personSports, teamScore, opponentScore) {
+    if(typeof teamScore === 'number' && typeof opponentScore === 'number'){
+        personSports.forEach(function(personSport){
+            personSport.incrementStreakableProp(teamScore === opponentScore ? PhysEd.PersonSport.STREAKABLE_PROPS.TIES : (teamScore > opponentScore ? PhysEd.PersonSport.STREAKABLE_PROPS.WINS : PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES));
+            personSport.plusMinus += teamScore - opponentScore;
+        });
+    }
 };
