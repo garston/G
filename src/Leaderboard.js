@@ -79,6 +79,17 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
             },
             sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byParticipationStreak, PhysEd.Sorters.PersonSports.byParticipationPercentage, PhysEd.Sorters.PersonSports.byIns])
         },
+        {
+            header: 'Avg own team strength',
+            borderBefore: true,
+            getValue: function(personSport){return Math.round(personSport.getAverageOwnTeamWinPercentage());},
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byAverageOwnTeamWinPercentage])
+        },
+        {
+            header: 'Avg opposing team strength',
+            getValue: function(personSport){return Math.round(personSport.getAverageOpponentWinPercentage());},
+            sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byAverageOpponentWinPercentage])
+        }
     ];
 
     var sortColumnIndex = 0;

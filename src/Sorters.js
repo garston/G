@@ -1,5 +1,7 @@
 PhysEd.Sorters = {
     PersonSports: {
+        byAverageOpponentWinPercentage: function(ps1, ps2){ return ps2.getAverageOpponentWinPercentage() - ps1.getAverageOpponentWinPercentage(); },
+        byAverageOwnTeamWinPercentage: function(ps1, ps2){ return ps2.getAverageOwnTeamWinPercentage() - ps1.getAverageOwnTeamWinPercentage(); },
         byIns: function(ps1, ps2){ return ps2[PhysEd.PersonSport.STREAKABLE_PROPS.INS] - ps1[PhysEd.PersonSport.STREAKABLE_PROPS.INS]; },
         byLosses: function(ps1, ps2){ return ps2[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] - ps1[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES]; },
         byOuts: function(ps1, ps2){ return ps2[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS] - ps1[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS]; },

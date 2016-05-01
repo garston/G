@@ -11,9 +11,13 @@ PhysEd.StatsGenerator.generateStats = function(sport){
         var team2 = teams[1];
         var personSports1 = this._mapPersonTeamsToPersonSports(personTeamsByTeamGuid[team1.guid], allPersonSports);
         var personSports2 = this._mapPersonTeamsToPersonSports(personTeamsByTeamGuid[team2.guid], allPersonSports);
+        var winPercentages1 = this._mapPersonSportsToWinPercentages(personSports1);
+        var winPercentages2 = this._mapPersonSportsToWinPercentages(personSports2);
 
         this._recordScoredGame(personSports1, team1.score, team2.score);
         this._recordScoredGame(personSports2, team2.score, team1.score);
+        this._recordTeamWinPercentages(personSports1, winPercentages1, winPercentages2);
+        this._recordTeamWinPercentages(personSports2, winPercentages2, winPercentages1);
 
         var isFirstGameOfDay = JSUtil.ArrayUtil.find(games, function(processedGame){ return processedGame.month === game.month && processedGame.day === game.day && processedGame.year === game.year; }) === game;
         if(isFirstGameOfDay){
@@ -25,6 +29,12 @@ PhysEd.StatsGenerator.generateStats = function(sport){
     }, this);
 
     return allPersonSports;
+};
+
+PhysEd.StatsGenerator._mapPersonSportsToWinPercentages = function(personSports) {
+    return personSports.
+        filter(function(personSport){ return personSport.getNumScoredGames(); }).
+        map(function(personSport){ return personSport.getWinPercentage(); });
 };
 
 PhysEd.StatsGenerator._mapPersonTeamsToPersonSports = function(personTeams, allPersonSports) {
@@ -45,4 +55,13 @@ PhysEd.StatsGenerator._recordScoredGame = function(personSports, teamScore, oppo
             personSport.plusMinus += teamScore - opponentScore;
         });
     }
+};
+
+PhysEd.StatsGenerator._recordTeamWinPercentages = function(personSports, ownTeamWinPercentages, opponentWinPercentages) {
+    [{ prop: 'averageOpponentWinPercentages', winPercentages: opponentWinPercentages }, { prop: 'averageOwnTeamWinPercentages', winPercentages: ownTeamWinPercentages }].
+        filter(function(opts){ return opts.winPercentages.length; }).
+        forEach(function(opts){
+            var avgWinPercentage = JSUtil.ArrayUtil.average(opts.winPercentages);
+            personSports.forEach(function(personSport){ personSport[opts.prop].push(avgWinPercentage); });
+        });
 };

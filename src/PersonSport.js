@@ -8,6 +8,8 @@ PhysEd.PersonSport = function(personGuid) {
     this.participationStreakDir = '';
     this.participationStreak = 0;
     this.plusMinus = 0;
+    this.averageOpponentWinPercentages = [];
+    this.averageOwnTeamWinPercentages = [];
 };
 
 PhysEd.PersonSport.STREAKABLE_PROPS = {
@@ -16,6 +18,18 @@ PhysEd.PersonSport.STREAKABLE_PROPS = {
     TIES: 'ties',
     INS: 'ins',
     OUTS: 'outs'
+};
+
+PhysEd.PersonSport.prototype.getAverageOpponentWinPercentage = function(){
+    return JSUtil.ArrayUtil.average(this.averageOpponentWinPercentages);
+};
+
+PhysEd.PersonSport.prototype.getAverageOwnTeamWinPercentage = function(){
+    return JSUtil.ArrayUtil.average(this.averageOwnTeamWinPercentages);
+};
+
+PhysEd.PersonSport.prototype.getNumScoredGames = function(){
+    return this[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] + this[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] + this[PhysEd.PersonSport.STREAKABLE_PROPS.TIES];
 };
 
 PhysEd.PersonSport.prototype.getParticipationPercentage = function(){
@@ -28,7 +42,7 @@ PhysEd.PersonSport.prototype.getPerson = function(){
 };
 
 PhysEd.PersonSport.prototype.getPlusMinusPerGame = function(){
-    var numGames = this[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] + this[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] + this[PhysEd.PersonSport.STREAKABLE_PROPS.TIES];
+    var numGames = this.getNumScoredGames();
     return numGames ? this.plusMinus/numGames : 0;
 };
 
