@@ -1,4 +1,8 @@
 JSUtil.ArrayUtil = {
+    average: function(a) {
+        return a.length ? this.sum(a) / a.length : 0;
+    },
+
     compact: function(a) {
         var result = [];
         for(var i = 0; i < a.length; i++) {
@@ -81,8 +85,12 @@ JSUtil.ArrayUtil = {
         }
     },
 
+    sum: function(a){
+        return a.reduce(function(sum, i){ return sum + i; }, 0);
+    },
+
     times: function(n, fn, scope) {
-        JSUtil.ArrayUtil.range(n).forEach(fn, scope);
+        this.range(n).forEach(fn, scope);
     },
 
     unique: function(arr){
