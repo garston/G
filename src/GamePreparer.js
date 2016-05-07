@@ -61,11 +61,14 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
         var earlyWarningMailingListGuid = sportMailingList.earlyWarningMailingListGuid;
         if(earlyWarningMailingListGuid) {
             earlyWarningMailingList = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.guid === earlyWarningMailingListGuid; });
-            threads.push(GmailApp.search(
+            var earlyWarningThread = GmailApp.search(
                 'from:' + GASton.MailSender.getNameUsedForSending() +
                 ' to:' + earlyWarningMailingList.email +
                 ' subject:' + JSUtil.DateUtil.toPrettyString(this.today),
-            0, 1)[0]);
+            0, 1)[0];
+            if(earlyWarningThread){
+                threads.push(earlyWarningThread);
+            }
         }
 
         var playerStatusParser = new PhysEd.PlayerStatusParser(threads);
