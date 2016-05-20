@@ -28,7 +28,7 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
 
 PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
     this._eachTodayThread(function(opts){
-        if(opts.earlyWarningMailingList && opts.numInPlayers > opts.sportMailingList.earlyWarningThreshold) {
+        if(opts.earlyWarningMailingList && opts.numInPlayers >= opts.sportMailingList.earlyWarningThreshold) {
             GASton.MailSender.sendToList(JSUtil.DateUtil.toPrettyString(this.today), PhysEd.Const.generateEarlyWarningEmailBody(opts.numInPlayers), opts.earlyWarningMailingList.email);
         }
     });
