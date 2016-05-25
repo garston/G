@@ -5,6 +5,7 @@ PhysEd.Sorters = {
         byIns: function(ps1, ps2){ return ps2[PhysEd.PersonSport.STREAKABLE_PROPS.INS] - ps1[PhysEd.PersonSport.STREAKABLE_PROPS.INS]; },
         byLosses: function(ps1, ps2){ return ps2[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES] - ps1[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES]; },
         byOuts: function(ps1, ps2){ return ps2[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS] - ps1[PhysEd.PersonSport.STREAKABLE_PROPS.OUTS]; },
+        byNumUpsetWins: function(ps1, ps2){ return ps2.numUpsetWins - ps1.numUpsetWins; },
         byParticipationPercentage: function(ps1, ps2){ return ps2.getParticipationPercentage() - ps1.getParticipationPercentage(); },
         byParticipationStreak: function(ps1, ps2){
             return PhysEd.Sorters.PersonSports._byStreak(

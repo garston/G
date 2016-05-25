@@ -10,6 +10,7 @@ PhysEd.PersonSport = function(personGuid) {
     this.plusMinus = 0;
     this.averageOpponentWinPercentages = [];
     this.averageOwnTeamWinPercentages = [];
+    this.numUpsetWins = 0;
 };
 
 PhysEd.PersonSport.STREAKABLE_PROPS = {

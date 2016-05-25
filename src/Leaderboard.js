@@ -89,6 +89,11 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
             header: 'Avg opposing team strength',
             getValue: function(personSport){return Math.round(personSport.getAverageOpponentWinPercentage());},
             sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byAverageOpponentWinPercentage])
+        },
+        {
+            header: 'Num upset victories',
+            getValue: function(personSport){ return personSport.numUpsetWins; },
+            sorted: this._sort(personSports,  [PhysEd.Sorters.PersonSports.byNumUpsetWins, PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byWinPercentage])
         }
     ];
 
