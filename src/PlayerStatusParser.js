@@ -14,7 +14,9 @@ PhysEd.PlayerStatusParser = function(threads){
         var fromParts = this._parseFromString(message.getFrom());
 
         var person = JSUtil.ArrayUtil.find(people, function(person) {
-            return person.email === fromParts.email || (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) || JSUtil.ArrayUtil.contains(person.getAlternateNames(), fromParts.fullName);
+            return person.email === fromParts.email ||
+                (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) ||
+                JSUtil.ArrayUtil.contains(person.getAlternateNames(), fromParts.firstName + ' ' + fromParts.lastName);
         });
         if(!person){
             person = new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
@@ -81,19 +83,14 @@ PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function 
 };
 
 PhysEd.PlayerStatusParser.prototype._parseFromString = function(fromString){
-    var parts = fromString.split(' ');
-
-    var parsed = {firstName: parts[0]};
-    JSUtil.ArrayUtil.remove(parts, parsed.firstName);
-
-    if(parts.length > 1) {
-        var emailPart = parts[parts.length - 1];
-        parsed.email = emailPart.replace(/[<>]/g, '');
-        JSUtil.ArrayUtil.remove(parts, emailPart);
-    }
-
-    parsed.lastName = parts.join(' ');
-    parsed.fullName = parsed.firstName + ' ' + parsed.lastName;
-
-    return parsed;
+    return fromString.split(' ').reduce(function(parsed, part, index, parts) {
+        if(parts.length === 1 || index === parts.length - 1) {
+            parsed.email = part.replace(/[<>]/g, '');
+        } else if(index) {
+            parsed.lastName = (parsed.lastName ? parsed.lastName + ' ' : '') + part;
+        } else {
+            parsed.firstName = part;
+        }
+        return parsed;
+    }, {email: '', firstName: '', lastName: ''});
 };
