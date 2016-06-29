@@ -91,9 +91,14 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
             sorted: this._sort(personSports, [PhysEd.Sorters.PersonSports.byAverageOpponentWinPercentage])
         },
         {
-            header: 'Num upset victories',
+            header: 'Num upset wins',
             getValue: function(personSport){ return personSport.numUpsetWins; },
-            sorted: this._sort(personSports,  [PhysEd.Sorters.PersonSports.byNumUpsetWins, PhysEd.Sorters.PersonSports.byWins, PhysEd.Sorters.PersonSports.byWinPercentage])
+            sorted: this._sort(personSports,  [PhysEd.Sorters.PersonSports.byNumUpsetWins, PhysEd.Sorters.PersonSports.byUpsetWinPercentage])
+        },
+        {
+            header: '% of wins that were upsets',
+            getValue: function(personSport){ return personSport.getUpsetWinPercentage() + '%'; },
+            sorted: this._sort(personSports,  [PhysEd.Sorters.PersonSports.byUpsetWinPercentage, PhysEd.Sorters.PersonSports.byNumUpsetWins])
         }
     ];
 

@@ -47,6 +47,10 @@ PhysEd.PersonSport.prototype.getPlusMinusPerGame = function(){
     return numGames ? this.plusMinus/numGames : 0;
 };
 
+PhysEd.PersonSport.prototype.getUpsetWinPercentage = function(){
+    return this._getPercentage(this.numUpsetWins, this[PhysEd.PersonSport.STREAKABLE_PROPS.WINS] - this.numUpsetWins);
+};
+
 PhysEd.PersonSport.prototype.getWinPercentage = function(){
     return this._getPercentage(this[PhysEd.PersonSport.STREAKABLE_PROPS.WINS], this[PhysEd.PersonSport.STREAKABLE_PROPS.LOSSES]);
 };
@@ -60,7 +64,7 @@ PhysEd.PersonSport.prototype.incrementStreakableProp = function(prop){
     this[streakDirProp] = prop;
 };
 
-PhysEd.PersonSport.prototype._getPercentage = function(good, bad){
-    var total = good + bad;
-    return total === 0 ? 0 : Math.round((good / total) * 100);
+PhysEd.PersonSport.prototype._getPercentage = function(numerator, additional){
+    var total = numerator + additional;
+    return total === 0 ? 0 : Math.round((numerator / total) * 100);
 };
