@@ -16,7 +16,7 @@ PhysEd.PlayerStatusParser = function(threads){
         var person = JSUtil.ArrayUtil.find(people, function(person) {
             return person.email === fromParts.email ||
                 (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) ||
-                JSUtil.ArrayUtil.contains(person.getAlternateNames(), fromParts.firstName + ' ' + fromParts.lastName);
+                person.getAlternateNames().some(function(name){ return name === fromParts.email || name === fromParts.firstName + ' ' + fromParts.lastName; });
         });
         if(!person){
             person = new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
