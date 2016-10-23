@@ -83,14 +83,17 @@ PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function 
 };
 
 PhysEd.PlayerStatusParser.prototype._parseFromString = function(fromString){
-    return fromString.split(' ').reduce(function(parsed, part, index, parts) {
-        if(parts.length === 1 || index === parts.length - 1) {
-            parsed.email = part.replace(/[<>]/g, '');
-        } else if(index) {
-            parsed.lastName = (parsed.lastName ? parsed.lastName + ' ' : '') + part;
-        } else {
-            parsed.firstName = part;
-        }
-        return parsed;
-    }, {email: '', firstName: '', lastName: ''});
+    return fromString.
+        replace(/^"(.+), ([^ ]+).*"(.+)/, '$2 $1$3').
+        split(' ').
+        reduce(function(parsed, part, index, parts) {
+            if(parts.length === 1 || index === parts.length - 1) {
+                parsed.email = part.replace(/[<>]/g, '');
+            } else if(index) {
+                parsed.lastName = (parsed.lastName ? parsed.lastName + ' ' : '') + part;
+            } else {
+                parsed.firstName = part;
+            }
+            return parsed;
+        }, {email: '', firstName: '', lastName: ''});
 };
