@@ -1,7 +1,3 @@
-PhysEd.MailingList = function(email) {
-    this.guid = JSUtil.GuidUtil.generate();
-    this.email = email;
-};
-
-PhysEd.MailingList.__props = ['guid', 'email'];
+PhysEd.MailingList = function(){};
+PhysEd.MailingList.__props = ['guid', 'email', 'name'];
 PhysEd.MailingList.__tableName = 'MAILING_LIST';
