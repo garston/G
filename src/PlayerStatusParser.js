@@ -21,7 +21,6 @@ PhysEd.PlayerStatusParser = function(threads){
         if(!person){
             person = new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
             GASton.Database.persist(PhysEd.Person, person);
-            people.push(person);
         }
 
         return person.guid;

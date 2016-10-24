@@ -12,8 +12,8 @@ PhysEd.GameRecorder.record = function(side1, side2){
 
     this._sendEmail(side1, side2, sport.name, PhysEd.StatsGenerator.generateStats(sport));
 
-    GASton.Database.remove(PhysEd.Side, side2);
     GASton.Database.remove(PhysEd.Side, side1);
+    GASton.Database.remove(PhysEd.Side, side2);
 };
 
 PhysEd.GameRecorder._recordSide = function(side, game){
