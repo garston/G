@@ -19,7 +19,7 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
             PhysEd.InBasedThread.sendInitialEmail(sportMailingList, tomorrowDay);
 
             sportMailingList.gameDayCount += 1;
-            GASton.Database.persistOnly(PhysEd.SportMailingList, sportMailingList, ['gameDayCount']);
+            GASton.Database.persist(PhysEd.SportMailingList, sportMailingList);
         }
     }
 };
