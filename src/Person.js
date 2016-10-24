@@ -1,10 +1,10 @@
-PhysEd.Person = function(email, firstName, lastName, alternateNames) {
+PhysEd.Person = function(email, firstName, lastName) {
     this.guid = JSUtil.GuidUtil.generate();
     this.creationDate = new Date();
     this.email = email;
     this.firstName = firstName || '';
     this.lastName = lastName || '';
-    this.alternateNames = alternateNames || '';
+    this.alternateNames = '';
 };
 
 PhysEd.Person.prototype.getAlternateNames = function(){
