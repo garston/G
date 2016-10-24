@@ -4,13 +4,7 @@ JSUtil.ArrayUtil = {
     },
 
     compact: function(a) {
-        var result = [];
-        for(var i = 0; i < a.length; i++) {
-            if(a[i]){
-                result.push(a[i]);
-            }
-        }
-        return result;
+        return a.filter(function(o){ return o; });
     },
 
     contains: function(a, obj) {
