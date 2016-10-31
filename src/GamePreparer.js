@@ -14,12 +14,15 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
     for(var mailingListGuid in sportMailingListsByMailingListGuid) {
         var tomorrowDay = (this.today.getDay() + 1) % 7;
         var tomorrowSports = sportMailingListsByMailingListGuid[mailingListGuid].filter(function (sportMailingList) { return JSUtil.ArrayUtil.contains(sportMailingList.getGameDays(), tomorrowDay); });
-        if(tomorrowSports.length){
-            var sportMailingList = tomorrowSports.length === 1 ? tomorrowSports[0] : this._findInProgressSport(tomorrowSports) || this._findLowestSport(tomorrowSports);
-            PhysEd.InBasedThread.sendInitialEmail(sportMailingList, tomorrowDay);
+        var sportsByScheduleType = JSUtil.ArrayUtil.groupBy(tomorrowSports, function(sml){ return sml.hasPredeterminedSchedule(); });
+        var chosenSport = sportsByScheduleType[true] && (this._findInProgressSport(sportsByScheduleType[true]) || this._findLowestSport(sportsByScheduleType[true]));
+        (sportsByScheduleType[false] || []).
+            concat(chosenSport || []).
+            forEach(function(sml){ PhysEd.InBasedThread.sendInitialEmail(sml, tomorrowDay); });
 
-            sportMailingList.gameDayCount += 1;
-            GASton.Database.persist(PhysEd.SportMailingList, sportMailingList);
+        if(chosenSport){
+            chosenSport.gameDayCount += 1;
+            GASton.Database.persist(PhysEd.SportMailingList, chosenSport);
         }
     }
 };
