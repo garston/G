@@ -13,15 +13,18 @@ PhysEd.InBasedThread.sendInitialEmail = function(sportMailingList, dayOfWeek){
     );
 };
 
-PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(playerStatusParser, intro) {
+PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(playerStatusParser, introLines, endLines) {
     if(playerStatusParser.inPlayers.length) {
-        GASton.MailSender.replyAll(this.thread, JSUtil.ArrayUtil.compact([
-            intro,
-            this._toPlayerNames('In', playerStatusParser.inPlayers),
-            this._toPlayerNames('Maybe', playerStatusParser.maybePlayers),
-            this._toPlayerNames('Out', playerStatusParser.outPlayers),
-            this._toPlayerNames('Unknown', playerStatusParser.unknownPlayers)
-        ]).join('<br/>'), this.mailingListEmail);
+        var bodyLines = introLines.
+            concat(JSUtil.ArrayUtil.compact([
+                this._toPlayerNames('In', playerStatusParser.inPlayers),
+                this._toPlayerNames('Maybe', playerStatusParser.maybePlayers),
+                this._toPlayerNames('Out', playerStatusParser.outPlayers),
+                this._toPlayerNames('Unknown', playerStatusParser.unknownPlayers)
+            ])).
+            concat('').
+            concat(endLines);
+        GASton.MailSender.replyAll(this.thread, bodyLines.join('<br/>'), this.mailingListEmail);
     }
 };
 

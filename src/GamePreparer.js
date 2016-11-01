@@ -4,7 +4,7 @@ PhysEd.GamePreparer = function() {
 
 PhysEd.GamePreparer.prototype.checkGameStatus = function(){
     this._eachTodayThread(function(opts){
-        opts.inBasedThread.sendPlayerCountEmail(opts.playerStatusParser);
+        opts.inBasedThread.sendPlayerCountEmail(opts.playerStatusParser, [], this._generateCompetingThreadsMessage(opts));
         this._persistSides(opts);
     });
 };
@@ -29,17 +29,21 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
 
 PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
     this._eachTodayThread(function(opts){
-        var emailIntro;
+        var emailIntro = [];
         if(opts.earlyWarningMailingList) {
-            var thresholdReached = opts.inPlayers.length >= opts.sportMailingList.earlyWarningThreshold;
+            var thresholdReached = opts.playerStatusParser.inPlayers.length >= opts.sportMailingList.earlyWarningThreshold;
             if(thresholdReached) {
-                GASton.MailSender.sendToList(JSUtil.DateUtil.toPrettyString(this.today), PhysEd.Const.generateEarlyWarningEmailBody(opts.inPlayers.length), opts.earlyWarningMailingList.email);
+                GASton.MailSender.sendToList(
+                    JSUtil.DateUtil.toPrettyString(this.today),
+                    PhysEd.Const.generateEarlyWarningEmailBody(opts.playerStatusParser.inPlayers.length),
+                    opts.earlyWarningMailingList.email
+                );
             }
 
-            emailIntro = 'Email ' + (thresholdReached ? '' : 'not ') + 'sent to ' + opts.earlyWarningMailingList.name + ' list. Current numbers:';
+            emailIntro.push('Email ' + (thresholdReached ? '' : 'not ') + 'sent to ' + opts.earlyWarningMailingList.name + ' list. Current numbers:');
         }
 
-        opts.inBasedThread.sendPlayerCountEmail(opts.playerStatusParser, emailIntro);
+        opts.inBasedThread.sendPlayerCountEmail(opts.playerStatusParser, emailIntro, this._generateCompetingThreadsMessage(opts));
     });
 };
 
@@ -56,7 +60,8 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
         ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, this.today)) +
         ' before:' + JSUtil.DateUtil.toSearchString(this.today)
     );
-    threads.forEach(function(thread){
+
+    var threadInfos = threads.map(function(thread){
         var inBasedThread = new PhysEd.InBasedThread(thread);
         var sport = PhysEd.Sport.hydrateByName(inBasedThread.sportName);
 
@@ -80,17 +85,20 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
             }
         }
 
-        var playerStatusParser = new PhysEd.PlayerStatusParser(threads);
-        var inPlayers = playerStatusParser.inPlayers;
-
-        callback.call(this, {
+        return {
             earlyWarningMailingList: earlyWarningMailingList,
             inBasedThread: inBasedThread,
-            inPlayers: inPlayers,
-            playerStatusParser: playerStatusParser,
+            playerStatusParser: new PhysEd.PlayerStatusParser(threads),
             sport: sport,
             sportMailingList: sportMailingList
+        };
+    }, this);
+
+    threadInfos.forEach(function(threadInfo){
+        threadInfo.competingThreadInfos = threadInfo.sportMailingList.hasPredeterminedSchedule() ? [] : threadInfos.filter(function(otherThreadInfo){
+            return otherThreadInfo !== threadInfo && otherThreadInfo.sportMailingList.mailingListGuid === threadInfo.sportMailingList.mailingListGuid;
         });
+        callback.call(this, threadInfo);
     }, this);
 };
 
@@ -102,10 +110,16 @@ PhysEd.GamePreparer.prototype._findLowestSport = function(sportMailingLists) {
     return sportMailingLists.reduce(function(lowestSport, sportMailingList){ return sportMailingList.gameDayCount < lowestSport.gameDayCount ? sportMailingList : lowestSport; });
 };
 
+PhysEd.GamePreparer.prototype._generateCompetingThreadsMessage = function(opts){
+    return opts.competingThreadInfos.map(function(threadInfo){
+        return 'Other sport option for today, ' + threadInfo.sport.name + ', currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
+    });
+};
+
 PhysEd.GamePreparer.prototype._persistSides = function(opts){
     if(opts.sportMailingList.prePersistSides) {
         var teams = [[], []];
-        opts.inPlayers.forEach(function(player, index){
+        opts.playerStatusParser.inPlayers.forEach(function(player, index){
             teams[index % teams.length].push(player.email);
         });
 
