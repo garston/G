@@ -1,0 +1,11 @@
+LordGarston.UpcomingDueDateHandler = function() {};
+
+LordGarston.UpcomingDueDateHandler.REMINDER_DAYS = 2;
+
+LordGarston.UpcomingDueDateHandler.prototype.doHandle = function(rentPayment) {
+    _sendMail(rentPayment, 'Reminder: rent is due in ' + LordGarston.UpcomingDueDateHandler.REMINDER_DAYS + ' days');
+};
+
+LordGarston.UpcomingDueDateHandler.prototype.shouldHandle = function(rentPayment) {
+    return JSUtil.DateUtil.dayDiff(_startOfToday(), rentPayment.dueDate) === LordGarston.UpcomingDueDateHandler.REMINDER_DAYS && _shouldSendMail(1);
+};
