@@ -80,9 +80,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
                 ' to:' + earlyWarningMailingList.email +
                 ' subject:' + JSUtil.DateUtil.toPrettyString(this.today),
             0, 1)[0];
-            if(earlyWarningThread){
-                threads.push(earlyWarningThread);
-            }
+            threads = threads.concat(earlyWarningThread || []);
         }
 
         return {
