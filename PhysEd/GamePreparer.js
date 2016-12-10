@@ -63,10 +63,8 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
 
     var threadInfos = threads.map(function(thread){
         var inBasedThread = new PhysEd.InBasedThread(thread);
-        var sport = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Sport), function(sport){ return sport.name === inBasedThread.sportName; });
-
         var mailingListGuid = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.email === inBasedThread.mailingListEmail; }).guid;
-        var league = JSUtil.ArrayUtil.find(leagues, function(league){ return league.sportGuid === sport.guid && league.mailingListGuid === mailingListGuid; });
+        var league = JSUtil.ArrayUtil.find(leagues, function(league){ return league.sportName === inBasedThread.sportName && league.mailingListGuid === mailingListGuid; });
 
         var threads = [thread];
         var earlyWarningMailingList;

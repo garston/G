@@ -6,5 +6,5 @@ PhysEd.League.prototype.getGameDays = function(){
 
 PhysEd.League.prototype.hasPredeterminedSchedule = function(){ return this.gameDayCount >= 0; };
 
-PhysEd.League.__props = ['guid', 'sportGuid', 'mailingListGuid', 'earlyWarningMailingListGuid', 'earlyWarningThreshold', 'gameDays', 'gameDayCount', 'prePersistSides'];
+PhysEd.League.__props = ['guid', 'sportName', 'mailingListGuid', 'earlyWarningMailingListGuid', 'earlyWarningThreshold', 'gameDays', 'gameDayCount', 'prePersistSides'];
 PhysEd.League.__tableName = 'LEAGUE';

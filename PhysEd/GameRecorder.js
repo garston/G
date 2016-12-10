@@ -9,8 +9,7 @@ PhysEd.GameRecorder.record = function(side1, side2){
     this._recordSide(side1, game);
     this._recordSide(side2, game);
 
-    var sport = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Sport), function(sport){ return sport.guid === league.sportGuid; });
-    this._sendEmail(side1, side2, sport.name, PhysEd.StatsGenerator.generateStats(league));
+    this._sendEmail(side1, side2, league.sportName, PhysEd.StatsGenerator.generateStats(league));
 
     GASton.Database.remove(PhysEd.Side, side1);
     GASton.Database.remove(PhysEd.Side, side2);
