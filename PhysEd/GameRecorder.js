@@ -1,16 +1,16 @@
 PhysEd.GameRecorder = {};
 
 PhysEd.GameRecorder.record = function(side1, side2){
-    var sport = PhysEd.Sport.hydrateByName(side1.sportName);
-    GASton.Database.persist(PhysEd.Sport, sport);
+    var league = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.League), function(league){ return league.guid === side1.leagueGuid; });
 
-    var game = new PhysEd.Game(side1.month, side1.day, side1.year, sport.guid);
+    var game = new PhysEd.Game(side1.month, side1.day, side1.year, league.guid);
     GASton.Database.persist(PhysEd.Game, game);
 
     this._recordSide(side1, game);
     this._recordSide(side2, game);
 
-    this._sendEmail(side1, side2, sport.name, PhysEd.StatsGenerator.generateStats(sport));
+    var sport = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Sport), function(sport){ return sport.guid === league.sportGuid; });
+    this._sendEmail(side1, side2, sport.name, PhysEd.StatsGenerator.generateStats(league));
 
     GASton.Database.remove(PhysEd.Side, side1);
     GASton.Database.remove(PhysEd.Side, side2);

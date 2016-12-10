@@ -63,7 +63,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
 
     var threadInfos = threads.map(function(thread){
         var inBasedThread = new PhysEd.InBasedThread(thread);
-        var sport = PhysEd.Sport.hydrateByName(inBasedThread.sportName);
+        var sport = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Sport), function(sport){ return sport.name === inBasedThread.sportName; });
 
         var mailingListGuid = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.email === inBasedThread.mailingListEmail; }).guid;
         var league = JSUtil.ArrayUtil.find(leagues, function(league){ return league.sportGuid === sport.guid && league.mailingListGuid === mailingListGuid; });
@@ -84,8 +84,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
             earlyWarningMailingList: earlyWarningMailingList,
             inBasedThread: inBasedThread,
             league: league,
-            playerStatusParser: new PhysEd.PlayerStatusParser(threads),
-            sport: sport
+            playerStatusParser: new PhysEd.PlayerStatusParser(threads)
         };
     }, this);
 
@@ -107,7 +106,7 @@ PhysEd.GamePreparer.prototype._findLowestSport = function(leagues) {
 
 PhysEd.GamePreparer.prototype._generateCompetingThreadsMessage = function(opts){
     return opts.competingThreadInfos.map(function(threadInfo){
-        return 'Other sport option for today, ' + threadInfo.sport.name + ', currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
+        return 'Other sport option for today, ' + threadInfo.inBasedThread.sportName + ', currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
     });
 };
 
@@ -118,7 +117,7 @@ PhysEd.GamePreparer.prototype._persistSides = function(opts){
             teams[index % teams.length].push(player.email);
         });
 
-        GASton.Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.sport.name, '', teams[0]));
-        GASton.Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.sport.name, '', teams[1]));
+        GASton.Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[0]));
+        GASton.Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[1]));
     }
 };

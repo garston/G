@@ -1,11 +1,11 @@
 PhysEd.StatsGenerator = {};
 
-PhysEd.StatsGenerator.generateStats = function(sport){
+PhysEd.StatsGenerator.generateStats = function(league){
     var allPersonSports = [];
     var teamsByGameGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrate(PhysEd.Team), function(team){ return team.gameGuid; })
     var personTeamsByTeamGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrate(PhysEd.PersonTeam), function(personTeam){ return personTeam.teamGuid; });
 
-    GASton.Database.hydrate(PhysEd.Game).filter(function(game){ return game.sportGuid === sport.guid; }).forEach(function(game, gameIndex, games){
+    GASton.Database.hydrate(PhysEd.Game).filter(function(game){ return game.leagueGuid === league.guid; }).forEach(function(game, gameIndex, games){
         var teams = teamsByGameGuid[game.guid];
         var team1 = teams[0];
         var team2 = teams[1];
