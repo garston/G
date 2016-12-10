@@ -33,11 +33,9 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
         if(opts.earlyWarningMailingList) {
             var thresholdReached = opts.playerStatusParser.inPlayers.length >= opts.league.earlyWarningThreshold;
             if(thresholdReached) {
-                GASton.MailSender.sendToList(
-                    JSUtil.DateUtil.toPrettyString(this.today),
-                    PhysEd.Const.generateEarlyWarningEmailBody(opts.playerStatusParser.inPlayers.length),
-                    opts.earlyWarningMailingList.email
-                );
+                var earlyWarningEmailBody = opts.league.getMailingList().name + ' crew is looking to get a game together today. We play at ' + opts.league.getMailingList().gameLocation +
+                    '. <b>' + opts.playerStatusParser.inPlayers.length + '</b> people are currently in. Anybody interested?';
+                GASton.MailSender.sendToList(JSUtil.DateUtil.toPrettyString(this.today), earlyWarningEmailBody, opts.earlyWarningMailingList.email);
             }
 
             emailIntro.push('Email ' + (thresholdReached ? '' : 'not ') + 'sent to ' + opts.earlyWarningMailingList.name + ' list. Current numbers:');
@@ -50,13 +48,11 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
 PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
     var mailingLists = GASton.Database.hydrate(PhysEd.MailingList);
     var leagues = GASton.Database.hydrate(PhysEd.League);
-    var primaryMailingLists = JSUtil.ArrayUtil.unique(leagues.map(function(league){
-        return JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.guid === league.mailingListGuid; });
-    }));
+    var primaryListEmails = JSUtil.ArrayUtil.unique(leagues.map(function(league){ return league.getMailingList().email; }));
 
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + GASton.MailSender.getNameUsedForSending() +
-        ' (' + primaryMailingLists.map(function(mailingList){ return 'to:' + mailingList.email; }).join(' OR ') + ')' +
+        ' (' + primaryListEmails.map(function(email){ return 'to:' + email; }).join(' OR ') + ')' +
         ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, this.today)) +
         ' before:' + JSUtil.DateUtil.toSearchString(this.today)
     );

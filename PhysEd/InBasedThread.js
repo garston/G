@@ -5,11 +5,8 @@ PhysEd.InBasedThread = function(thread){
 };
 
 PhysEd.InBasedThread.sendInitialEmail = function(league, dayOfWeek){
-    GASton.MailSender.sendToList(
-        (league.sportName === 'Basketball' ? 'Full Court ' + JSUtil.DateUtil.dayOfWeekString(dayOfWeek) : league.sportName + ' Tomorrow') + this._generateRandomExclamations(),
-        '',
-        JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.MailingList), function(mailingList){ return mailingList.guid === league.mailingListGuid; }).email
-    );
+    var subject = (league.sportName === 'Basketball' ? 'Full Court ' + JSUtil.DateUtil.dayOfWeekString(dayOfWeek) : league.sportName + ' Tomorrow') + this._generateRandomExclamations();
+    GASton.MailSender.sendToList(subject, '', league.getMailingList().email);
 };
 
 PhysEd.InBasedThread.prototype.sendPlayerCountEmail = function(playerStatusParser, introLines, endLines) {
