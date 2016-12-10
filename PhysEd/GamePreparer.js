@@ -4,7 +4,7 @@ PhysEd.GamePreparer = function() {
 
 PhysEd.GamePreparer.prototype.checkGameStatus = function(){
     this._eachTodayThread(function(opts){
-        opts.inBasedThread.sendPlayerCountEmail(opts.playerStatusParser, [], this._generateCompetingThreadsMessage(opts));
+        this._sendPlayerCountEmail(opts);
         this._persistSides(opts);
     });
 };
@@ -18,7 +18,11 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
         var chosenSport = sportsByScheduleType[true] && (this._findInProgressSport(sportsByScheduleType[true]) || this._findLowestSport(sportsByScheduleType[true]));
         (sportsByScheduleType[false] || []).
             concat(chosenSport || []).
-            forEach(function(league){ PhysEd.InBasedThread.sendInitialEmail(league, tomorrowDay); });
+            forEach(function(league){
+                var subject = (league.sportName === 'Basketball' ? 'Full Court ' + JSUtil.DateUtil.dayOfWeekString(tomorrowDay) : league.sportName + ' Tomorrow') +
+                    JSUtil.ArrayUtil.range(Math.floor(Math.random() * 6)).reduce(function(str){ return str + '!'; }, '');
+                GASton.MailSender.sendToList(subject, '', league.getMailingList().email);
+            });
 
         if(chosenSport){
             chosenSport.gameDayCount += 1;
@@ -41,26 +45,26 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
             emailIntro.push('Email ' + (thresholdReached ? '' : 'not ') + 'sent to ' + opts.earlyWarningMailingList.name + ' list. Current numbers:');
         }
 
-        opts.inBasedThread.sendPlayerCountEmail(opts.playerStatusParser, emailIntro, this._generateCompetingThreadsMessage(opts));
+        this._sendPlayerCountEmail(opts, emailIntro);
     });
 };
 
 PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
     var mailingLists = GASton.Database.hydrate(PhysEd.MailingList);
     var leagues = GASton.Database.hydrate(PhysEd.League);
-    var primaryListEmails = JSUtil.ArrayUtil.unique(leagues.map(function(league){ return league.getMailingList().email; }));
 
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + GASton.MailSender.getNameUsedForSending() +
-        ' (' + primaryListEmails.map(function(email){ return 'to:' + email; }).join(' OR ') + ')' +
+        ' (' + JSUtil.ArrayUtil.unique(leagues.map(function(league){ return 'to:' + league.getMailingList().email; })).join(' OR ') + ')' +
         ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, this.today)) +
         ' before:' + JSUtil.DateUtil.toSearchString(this.today)
     );
 
     var threadInfos = threads.map(function(thread){
-        var inBasedThread = new PhysEd.InBasedThread(thread);
-        var mailingListGuid = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.email === inBasedThread.mailingListEmail; }).guid;
-        var league = JSUtil.ArrayUtil.find(leagues, function(league){ return league.sportName === inBasedThread.sportName && league.mailingListGuid === mailingListGuid; });
+        var sportName = thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '').replace('Full Court', 'Basketball');
+        var mailingListEmail = thread.getMessages()[0].getReplyTo();
+        var mailingList = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.email === mailingListEmail; });
+        var league = JSUtil.ArrayUtil.find(leagues, function(league){ return league.sportName === sportName && league.mailingListGuid === mailingList.guid; });
 
         var threads = [thread];
         var earlyWarningMailingList;
@@ -76,9 +80,9 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
 
         return {
             earlyWarningMailingList: earlyWarningMailingList,
-            inBasedThread: inBasedThread,
             league: league,
-            playerStatusParser: new PhysEd.PlayerStatusParser(threads)
+            playerStatusParser: new PhysEd.PlayerStatusParser(threads),
+            thread: thread
         };
     }, this);
 
@@ -98,12 +102,6 @@ PhysEd.GamePreparer.prototype._findLowestSport = function(leagues) {
     return leagues.reduce(function(lowestSport, league){ return league.gameDayCount < lowestSport.gameDayCount ? league : lowestSport; });
 };
 
-PhysEd.GamePreparer.prototype._generateCompetingThreadsMessage = function(opts){
-    return opts.competingThreadInfos.map(function(threadInfo){
-        return 'Other sport option for today, ' + threadInfo.inBasedThread.sportName + ', currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
-    });
-};
-
 PhysEd.GamePreparer.prototype._persistSides = function(opts){
     if(GASton.Database.hydrate(PhysEd.Game).some(function(game){ return game.leagueGuid === opts.league.guid; })) {
         var teams = [[], []];
@@ -113,5 +111,29 @@ PhysEd.GamePreparer.prototype._persistSides = function(opts){
 
         GASton.Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[0]));
         GASton.Database.persist(PhysEd.Side, new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[1]));
+    }
+};
+
+PhysEd.GamePreparer.prototype._sendPlayerCountEmail = function(opts, introLines) {
+    if(opts.playerStatusParser.inPlayers.length) {
+        var bodyLines = (introLines || []).
+            concat(JSUtil.ArrayUtil.compact([
+                this._toPlayerNames('In', opts.playerStatusParser.inPlayers),
+                this._toPlayerNames('Maybe', opts.playerStatusParser.maybePlayers),
+                this._toPlayerNames('Out', opts.playerStatusParser.outPlayers),
+                this._toPlayerNames('Unknown', opts.playerStatusParser.unknownPlayers)
+            ])).
+            concat('').
+            concat(opts.competingThreadInfos.map(function(threadInfo){
+                return threadInfo.league.sportName + ' currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
+            }));
+        GASton.MailSender.replyAll(opts.thread, bodyLines.join('<br/>'), opts.league.getMailingList().email);
+    }
+};
+
+PhysEd.GamePreparer.prototype._toPlayerNames = function(categoryDisplayString, players) {
+    if(players.length){
+        var playerStrings = players.map(PhysEd.Transformers.personToDisplayString);
+        return categoryDisplayString + ' (' + playerStrings.length + '): ' + playerStrings.join(', ');
     }
 };
