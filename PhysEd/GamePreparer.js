@@ -19,7 +19,7 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
         (sportsByScheduleType[false] || []).
             concat(chosenSport || []).
             forEach(function(league){
-                var subject = (league.sportName === 'Basketball' ? 'Full Court ' + JSUtil.DateUtil.dayOfWeekString(tomorrowDay) : league.sportName + ' Tomorrow') +
+                var subject = (league.cuteSportName ? league.cuteSportName + ' ' + JSUtil.DateUtil.dayOfWeekString(tomorrowDay) : league.sportName + ' Tomorrow') +
                     JSUtil.ArrayUtil.range(Math.floor(Math.random() * 6)).reduce(function(str){ return str + '!'; }, '');
                 GASton.MailSender.sendToList(subject, '', league.getMailingList().email);
             });
@@ -61,10 +61,12 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
     );
 
     var threadInfos = threads.map(function(thread){
-        var sportName = thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '').replace('Full Court', 'Basketball');
+        var sportName = thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '');
         var mailingListEmail = thread.getMessages()[0].getReplyTo();
         var mailingList = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.email === mailingListEmail; });
-        var league = JSUtil.ArrayUtil.find(leagues, function(league){ return league.sportName === sportName && league.mailingListGuid === mailingList.guid; });
+        var league = JSUtil.ArrayUtil.find(leagues, function(league){
+            return (league.cuteSportName || league.sportName) === sportName && league.mailingListGuid === mailingList.guid;
+        });
 
         var threads = [thread];
         var earlyWarningMailingList;
