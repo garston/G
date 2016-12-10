@@ -105,7 +105,7 @@ PhysEd.GamePreparer.prototype._generateCompetingThreadsMessage = function(opts){
 };
 
 PhysEd.GamePreparer.prototype._persistSides = function(opts){
-    if(opts.league.prePersistSides) {
+    if(GASton.Database.hydrate(PhysEd.Game).some(function(game){ return game.leagueGuid === opts.league.guid; })) {
         var teams = [[], []];
         opts.playerStatusParser.inPlayers.forEach(function(player, index){
             teams[index % teams.length].push(player.email);
