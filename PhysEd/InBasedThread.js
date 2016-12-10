@@ -4,12 +4,12 @@ PhysEd.InBasedThread = function(thread){
     this.sportName = thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '').replace('Full Court', 'Basketball');
 };
 
-PhysEd.InBasedThread.sendInitialEmail = function(sportMailingList, dayOfWeek){
-    var sport = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Sport), function(sport){ return sport.guid === sportMailingList.sportGuid; });
+PhysEd.InBasedThread.sendInitialEmail = function(league, dayOfWeek){
+    var sport = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Sport), function(sport){ return sport.guid === league.sportGuid; });
     GASton.MailSender.sendToList(
         (sport.name === 'Basketball' ? 'Full Court ' + JSUtil.DateUtil.dayOfWeekString(dayOfWeek) : sport.name + ' Tomorrow') + this._generateRandomExclamations(),
         '',
-        JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.MailingList), function(mailingList){ return mailingList.guid === sportMailingList.mailingListGuid; }).email
+        JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.MailingList), function(mailingList){ return mailingList.guid === league.mailingListGuid; }).email
     );
 };
 
