@@ -9,7 +9,7 @@ PhysEd.GameRecorder.record = function(side1, side2){
     this._recordSide(side1, game);
     this._recordSide(side2, game);
 
-    GASton.MailSender.sendToList(
+    GASton.Mail.sendToList(
         '[PhysEdStats] ' + league.sportName + ' ' + side1.month + '/' + side1.day + '/' + side1.year,
         [
             'Game results',

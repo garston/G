@@ -6,7 +6,7 @@ PhysEd.PlayerStatusParser = function(threads){
     this.unknownPlayers = [];
 
     var replyMessages = JSUtil.ArrayUtil.flatten(threads.map(function(thread){ return thread.getMessages(); })).
-        filter(function(message){ return !JSUtil.StringUtil.contains(message.getFrom(), GASton.MailSender.getNameUsedForSending()); }).
+        filter(function(message){ return !JSUtil.StringUtil.contains(message.getFrom(), GASton.Mail.getNameUsedForSending()); }).
         sort(function(m1, m2){ return m1.getDate() - m2.getDate(); });
 
     var people = GASton.Database.hydrate(PhysEd.Person);

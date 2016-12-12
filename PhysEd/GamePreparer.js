@@ -21,7 +21,7 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
             forEach(function(league){
                 var subject = (league.cuteSportName ? league.cuteSportName + ' ' + JSUtil.DateUtil.dayOfWeekString(tomorrowDay) : league.sportName + ' Tomorrow') +
                     JSUtil.ArrayUtil.range(Math.floor(Math.random() * 6)).reduce(function(str){ return str + '!'; }, '');
-                GASton.MailSender.sendToList(subject, '', league.getMailingList().email);
+                GASton.Mail.sendToList(subject, '', league.getMailingList().email);
             });
 
         if(chosenSport){
@@ -39,7 +39,7 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
             if(thresholdReached) {
                 var earlyWarningEmailBody = opts.league.getMailingList().name + ' crew is looking to get a game together today. We play at ' + opts.league.getMailingList().gameLocation +
                     '. <b>' + opts.playerStatusParser.inPlayers.length + '</b> people are currently in. Anybody interested?';
-                GASton.MailSender.sendToList(JSUtil.DateUtil.toPrettyString(this.today), earlyWarningEmailBody, opts.earlyWarningMailingList.email);
+                GASton.Mail.sendToList(JSUtil.DateUtil.toPrettyString(this.today), earlyWarningEmailBody, opts.earlyWarningMailingList.email);
             }
 
             emailIntro.push('Email ' + (thresholdReached ? '' : 'not ') + 'sent to ' + opts.earlyWarningMailingList.name + ' list. Current numbers:');
@@ -54,7 +54,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
     var leagues = GASton.Database.hydrate(PhysEd.League);
 
     var threads = GmailApp.search('-subject:re:' +
-        ' from:' + GASton.MailSender.getNameUsedForSending() +
+        ' from:' + GASton.Mail.getNameUsedForSending() +
         ' (' + JSUtil.ArrayUtil.unique(leagues.map(function(league){ return 'to:' + league.getMailingList().email; })).join(' OR ') + ')' +
         ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, this.today)) +
         ' before:' + JSUtil.DateUtil.toSearchString(this.today)
@@ -73,7 +73,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
         if(league.earlyWarningMailingListGuid) {
             earlyWarningMailingList = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.guid === league.earlyWarningMailingListGuid; });
             var earlyWarningThread = GmailApp.search(
-                'from:' + GASton.MailSender.getNameUsedForSending() +
+                'from:' + GASton.Mail.getNameUsedForSending() +
                 ' to:' + earlyWarningMailingList.email +
                 ' subject:' + JSUtil.DateUtil.toPrettyString(this.today),
             0, 1)[0];
@@ -129,7 +129,7 @@ PhysEd.GamePreparer.prototype._sendPlayerCountEmail = function(opts, introLines)
             concat(opts.competingThreadInfos.map(function(threadInfo){
                 return threadInfo.league.sportName + ' currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
             }));
-        GASton.MailSender.replyAll(opts.thread, bodyLines.join('<br/>'), opts.league.getMailingList().email);
+        GASton.Mail.replyAll(opts.thread, bodyLines.join('<br/>'), opts.league.getMailingList().email);
     }
 };
 
