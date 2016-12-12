@@ -1,5 +1,4 @@
 PhysEd.Side = function(month, day, year, leagueGuid, score, playerEmails) {
-    this.guid = JSUtil.GuidUtil.generate();
     this.month = month;
     this.day = day;
     this.year = year;
@@ -28,7 +27,7 @@ PhysEd.Side.prototype.getPlayerEmails = function() {
 
 PhysEd.Side.__firstRow = 2;
 PhysEd.Side.__props = function() {
-    var propsToCol = ['guid', 'month', 'day', 'year', 'leagueGuid', 'score'];
+    var propsToCol = ['month', 'day', 'year', 'leagueGuid', 'score'];
     JSUtil.ArrayUtil.times(this.MAX_PLAYERS, function(i){
         propsToCol.push('playerEmail' + i);
     });
