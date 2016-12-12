@@ -58,7 +58,7 @@ function _findSharingInfo(name, sharingInfos) {
 }
 
 function _newSharedTransaction(month, year, iPayed, sharingInfo, processedStrings) {
-    var sharedTransaction = JSUtil.ArrayUtil.find(GASton.Database.hydrate(HalfZs.SharedTransaction), function(sharedTransaction){ return sharedTransaction.month === ''; });
+    var sharedTransaction = GASton.Database.findBy(HalfZs.SharedTransaction, 'month', '');
     sharedTransaction.month = month;
     sharedTransaction.year = year;
     sharedTransaction.what = sharingInfo.prettyName;

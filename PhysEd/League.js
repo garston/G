@@ -5,7 +5,7 @@ PhysEd.League.prototype.getGameDays = function(){
 };
 
 PhysEd.League.prototype.getMailingList = function(){
-    this.mailingList = this.mailingList || JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.MailingList), function(mailingList){ return mailingList.guid === this.mailingListGuid; }, this);
+    this.mailingList = this.mailingList || GASton.Database.findBy(PhysEd.MailingList, 'guid', this.mailingListGuid);
     return this.mailingList;
 };
 

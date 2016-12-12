@@ -15,9 +15,8 @@ PhysEd.Side.MAX_PLAYERS = 14;
 
 PhysEd.Side.prototype.getPeople = function(){
     this.people = this.people || this.getPlayerEmails().map(function(email){
-        return JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){ return person.email === email; }) || new PhysEd.Person(email);
+        return GASton.Database.findBy(PhysEd.Person, 'email', email) || new PhysEd.Person(email);
     });
-
     return this.people;
 };
 

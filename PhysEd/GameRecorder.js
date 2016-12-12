@@ -1,7 +1,7 @@
 PhysEd.GameRecorder = {};
 
 PhysEd.GameRecorder.record = function(side1, side2){
-    var league = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.League), function(league){ return league.guid === side1.leagueGuid; });
+    var league = GASton.Database.findBy(PhysEd.League, 'guid', side1.leagueGuid);
 
     var game = new PhysEd.Game(side1.month, side1.day, side1.year, league.guid);
     GASton.Database.persist(PhysEd.Game, game);

@@ -38,7 +38,7 @@ PhysEd.PersonSport.prototype.getParticipationPercentage = function(){
 };
 
 PhysEd.PersonSport.prototype.getPerson = function(){
-    this.person = this.person || JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){ return person.guid === this.personGuid; }, this);
+    this.person = this.person || GASton.Database.findBy(PhysEd.Person, 'guid', this.personGuid);
     return this.person;
 };
 

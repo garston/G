@@ -50,7 +50,6 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
 };
 
 PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
-    var mailingLists = GASton.Database.hydrate(PhysEd.MailingList);
     var leagues = GASton.Database.hydrate(PhysEd.League);
 
     var threads = GmailApp.search('-subject:re:' +
@@ -62,8 +61,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
 
     var threadInfos = threads.map(function(thread){
         var sportName = thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '');
-        var mailingListEmail = thread.getMessages()[0].getReplyTo();
-        var mailingList = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.email === mailingListEmail; });
+        var mailingList = GASton.Database.findBy(PhysEd.MailingList, 'email', thread.getMessages()[0].getReplyTo());
         var league = JSUtil.ArrayUtil.find(leagues, function(league){
             return (league.cuteSportName || league.sportName) === sportName && league.mailingListGuid === mailingList.guid;
         });
@@ -71,7 +69,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
         var threads = [thread];
         var earlyWarningMailingList;
         if(league.earlyWarningMailingListGuid) {
-            earlyWarningMailingList = JSUtil.ArrayUtil.find(mailingLists, function(mailingList){ return mailingList.guid === league.earlyWarningMailingListGuid; });
+            earlyWarningMailingList = GASton.Database.findBy(PhysEd.MailingList, 'guid', league.earlyWarningMailingListGuid);
             var earlyWarningThread = GmailApp.search(
                 'from:' + GASton.Mail.getNameUsedForSending() +
                 ' to:' + earlyWarningMailingList.email +

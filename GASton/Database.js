@@ -1,5 +1,9 @@
 GASton.Database = {};
 
+GASton.Database.findBy = function(clazz, prop, value){
+    return JSUtil.ArrayUtil.find(this.hydrate(clazz), function(o){ return o[prop] === value; });
+};
+
 GASton.Database.hydrate = function(clazz){
     var objs = GASton.DatabaseCache.get(clazz) || this._getSheet(clazz).getDataRange().getValues().
         filter(function(rowData, rowIndex){ return rowIndex + 1 >= this._getFirstRow(clazz); }, this).
