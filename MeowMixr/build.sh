@@ -1,7 +1,17 @@
 #!/bin/bash
 
+MINUSES='--------------------------------------'
+PLUSES='++++++++++++++++++++++++++++++++++++++'
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-echo "//+++++++++++++++++++++++++++++++++++$1 `git rev-parse HEAD`+++++++++++++++++++++++++++++++++++" > $SCRIPT_DIR/build/$1.txt
-cat $1/* >> $SCRIPT_DIR/build/$1.txt
-echo "//-----------------------------------$1 `git rev-parse HEAD`-----------------------------------" >> $SCRIPT_DIR/build/$1.txt
+echo "//$PLUSES `git rev-parse HEAD` $PLUSES" > $SCRIPT_DIR/bundle.txt
+
+for projectName in "$@"
+do
+    echo "Building $projectName"
+    echo "//$PLUSES $projectName $PLUSES" >> $SCRIPT_DIR/bundle.txt
+    cat $projectName/* >> $SCRIPT_DIR/bundle.txt
+    echo "//$MINUSES $projectName $MINUSES" >> $SCRIPT_DIR/bundle.txt
+done
+
+echo "//$MINUSES `git rev-parse HEAD` $MINUSES" >> $SCRIPT_DIR/bundle.txt

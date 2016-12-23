@@ -25,11 +25,7 @@ PhysEd.Side.prototype.getPlayerEmails = function() {
 };
 
 PhysEd.Side.__firstRow = 2;
-PhysEd.Side.__props = function() {
-    var propsToCol = ['month', 'day', 'year', 'leagueGuid', 'score'];
-    JSUtil.ArrayUtil.times(this.MAX_PLAYERS, function(i){
-        propsToCol.push('playerEmail' + i);
-    });
-    return propsToCol;
-};
+PhysEd.Side.__props = JSUtil.ArrayUtil.range(PhysEd.Side.MAX_PLAYERS).reduce(function(props, i){
+    return props.concat('playerEmail' + i);
+}, ['month', 'day', 'year', 'leagueGuid', 'score']);
 PhysEd.Side.__tableName = 'GAME_RECORDER';
