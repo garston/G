@@ -6,13 +6,12 @@ PhysEd.PlayerStatusParser = function(threads){
     this.unknownPlayers = [];
 
     var replyMessages = JSUtil.ArrayUtil.flatten(threads.map(function(thread){ return thread.getMessages(); })).
-        filter(function(message){ return !JSUtil.StringUtil.contains(message.getFrom(), GASton.Mail.getNameUsedForSending()); }).
+        filter(function(message){ return !GASton.Mail.isSentByUs(message); }).
         sort(function(m1, m2){ return m1.getDate() - m2.getDate(); });
 
     var people = GASton.Database.hydrate(PhysEd.Person);
     var messagesByPersonGuid = JSUtil.ArrayUtil.groupBy(replyMessages, function(message){
-        var fromParts = this._parseFromString(message.getFrom());
-
+        var fromParts = GASton.Mail.parseFrom(message);
         var person = JSUtil.ArrayUtil.find(people, function(person) {
             return person.email === fromParts.email ||
                 (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) ||
@@ -39,15 +38,7 @@ PhysEd.PlayerStatusParser = function(threads){
 };
 
 PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function (message) {
-    var words = [];
-    JSUtil.StringUtil.stripTags(message.getBody().replace(/<br>/gi, '\n')).split('\n').some(function(line) {
-        if(JSUtil.StringUtil.startsWith(line, '__________') || JSUtil.StringUtil.startsWith(line, 'From:') || /^On .+ wrote:/.test(line) || /^In a message dated .+ writes:/.test(line)) {
-            return true;
-        }
-
-        words = words.concat(JSUtil.ArrayUtil.compact(line.trim().replace(/\s|&nbsp;/gi, ' ').replace(/\u200B/g, '').split(' ')));
-    });
-
+    var words = GASton.Mail.getMessageWords(message);
     if(words.length === 0){
         return this.inPlayers;
     }
@@ -79,20 +70,4 @@ PhysEd.PlayerStatusParser.prototype._determineStatusArrayFromMessage = function 
         }
     }, this);
     return statusArray;
-};
-
-PhysEd.PlayerStatusParser.prototype._parseFromString = function(fromString){
-    return fromString.
-        replace(/^"(.+), ([^ ]+).*"(.+)/, '$2 $1$3').
-        split(' ').
-        reduce(function(parsed, part, index, parts) {
-            if(parts.length === 1 || index === parts.length - 1) {
-                parsed.email = part.replace(/[<>]/g, '');
-            } else if(index) {
-                parsed.lastName = (parsed.lastName ? parsed.lastName + ' ' : '') + part;
-            } else {
-                parsed.firstName = part;
-            }
-            return parsed;
-        }, {email: '', firstName: '', lastName: ''});
 };

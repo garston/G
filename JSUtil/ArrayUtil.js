@@ -1,15 +1,7 @@
 JSUtil.ArrayUtil = {
-    average: function(a) {
-        return a.length ? this.sum(a) / a.length : 0;
-    },
-
-    compact: function(a) {
-        return a.filter(function(o){ return o; });
-    },
-
-    contains: function(a, obj) {
-        return a.indexOf(obj) !== -1;
-    },
+    average: function(a){ return a.length ? this.sum(a) / a.length : 0; },
+    compact: function(a){ return a.filter(function(o){ return o; }); },
+    contains: function(a, obj){ return a.indexOf(obj) !== -1; },
 
     find: function(a, fn, scope) {
         for(var i = 0; i < a.length; i++) {
@@ -55,6 +47,8 @@ JSUtil.ArrayUtil = {
         return groups;
     },
 
+    last: function(a){ return a[a.length - 1]; },
+
     range: function(start, end, step) {
         start = +start || 0;
         step = typeof step == 'number' ? step : (+step || 1);
@@ -79,13 +73,8 @@ JSUtil.ArrayUtil = {
         }
     },
 
-    sum: function(a){
-        return a.reduce(function(sum, i){ return sum + i; }, 0);
-    },
-
-    times: function(n, fn, scope) {
-        this.range(n).forEach(fn, scope);
-    },
+    sum: function(a){ return a.reduce(function(sum, i){ return sum + i; }, 0); },
+    times: function(n, fn, scope){ this.range(n).forEach(fn, scope); },
 
     unique: function(arr){
         return arr.reverse().filter(function (e, i, arr) {
