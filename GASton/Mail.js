@@ -4,6 +4,10 @@ GASton.Mail.forward = function(message, body, email) {
     message.forward(this._getEmail(email), this._getOptions(body, email));
 };
 
+GASton.Mail.getMessagesAfterLatestMessageSentByUs = function(thread){
+    return thread.getMessages().reduce(function(messages, message){ return GASton.Mail.isSentByUs(message) ? [] : messages.concat(message); }, []);
+};
+
 GASton.Mail.getMessageWords = function(message) {
     var words = [];
     JSUtil.StringUtil.stripTags(message.getBody().replace(/<br>/gi, '\n')).split('\n').some(function(line) {
@@ -18,7 +22,7 @@ GASton.Mail.getMessageWords = function(message) {
         words = words.concat(JSUtil.ArrayUtil.compact(line.split(' ')));
     });
     return words;
-}
+};
 
 GASton.Mail.getNameUsedForSending = function() {
     return SpreadsheetApp.getActiveSpreadsheet().getName();
@@ -73,4 +77,4 @@ GASton.Mail._getOptions = function(body, replyTo){
 
 GASton.Mail._sendNewEmail = function(subject, body, email, replyTo) {
     MailApp.sendEmail(this._getEmail(email), subject, JSUtil.StringUtil.stripTags(body), this._getOptions(body, replyTo));
-}
+};
