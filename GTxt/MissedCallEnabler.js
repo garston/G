@@ -12,7 +12,7 @@ GTxt.MissedCallEnabler.changeEnabled = function(config) {
 };
 
 GTxt.MissedCallEnabler._isToggleEnabledRequest = function(message, config) {
-    var missedCallNumber = message.getBody().match(/\((\d+)\) (\d+)-(\d+)/).slice(1).join('');
-    return JSUtil.ArrayUtil.contains([config.gvNumber.toString(), config.getPhysicalPhoneContact().number.toString()], missedCallNumber) ||
-        JSUtil.StringUtil.contains(config.additionalToggleEnabledNumbers.toString(), missedCallNumber);
+    var numbersThatCanToggleEnabled = [config.gvNumber.toString(), config.getPhysicalPhoneContact().number.toString()].
+        concat(JSUtil.ArrayUtil.compact(config.additionalToggleEnabledNumbers.toString().split(',')));
+    return JSUtil.ArrayUtil.contains(numbersThatCanToggleEnabled, GASton.Voice.getMissedCallNumber(message));
 };

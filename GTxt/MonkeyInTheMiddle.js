@@ -1,16 +1,15 @@
 GTxt.MonkeyInTheMiddle = {};
-GTxt.MonkeyInTheMiddle.GV_TXT_DOMAIN = 'txt.voice.google.com';
 GTxt.MonkeyInTheMiddle.SEPARATOR = '|';
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
-    GmailApp.search('from:' + this.GV_TXT_DOMAIN + ' in:inbox is:unread subject:SMS').
+    GmailApp.search('from:' + GASton.Voice.DOMAIN + ' in:inbox is:unread subject:' + GASton.Voice.SUBJECT).
         map(function(thread){ return GASton.Mail.getMessagesAfterLatestMessageSentByUs(thread).filter(function(message){ return message.isInInbox() && message.isUnread(); }); }).
         filter(function(messages){ return messages.length; }).
         forEach(function(messages){
-            var fromNumber = GASton.Mail.parseFrom(messages[0]).email.match(/^\d+\.1(\d+)/)[1];
+            var fromNumber = GASton.Voice.parseFromTxt(messages[0]).number;
             var messageBodies = messages.map(function(message){ return GASton.Mail.getMessageWords(message).join(' '); });
 
-            if(fromNumber === config.getPhysicalPhoneContact().number.toString()){
+            if(fromNumber === config.getPhysicalPhoneContact().number){
                 messages.forEach(function(message, index){ this._txtContact(message, messageBodies[index], config); }, this);
             }else{
                 this._sendTxt(JSUtil.ArrayUtil.last(messages), [fromNumber].concat(messageBodies).join(this.SEPARATOR), config.getPhysicalPhoneContact(), config);
@@ -18,8 +17,8 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         }, this);
 };
 
-GTxt.MonkeyInTheMiddle._sendTxt = function(message, body, contact, config) {
-    GASton.Mail.forward(message, body, '1' + config.gvNumber + '.1' + contact.number + '.' + contact.gvKey + '@' + this.GV_TXT_DOMAIN);
+GTxt.MonkeyInTheMiddle._sendTxt = function(message, text, contact, config) {
+    GASton.Voice.forwardTxt(message, text, config.gvNumber, contact.number, contact.gvKey);
 };
 
 GTxt.MonkeyInTheMiddle._txtContact = function(message, messageBody, config) {
