@@ -12,8 +12,7 @@ GASton.Mail.getMessageWords = function(message) {
     var words = [];
     JSUtil.StringUtil.stripTags(message.getBody().replace(/<br>/gi, '\n')).split('\n').some(function(line) {
         line = line.trim().replace(/\s|&nbsp;/gi, ' ').replace(/\u200B/g, '');
-        if(line === '--' ||
-            ['__________', 'From:'].some(function(str){ return JSUtil.StringUtil.startsWith(line, str); }) ||
+        if(['__________', 'From:'].some(function(str){ return JSUtil.StringUtil.startsWith(line, str); }) ||
             /^On .+ wrote:/.test(line) ||
             /^In a message dated .+ writes:/.test(line)) {
             return true;
