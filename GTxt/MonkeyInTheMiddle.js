@@ -10,7 +10,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
             if(fromNumber === config.getPhysicalPhoneContact().number){
                 messages.forEach(function(message){ this._txtContact(message, config); }, this);
             }else{
-                this._sendTxt(JSUtil.ArrayUtil.last(messages), [fromNumber].concat(messages.map(GASton.Voice.getTxtWords)).join(this.SEPARATOR), config.getPhysicalPhoneContact(), config);
+                this._sendTxt(JSUtil.ArrayUtil.last(messages), [fromNumber].concat(messages.map(GASton.Voice.getTxt)).join(this.SEPARATOR), config.getPhysicalPhoneContact(), config);
             }
         }, this);
 };
@@ -20,7 +20,7 @@ GTxt.MonkeyInTheMiddle._sendTxt = function(message, text, contact, config) {
 };
 
 GTxt.MonkeyInTheMiddle._txtContact = function(message, config) {
-    var messageParts = GASton.Voice.getTxtWords(message).split(this.SEPARATOR);
+    var messageParts = GASton.Voice.getTxt(message).split(this.SEPARATOR);
     var contact = GASton.Database.findBy(GTxt.Contact, 'number', parseInt(messageParts[0]));
     if(contact){
         this._sendTxt(message, messageParts[1], contact, config);

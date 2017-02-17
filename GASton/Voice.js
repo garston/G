@@ -12,7 +12,13 @@ GASton.Voice.getMissedCallNumber = function(message){
     return match && match.slice(1).join('');
 };
 
-GASton.Voice.getTxtWords = function(message){ return message.getPlainBody().split('\n')[2].trim(); };
+GASton.Voice.getTxt = function(message){
+    var lines = message.getPlainBody().split('\n');
+    return lines.
+        slice(2, lines.length - 11).
+        map(function(line){ return line.trim(); }).
+        join(' ');
+};
 
 GASton.Voice.parseFromTxt = function(message){
     var match = GASton.Mail.parseFrom(message).email.match(/^\d+\.(\d+)\.(.+)@/);
