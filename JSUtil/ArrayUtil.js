@@ -12,6 +12,8 @@ JSUtil.ArrayUtil = {
         return null;
     },
 
+    findIndex: function(a, fn, scope) { return a.indexOf(this.find(a, fn, scope)); },
+
     flatten: function(array) {
         var worker = [];
 

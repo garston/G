@@ -13,11 +13,11 @@ GASton.Voice.getMissedCallNumber = function(message){
 };
 
 GASton.Voice.getTxt = function(message){
-    var lines = message.getPlainBody().split('\n');
-    return lines.
-        slice(2, lines.length - 11).
-        map(function(line){ return line.trim(); }).
-        join(' ');
+    var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
+    var endOfTxtLineIndex = JSUtil.ArrayUtil.findIndex(lines, function(line) {
+        return JSUtil.ArrayUtil.contains(['To respond to this text message, reply to this email or visit Google Voice.', 'YOUR ACCOUNT <https://www.google.com/voice/> HELP CENTER'], line);
+    });
+    return lines.slice(2, endOfTxtLineIndex).join(' ');
 };
 
 GASton.Voice.parseFromTxt = function(message){
