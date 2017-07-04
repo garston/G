@@ -33,27 +33,35 @@ PhysEd.PlayerStatusParser.prototype._processMessage = function (message, statusA
     var personGuid = this._getPersonGuid(message);
     var statusArray = statusArrayByPersonGuid[personGuid] || 'unknownPlayers';
     GASton.Mail.getMessageWords(message).some(function(word, index, words){
-        if (/^(in|yes|yep|yea|yeah|yay)\W*$/i.test(word)) {
-            var possibleIsIndex = index - (words[index - 1] === 'also' ? 2 : 1);
-            var possiblePlus1PlayerName = words[possibleIsIndex - 1];
-            if(words[possibleIsIndex] === 'is' && possiblePlus1PlayerName) {
-                possiblePlus1PlayerName = JSUtil.StringUtil.capitalize(possiblePlus1PlayerName.toLowerCase());
-                var plus1Player = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){
-                    return JSUtil.ArrayUtil.contains([person.firstName, person.lastName], possiblePlus1PlayerName);
-                });
-                if(plus1Player) {
-                    statusArrayByPersonGuid[plus1Player.guid] = 'inPlayers';
-                    return false;
-                }
+        var wordStatusArray;
+        if (/^in\W*$/i.test(word)) {
+            wordStatusArray = 'inPlayers';
+        } else if (/^(maybe|50\W?50)\W*$/i.test(word)) {
+            wordStatusArray = 'maybePlayers';
+        } else if (/^out\W*$/i.test(word)) {
+            wordStatusArray = 'outPlayers';
+        } else {
+            return false;
+        }
+
+        var isPhraseForOtherPlayer = false;
+        words.slice(0, index).reverse().some(function(wordInPhrase){
+            if(/[.!?;]$/.test(wordInPhrase)){
+                return true;
             }
 
-            statusArray = 'inPlayers';
-            return true;
-        } else if (/^(maybe|50\W?50)\W*$/i.test(word)) {
-            statusArray = 'maybePlayers';
-            return true;
-        } else if (/^out\W*$/i.test(word)) {
-            statusArray = 'outPlayers';
+            var possibleOtherPlayerName = JSUtil.StringUtil.capitalize(wordInPhrase.replace(/,$/, '').toLowerCase());
+            var otherPlayer = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){
+                return JSUtil.ArrayUtil.contains([person.firstName, person.lastName], possibleOtherPlayerName);
+            });
+            if(otherPlayer) {
+                isPhraseForOtherPlayer = true;
+                statusArrayByPersonGuid[otherPlayer.guid] = wordStatusArray;
+            }
+        });
+
+        if(!isPhraseForOtherPlayer) {
+            statusArray = wordStatusArray;
             return true;
         }
     }, this);
