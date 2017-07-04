@@ -30,21 +30,19 @@ PhysEd.PlayerStatusParser.prototype._getPersonGuid = function(message){
 };
 
 PhysEd.PlayerStatusParser.prototype._processMessage = function (message, statusArrayByPersonGuid) {
-    var personGuid = this._getPersonGuid(message);
-    var statusArray = statusArrayByPersonGuid[personGuid] || 'unknownPlayers';
-    GASton.Mail.getMessageWords(message).some(function(word, index, words){
-        var wordStatusArray;
+    var newStatusArray = GASton.Mail.getMessageWords(message).reduce(function(playerStatusArray, word, index, words){
+        var statusArray;
         if (/^in\W*$/i.test(word)) {
-            wordStatusArray = 'inPlayers';
+            statusArray = 'inPlayers';
         } else if (/^(maybe|50\W?50)\W*$/i.test(word)) {
-            wordStatusArray = 'maybePlayers';
+            statusArray = 'maybePlayers';
         } else if (/^out\W*$/i.test(word)) {
-            wordStatusArray = 'outPlayers';
+            statusArray = 'outPlayers';
         } else {
-            return false;
+            return playerStatusArray;
         }
 
-        var isPhraseForOtherPlayer = false;
+        var isPhraseForOtherPlayer;
         words.slice(0, index).reverse().some(function(wordInPhrase){
             if(/[.!?;]$/.test(wordInPhrase)){
                 return true;
@@ -56,14 +54,13 @@ PhysEd.PlayerStatusParser.prototype._processMessage = function (message, statusA
             });
             if(otherPlayer) {
                 isPhraseForOtherPlayer = true;
-                statusArrayByPersonGuid[otherPlayer.guid] = wordStatusArray;
+                statusArrayByPersonGuid[otherPlayer.guid] = statusArray;
             }
         });
 
-        if(!isPhraseForOtherPlayer) {
-            statusArray = wordStatusArray;
-            return true;
-        }
-    }, this);
-    statusArrayByPersonGuid[personGuid] = statusArray;
+        return playerStatusArray || (!isPhraseForOtherPlayer && statusArray);
+    }, null);
+
+    var personGuid = this._getPersonGuid(message);
+    statusArrayByPersonGuid[personGuid] = newStatusArray || statusArrayByPersonGuid[personGuid] || 'unknownPlayers';
 };
