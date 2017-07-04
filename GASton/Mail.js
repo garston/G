@@ -1,7 +1,8 @@
 GASton.Mail = {};
 
 GASton.Mail.forward = function(message, body, email) {
-    message.forward(this._getEmail(email), this._getOptions(body, email));
+    this._checkProdMode('FORWARD', email, null, message.getThread().getFirstMessageSubject(), body) &&
+        message.forward(email, this._getOptions(body));
 };
 
 GASton.Mail.getMessagesAfterLatestMessageSentByUs = function(thread){
@@ -46,11 +47,8 @@ GASton.Mail.parseFrom = function(message){
 };
 
 GASton.Mail.replyAll = function(thread, body, replyTo){
-    if(GASton.PROD_MODE){
+    this._checkProdMode('REPLY ALL', null, replyTo, thread.getFirstMessageSubject(), body) &&
         thread.replyAll(body, this._getOptions(body, replyTo));
-    }else{
-        this._sendNewEmail('test replyAll', body);
-    }
 };
 
 GASton.Mail.sendToIndividual = function(subject, body, email){
@@ -61,8 +59,12 @@ GASton.Mail.sendToList = function(subject, body, email){
     this._sendNewEmail(subject, body, email, email);
 };
 
-GASton.Mail._getEmail = function(email){
-    return GASton.PROD_MODE ? email : Session.getActiveUser().getEmail();
+GASton.Mail._checkProdMode = function(actionDesc, to, replyTo, threadSubject, body){
+    if(GASton.PROD_MODE){
+        return true;
+    }
+
+    Logger.log('%s\nTo: %s\nReply-To: %s\nThread Subject: %s\nBody: %s', actionDesc, to, replyTo, threadSubject, body);
 };
 
 GASton.Mail._getOptions = function(body, replyTo){
@@ -75,5 +77,6 @@ GASton.Mail._getOptions = function(body, replyTo){
 };
 
 GASton.Mail._sendNewEmail = function(subject, body, email, replyTo) {
-    MailApp.sendEmail(this._getEmail(email), subject, JSUtil.StringUtil.stripTags(body), this._getOptions(body, replyTo));
+    this._checkProdMode('NEW EMAIL', email, replyTo, subject, body) &&
+        MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), this._getOptions(body, replyTo));
 };
