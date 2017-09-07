@@ -8,6 +8,7 @@ GTxt.MissedCallEnabler.changeEnabled = function(config) {
             config.isEnabled = config.isEnabled ? 0 : 1;
             GASton.Database.persist(GTxt.Config, config);
             GASton.Mail.forward(message, (config.isEnabled ? 'Enabled' : 'Disabled') + ' ' + SpreadsheetApp.getActiveSpreadsheet().getUrl(), Session.getActiveUser().getEmail());
+            GASton.Mail.markRead(message);
         });
 };
 
