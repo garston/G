@@ -8,7 +8,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         forEach(function(messages){
             var fromNumber = GASton.Voice.parseFromTxt(messages[0]).number;
             if(fromNumber === config.getPhysicalPhoneContact().number){
-                messages.forEach(function(message){ this._txtContact(message, config); }, this);
+                messages.forEach(function(message){ this._txtContacts(message, config); }, this);
             }else{
                 this._txtPhysicalPhone(JSUtil.ArrayUtil.last(messages), [fromNumber].concat(messages.map(GASton.Voice.getTxt)).join(this.SEPARATOR), config);
             }
@@ -19,14 +19,16 @@ GTxt.MonkeyInTheMiddle._sendTxt = function(message, text, contact, config) {
     GASton.Voice.forwardTxt(message, text, config.gvNumber, contact.number, contact.gvKey);
 };
 
-GTxt.MonkeyInTheMiddle._txtContact = function(message, config) {
+GTxt.MonkeyInTheMiddle._txtContacts = function(message, config) {
     var messageParts = GASton.Voice.getTxt(message).split(this.SEPARATOR);
-    var contact = GASton.Database.findBy(GTxt.Contact, 'number', parseInt(messageParts[0]));
-    if(contact){
-        this._sendTxt(message, GTxt.Compression.decompress(messageParts[1]), contact, config);
-    }else{
-        this._txtPhysicalPhone(message, 'Cannot find contact with number ' + messageParts[0], config);
-    }
+    messageParts[0].split(',').forEach(function(number){
+        var contact = GASton.Database.findBy(GTxt.Contact, 'number', parseInt(number));
+        if(contact){
+            this._sendTxt(message, GTxt.Compression.decompress(messageParts[1]), contact, config);
+        }else{
+            this._txtPhysicalPhone(message, 'Cannot find contact with number ' + number, config);
+        }
+    }, this);
 };
 
 GTxt.MonkeyInTheMiddle._txtPhysicalPhone = function(message, text, config) {
