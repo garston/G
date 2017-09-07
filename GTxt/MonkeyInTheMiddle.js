@@ -9,7 +9,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
             var fromNumber = GASton.Voice.parseFromTxt(messages[0]).number;
             if(fromNumber === config.getPhysicalPhoneContact().number){
                 messages.forEach(function(message){ this._txtContacts(message, config); }, this);
-            }else{
+            }else if(config.forwardToPhysicalPhone){
                 this._txtPhysicalPhone(JSUtil.ArrayUtil.last(messages), [fromNumber].concat(messages.map(GASton.Voice.getTxt)).join(this.SEPARATOR), config);
             }
         }, this);
