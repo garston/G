@@ -2,37 +2,22 @@ GTxt.MonkeyInTheMiddle = {};
 GTxt.MonkeyInTheMiddle.SEPARATOR = '|';
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
-    var physicalPhoneMessageInfos = [];
-    this._getThreadMessagesToForward('from:' + GASton.Voice.TXT_DOMAIN + ' subject:' + GASton.Voice.TXT_SUBJECT).forEach(function(messages){
-        var message = messages[0];
-        var fromNumber = GASton.Voice.parseFromTxt(message).number;
-        if(fromNumber === config.getPhysicalPhoneContact().number){
-            this._txtContacts(messages, GASton.Voice.getTxt, function(errorMessage){
-                physicalPhoneMessageInfos.push({ message: message, text: errorMessage });
-            }, config);
-        }else if(config.forwardToPhysicalPhone){
-            physicalPhoneMessageInfos.push({
-                message: message,
-                text: [fromNumber].concat(messages.map(GASton.Voice.getTxt)).join(this.SEPARATOR)
-            });
-        }
-    }, this);
-
-    if(config.forwardToPhysicalPhone){
-        this._getThreadMessagesToForward('from:' + GASton.Voice.NO_REPLY_EMAIL + ' subject:' + GASton.Voice.GROUP_TXT_SUBJECT).forEach(function(messages){
-            physicalPhoneMessageInfos.push({
-                message: messages[0],
-                text: GASton.Voice.getFirstNumberMentioned(messages[0].getSubject()) + this.SEPARATOR + 'Group msg'
-            });
-        }, this);
-    }
-
-    physicalPhoneMessageInfos.forEach(function(info, index, infos){
+    this._processTxtEmails(
+        'from:' + GASton.Voice.TXT_DOMAIN + ' subject:' + GASton.Voice.TXT_SUBJECT,
+        function(message){ return GASton.Voice.parseFromTxt(message).number; },
+        GASton.Voice.getTxt,
+        config
+    ).concat(this._processTxtEmails(
+        'from:' + GASton.Voice.NO_REPLY_EMAIL + ' subject:' + GASton.Voice.GROUP_TXT_SUBJECT,
+        function(message){ return GASton.Voice.getFirstNumberMentioned(message.getSubject()); },
+        function(){ return 'Group msg'; },
+        config
+    )).forEach(function(obj, index, objs){
         if(index){
-            GASton.Mail.forward(info.message, 'Handled by batch: ' + infos[0].message.getSubject(), Session.getActiveUser().getEmail());
+            GASton.Mail.forward(obj.message, 'Handled by batch: ' + objs[0].message.getSubject(), Session.getActiveUser().getEmail());
         }else{
-            var text = physicalPhoneMessageInfos.map(function(info){ return info.text; }).join(this.SEPARATOR + this.SEPARATOR);
-            this._sendTxt(info.message, GTxt.Compression.compress(text), config.getPhysicalPhoneContact(), config);
+            var text = objs.map(function(obj){ return obj.text; }).join(this.SEPARATOR + this.SEPARATOR);
+            this._sendTxt(obj.message, GTxt.Compression.compress(text), config.getPhysicalPhoneContact(), config);
         }
     }, this);
 };
@@ -53,6 +38,25 @@ GTxt.MonkeyInTheMiddle._getThreadMessagesToForward = function(searchStr) {
     return GmailApp.search('in:inbox is:unread ' + searchStr).
         map(function(thread){ return GASton.Mail.getMessagesAfterLatestMessageSentByUs(thread).filter(function(message){ return message.isInInbox() && message.isUnread(); }); }).
         filter(function(messages){ return messages.length; });
+};
+
+GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFromNumber, getMessageText, config) {
+    var physicalPhoneMessageObjs = [];
+    this._getThreadMessagesToForward(searchStr).forEach(function(messages){
+        var message = messages[0];
+        var fromNumber = getFromNumber(message);
+        if(fromNumber === config.getPhysicalPhoneContact().number){
+            this._txtContacts(messages, getMessageText, function(errorMessage){
+                physicalPhoneMessageObjs.push({ message: message, text: errorMessage });
+            }, config);
+        }else if(config.forwardToPhysicalPhone){
+            physicalPhoneMessageObjs.push({
+                message: message,
+                text: [fromNumber].concat(messages.map(getMessageText)).join(this.SEPARATOR)
+            });
+        }
+    }, this);
+    return physicalPhoneMessageObjs;
 };
 
 GTxt.MonkeyInTheMiddle._sendTxt = function(message, text, contact, config) {
