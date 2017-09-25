@@ -2,18 +2,31 @@ GTxt.MonkeyInTheMiddle = {};
 GTxt.MonkeyInTheMiddle.SEPARATOR = '|';
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
+    var physicalPhoneMessageInfos = [];
     this._getThreadMessagesToForward('from:' + GASton.Voice.DOMAIN + ' subject:' + GASton.Voice.TXT_SUBJECT).forEach(function(messages){
         var fromNumber = GASton.Voice.parseFromTxt(messages[0]).number;
         if(fromNumber === config.getPhysicalPhoneContact().number){
             this._txtContacts(messages, GASton.Voice.getTxt, function(message, errorMessage){
-                this._txtPhysicalPhone(message, errorMessage, config);
+                physicalPhoneMessageInfos.push({ message: message, text: errorMessage });
             }, config);
         }else if(config.forwardToPhysicalPhone){
-            this._txtPhysicalPhone(JSUtil.ArrayUtil.last(messages), [fromNumber].concat(messages.map(GASton.Voice.getTxt)).join(this.SEPARATOR), config);
+            physicalPhoneMessageInfos.push({
+                message: JSUtil.ArrayUtil.last(messages),
+                text: [fromNumber].concat(messages.map(GASton.Voice.getTxt)).join(this.SEPARATOR)
+            });
         }
     }, this);
 
     var currentUserEmail = Session.getActiveUser().getEmail();
+    physicalPhoneMessageInfos.forEach(function(info, index, infos){
+        if(index){
+            GASton.Mail.forward(info.message, 'Handled by batch: ' + infos[0].message.getSubject(), currentUserEmail);
+        }else{
+            var text = physicalPhoneMessageInfos.map(function(info){ return info.text; }).join(this.SEPARATOR + this.SEPARATOR);
+            this._sendTxt(info.message, GTxt.Compression.compress(text), config.getPhysicalPhoneContact(), config);
+        }
+    }, this);
+
     this._getThreadMessagesToForward('from:' + currentUserEmail + ' subject:' + SpreadsheetApp.getActiveSpreadsheet().getName() + ' to:' + currentUserEmail).forEach(function(messages){
         this._txtContacts(
             messages,
@@ -46,8 +59,4 @@ GTxt.MonkeyInTheMiddle._txtContacts = function (messages, getMessageText, onCont
             }
         }, this);
     }, this);
-};
-
-GTxt.MonkeyInTheMiddle._txtPhysicalPhone = function(message, text, config) {
-    this._sendTxt(message, GTxt.Compression.compress(text), config.getPhysicalPhoneContact(), config);
 };
