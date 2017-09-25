@@ -4,14 +4,15 @@ GTxt.MonkeyInTheMiddle.SEPARATOR = '|';
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     var physicalPhoneMessageInfos = [];
     this._getThreadMessagesToForward('from:' + GASton.Voice.TXT_DOMAIN + ' subject:' + GASton.Voice.TXT_SUBJECT).forEach(function(messages){
-        var fromNumber = GASton.Voice.parseFromTxt(messages[0]).number;
+        var message = messages[0];
+        var fromNumber = GASton.Voice.parseFromTxt(message).number;
         if(fromNumber === config.getPhysicalPhoneContact().number){
-            this._txtContacts(messages, GASton.Voice.getTxt, function(message, errorMessage){
+            this._txtContacts(messages, GASton.Voice.getTxt, function(errorMessage){
                 physicalPhoneMessageInfos.push({ message: message, text: errorMessage });
             }, config);
         }else if(config.forwardToPhysicalPhone){
             physicalPhoneMessageInfos.push({
-                message: JSUtil.ArrayUtil.last(messages),
+                message: message,
                 text: [fromNumber].concat(messages.map(GASton.Voice.getTxt)).join(this.SEPARATOR)
             });
         }
@@ -20,7 +21,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     if(config.forwardToPhysicalPhone){
         this._getThreadMessagesToForward('from:' + GASton.Voice.NO_REPLY_EMAIL + ' subject:' + GASton.Voice.GROUP_TXT_SUBJECT).forEach(function(messages){
             physicalPhoneMessageInfos.push({
-                message: JSUtil.ArrayUtil.last(messages),
+                message: messages[0],
                 text: GASton.Voice.getFirstNumberMentioned(messages[0].getSubject()) + this.SEPARATOR + 'Group msg'
             });
         }, this);
@@ -42,7 +43,7 @@ GTxt.MonkeyInTheMiddle.sendTextsFromEmails = function(config) {
         this._txtContacts(
             messages,
             function(message){ return GASton.Mail.getMessageWords(message).join(' '); },
-            function(message, errorMessage){ GASton.Mail.forward(message, errorMessage, currentUserEmail); },
+            function(errorMessage){ GASton.Mail.forward(messages[0], errorMessage, currentUserEmail); },
             config
         );
     }, this);
@@ -66,7 +67,7 @@ GTxt.MonkeyInTheMiddle._txtContacts = function (messages, getMessageText, onCont
             if(contact){
                 this._sendTxt(message, GTxt.Compression.decompress(messageParts[1]), contact, config);
             }else{
-                onContactNotFound.call(this, message, 'Cannot find contact with number ' + number);
+                onContactNotFound.call(this, 'Cannot find contact with number ' + number);
             }
         }, this);
     }, this);
