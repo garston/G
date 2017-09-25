@@ -3,7 +3,7 @@ GTxt.MonkeyInTheMiddle.SEPARATOR = '|';
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     var physicalPhoneMessageInfos = [];
-    this._getThreadMessagesToForward('from:' + GASton.Voice.DOMAIN + ' subject:' + GASton.Voice.TXT_SUBJECT).forEach(function(messages){
+    this._getThreadMessagesToForward('from:' + GASton.Voice.TXT_DOMAIN + ' subject:' + GASton.Voice.TXT_SUBJECT).forEach(function(messages){
         var fromNumber = GASton.Voice.parseFromTxt(messages[0]).number;
         if(fromNumber === config.getPhysicalPhoneContact().number){
             this._txtContacts(messages, GASton.Voice.getTxt, function(message, errorMessage){
@@ -16,6 +16,15 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
             });
         }
     }, this);
+
+    if(config.forwardToPhysicalPhone){
+        this._getThreadMessagesToForward('from:' + GASton.Voice.NO_REPLY_EMAIL + ' subject:' + GASton.Voice.GROUP_TXT_SUBJECT).forEach(function(messages){
+            physicalPhoneMessageInfos.push({
+                message: JSUtil.ArrayUtil.last(messages),
+                text: GASton.Voice.getFirstNumberMentioned(messages[0].getSubject()) + this.SEPARATOR + 'Group msg'
+            });
+        }, this);
+    }
 
     physicalPhoneMessageInfos.forEach(function(info, index, infos){
         if(index){

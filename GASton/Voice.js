@@ -1,14 +1,16 @@
 GASton.Voice = {};
-GASton.Voice.DOMAIN = 'txt.voice.google.com';
+GASton.Voice.GROUP_TXT_SUBJECT = '"group message"';
 GASton.Voice.MISSED_CALL_SUBJECT = '"missed call"';
+GASton.Voice.NO_REPLY_EMAIL = 'voice-noreply@google.com';
+GASton.Voice.TXT_DOMAIN = 'txt.voice.google.com';
 GASton.Voice.TXT_SUBJECT = '"text message"';
 
 GASton.Voice.forwardTxt = function(message, text, gvNumber, number, gvKey){
-    GASton.Mail.forward(message, text, '1' + gvNumber + '.' + (number.toString().length === 10 ? 1 : '') + number + '.' + gvKey + '@' + this.DOMAIN);
+    GASton.Mail.forward(message, text, '1' + gvNumber + '.' + (number.toString().length === 10 ? 1 : '') + number + '.' + gvKey + '@' + this.TXT_DOMAIN);
 };
 
-GASton.Voice.getMissedCallNumber = function(message){
-    var match = message.getBody().match(/\((\d+)\) (\d+)-(\d+)/);
+GASton.Voice.getFirstNumberMentioned = function(str){
+    var match = str.match(/\((\d+)\) (\d+)-(\d+)/);
     return match && match.slice(1).join('');
 };
 
