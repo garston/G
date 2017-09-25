@@ -17,16 +17,18 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         }
     }, this);
 
-    var currentUserEmail = Session.getActiveUser().getEmail();
     physicalPhoneMessageInfos.forEach(function(info, index, infos){
         if(index){
-            GASton.Mail.forward(info.message, 'Handled by batch: ' + infos[0].message.getSubject(), currentUserEmail);
+            GASton.Mail.forward(info.message, 'Handled by batch: ' + infos[0].message.getSubject(), Session.getActiveUser().getEmail());
         }else{
             var text = physicalPhoneMessageInfos.map(function(info){ return info.text; }).join(this.SEPARATOR + this.SEPARATOR);
             this._sendTxt(info.message, GTxt.Compression.compress(text), config.getPhysicalPhoneContact(), config);
         }
     }, this);
+};
 
+GTxt.MonkeyInTheMiddle.sendTextsFromEmails = function(config) {
+    var currentUserEmail = Session.getActiveUser().getEmail();
     this._getThreadMessagesToForward('from:' + currentUserEmail + ' subject:' + SpreadsheetApp.getActiveSpreadsheet().getName() + ' to:' + currentUserEmail).forEach(function(messages){
         this._txtContacts(
             messages,
