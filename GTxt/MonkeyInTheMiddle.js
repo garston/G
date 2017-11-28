@@ -3,13 +3,13 @@ GTxt.MonkeyInTheMiddle.SEPARATOR = '|';
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     this._processTxtEmails(
-        'from:' + GASton.Voice.TXT_DOMAIN + ' subject:' + GASton.Voice.TXT_SUBJECT,
-        function(message){ return GASton.Voice.parseFromTxt(message).number; },
-        GASton.Voice.getTxt,
+        'from:' + GTxt.Voice.TXT_DOMAIN + ' subject:' + GTxt.Voice.TXT_SUBJECT,
+        function(message){ return GTxt.Voice.parseFromTxt(message).number; },
+        GTxt.Voice.getTxt,
         config
     ).concat(this._processTxtEmails(
-        'from:' + GASton.Voice.NO_REPLY_EMAIL + ' subject:' + GASton.Voice.GROUP_TXT_SUBJECT,
-        function(message){ return GASton.Voice.getFirstNumberMentioned(message.getSubject()); },
+        'from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.GROUP_TXT_SUBJECT,
+        function(message){ return GTxt.Voice.getFirstNumberMentioned(message.getSubject()); },
         function(){ return 'Group msg'; },
         config
     )).forEach(function(obj, index, objs){
@@ -67,7 +67,7 @@ GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFromNumber, ge
 };
 
 GTxt.MonkeyInTheMiddle._sendTxt = function(message, text, contact, config) {
-    GASton.Voice.forwardTxt(message, text, config.gvNumber, contact.number, contact.gvKey);
+    GTxt.Voice.forwardTxt(message, text, config.gvNumber, contact.number, contact.gvKey);
 };
 
 GTxt.MonkeyInTheMiddle._txtContacts = function (messages, getMessageText, onContactNotFound, config) {
