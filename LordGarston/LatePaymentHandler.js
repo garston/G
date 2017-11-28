@@ -5,5 +5,5 @@ LordGarston.LatePaymentHandler.prototype.doHandle = function(rentPayment) {
 };
 
 LordGarston.LatePaymentHandler.prototype.shouldHandle = function(rentPayment) {
-    return _startOfToday() > rentPayment.dueDate && rentPayment.getRenter().shouldSendLatePaymentEmail(JSUtil.DateUtil.dayDiff(rentPayment.dueDate, _startOfToday()));
+    return _startOfToday() > rentPayment.dueDate && rentPayment.getRenter().shouldSendLatePaymentEmail(JSUtil.DateUtil.diff(rentPayment.dueDate, _startOfToday(), 'DAYS'));
 };

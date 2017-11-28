@@ -52,7 +52,14 @@ GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFromNumber, ge
         }else if(config.forwardToPhysicalPhone){
             physicalPhoneMessageObjs.push({
                 message: message,
-                text: [fromNumber].concat(messages.map(getMessageText)).join(this.SEPARATOR)
+                text: [fromNumber].concat(messages.map(function(message){
+                    var messageDate = message.getDate();
+                    var dateStrings = [JSUtil.DateUtil.toPrettyString(messageDate, true) + '@', messageDate.getHours(), ':' + messageDate.getMinutes()];
+                    var dateStr = ['DAYS', 'HRS', 'MINS'].map(function(unit, index){
+                        return JSUtil.DateUtil.diff(messageDate, new Date(), unit) ? dateStrings[index] : '';
+                    }).join('');
+                    return (dateStr && ('(' + dateStr + ')')) + getMessageText(message);
+                })).join(this.SEPARATOR)
             });
         }
     }, this);
