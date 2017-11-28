@@ -17,7 +17,7 @@ GASton.Voice.getFirstNumberMentioned = function(str){
 GASton.Voice.getTxt = function(message){
     var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
     var endOfTxtLineIndex = JSUtil.ArrayUtil.findIndex(lines, function(line) {
-        return JSUtil.ArrayUtil.contains(['To respond to this text message, reply to this email or visit Google Voice.', 'YOUR ACCOUNT <https://www.google.com/voice/> HELP CENTER'], line);
+        return line === 'To respond to this text message, reply to this email or visit Google Voice.' || JSUtil.StringUtil.startsWith(line, 'YOUR ACCOUNT ');
     });
     return lines.slice(2, endOfTxtLineIndex).join(' ');
 };
