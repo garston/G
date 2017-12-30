@@ -1,11 +1,12 @@
 GASton.Database = {};
+GASton.Database._cache = {};
 
 GASton.Database.findBy = function(clazz, prop, value){
     return JSUtil.ArrayUtil.find(this.hydrate(clazz), function(o){ return o[prop] === value; });
 };
 
 GASton.Database.hydrate = function(clazz){
-    var objs = GASton.DatabaseCache.get(clazz) || this._getSheet(clazz).getDataRange().getValues().
+    var objs = this._getCache(clazz) || this._getSheet(clazz).getDataRange().getValues().
         filter(function(rowData, rowIndex){ return rowIndex + 1 >= this._getFirstRow(clazz); }, this).
         map(function(rowData){
             var o = new clazz();
@@ -17,12 +18,12 @@ GASton.Database.hydrate = function(clazz){
             this._overwriteDbValuesCache(clazz, o);
             return o;
         }, this);
-    GASton.DatabaseCache.set(clazz, objs);
+    this._cache[clazz.__tableName] = objs;
     return objs;
 };
 
 GASton.Database.persist = function(clazz, o){
-    if(JSUtil.ArrayUtil.contains(GASton.DatabaseCache.get(clazz) || [], o)){
+    if (JSUtil.ArrayUtil.contains(this._getCache(clazz) || [], o)) {
         this._persistUpdate(clazz, o);
     }else{
         this._persistNew(clazz, o);
@@ -35,12 +36,14 @@ GASton.Database.remove = function(clazz, o){
     } else {
         Logger.log('DELETE %s:%s', clazz.__tableName, this._getRowIndex(clazz, o));
     }
-    GASton.DatabaseCache.remove(clazz, o);
+    JSUtil.ArrayUtil.remove(this._getCache(clazz), o);
 };
 
+GASton.Database._getCache = function(clazz){ return this._cache[clazz.__tableName]; };
 GASton.Database._getFirstRow = function(clazz){ return clazz.__firstRow || 1; };
-GASton.Database._getRowIndex = function(clazz, o){ return GASton.DatabaseCache.get(clazz).indexOf(o) + this._getFirstRow(clazz); };
+GASton.Database._getRowIndex = function(clazz, o){ return this._getCache(clazz).indexOf(o) + this._getFirstRow(clazz); };
 GASton.Database._getSheet = function (clazz){ return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(clazz.__tableName); };
+
 GASton.Database._overwriteDbValuesCache = function(clazz, o) {
     o.__dbValues = {};
     clazz.__props.
