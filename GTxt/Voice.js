@@ -11,7 +11,7 @@ GTxt.Voice.forwardTxt = function(message, text, gvNumber, number, gvKey){
 
 GTxt.Voice.getFirstNumberMentioned = function(str){
     var match = str.match(/\((\d+)\) (\d+)-(\d+)/);
-    return match && match.slice(1).join('');
+    return match && +match.slice(1).join('');
 };
 
 GTxt.Voice.getTxt = function(message){
@@ -23,6 +23,6 @@ GTxt.Voice.getTxt = function(message){
 };
 
 GTxt.Voice.parseFromTxt = function(message){
-    var match = GASton.Mail.parseFrom(message).email.match(/^\d+\.(\d+)\.(.+)@/);
-    return { gvKey: match[2], number: parseInt(match[1].substring(match[1].length === 11 ? 1 : 0)) };
+    var match = GASton.Mail.parseFrom(message).email.match(/^\d+\.1?(\d+)\.(.+)@/);
+    return { gvKey: match[2], number: +match[1] };
 };

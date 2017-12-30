@@ -1,7 +1,7 @@
 PhysEd.League = function(){};
 
 PhysEd.League.prototype.getGameDays = function(){
-    return this.gameDays.toString().split(',').filter(function(day){ return day; }).map(function(day){ return parseInt(day); });
+    return JSUtil.ArrayUtil.compact(this.gameDays.toString().split(',')).map(function(day){ return +day; });
 };
 
 PhysEd.League.prototype.getMailingList = function(){

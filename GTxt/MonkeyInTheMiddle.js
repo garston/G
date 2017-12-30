@@ -50,9 +50,10 @@ GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFromNumber, ge
                 physicalPhoneMessageObjs.push({ message: message, text: errorMessage });
             }, config);
         }else if(config.forwardToPhysicalPhone){
+            var contact = GASton.Database.findBy(GTxt.Contact, 'number', fromNumber);
             physicalPhoneMessageObjs.push({
                 message: message,
-                text: [fromNumber].concat(messages.map(function(message){
+                text: [contact ? contact.shortId || (fromNumber + '(' + contact.createShortId() + ')') : fromNumber].concat(messages.map(function(message){
                     var messageDate = message.getDate();
                     var dateStrings = [JSUtil.DateUtil.toPrettyString(messageDate, true) + '@', messageDate.getHours(), ':' + messageDate.getMinutes()];
                     var dateStr = ['DAYS', 'HRS', 'MINS'].map(function(unit, index){
@@ -74,11 +75,11 @@ GTxt.MonkeyInTheMiddle._txtContacts = function (messages, getMessageText, onCont
     messages.forEach(function(message){
         var messageParts = getMessageText(message).split(this.SEPARATOR);
         messageParts[0].split(',').forEach(function(number){
-            var contact = GASton.Database.findBy(GTxt.Contact, 'number', parseInt(number));
+            var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', +number) || GASton.Database.findBy(GTxt.Contact, 'number', +number);
             if(contact){
                 this._sendTxt(message, GTxt.Compression.decompress(messageParts[1]), contact, config);
             }else{
-                onContactNotFound.call(this, 'Cannot find contact with number ' + number);
+                onContactNotFound.call(this, 'Cannot find ' + number);
             }
         }, this);
     }, this);

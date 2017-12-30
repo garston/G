@@ -1,5 +1,12 @@
 GTxt = {};
 
+function clearShortIds () {
+    GTxt.Contact.allWithShortId().forEach(function(c){
+        c.shortId = 0;
+        GASton.Database.persist(GTxt.Contact, c);
+    });
+}
+
 function go() {
     GTxt.ContactPopulator.execute();
 
