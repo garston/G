@@ -9,7 +9,7 @@ GASton.Database.hydrate = function(clazz){
         filter(function(rowData, rowIndex){ return rowIndex + 1 >= this._getFirstRow(clazz); }, this).
         map(function(rowData){
             var o = new clazz();
-            GASton.Util.getClassMetadataValue(clazz, '__props').forEach(function(prop, propIndex){
+            clazz.__props.forEach(function(prop, propIndex){
                 if(prop){
                     o[prop] = rowData[propIndex];
                 }
@@ -33,18 +33,17 @@ GASton.Database.remove = function(clazz, o){
     if(GASton.PROD_MODE){
         this._getSheet(clazz).deleteRow(this._getRowIndex(clazz, o));
     } else {
-        Logger.log('DELETE %s:%s', GASton.Util.getClassMetadataValue(clazz, '__tableName'), this._getRowIndex(clazz, o));
+        Logger.log('DELETE %s:%s', clazz.__tableName, this._getRowIndex(clazz, o));
     }
     GASton.DatabaseCache.remove(clazz, o);
 };
 
-GASton.Database._getFirstRow = function(clazz){ return GASton.Util.getClassMetadataValue(clazz, '__firstRow') || 1; };
+GASton.Database._getFirstRow = function(clazz){ return clazz.__firstRow || 1; };
 GASton.Database._getRowIndex = function(clazz, o){ return GASton.DatabaseCache.get(clazz).indexOf(o) + this._getFirstRow(clazz); };
-GASton.Database._getSheet = function(clazz){ return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(GASton.Util.getClassMetadataValue(clazz, '__tableName')); };
-
+GASton.Database._getSheet = function (clazz){ return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(clazz.__tableName); };
 GASton.Database._overwriteDbValuesCache = function(clazz, o) {
     o.__dbValues = {};
-    GASton.Util.getClassMetadataValue(clazz, '__props').
+    clazz.__props.
         filter(function(prop){ return prop; }).
         forEach(function(prop){ o.__dbValues[prop] = o[prop]; });
 };
@@ -52,18 +51,18 @@ GASton.Database._overwriteDbValuesCache = function(clazz, o) {
 GASton.Database._persistNew = function(clazz, o){
     this.hydrate(clazz).push(o);
 
-    var newRow = GASton.Util.getClassMetadataValue(clazz, '__props').map(function(prop){ return prop ? o[prop] : ''; });
+    var newRow = clazz.__props.map(function(prop){ return prop ? o[prop] : ''; });
     if(GASton.PROD_MODE){
         this._getSheet(clazz).appendRow(newRow);
     } else {
-        Logger.log('INSERT %s - %s', GASton.Util.getClassMetadataValue(clazz, '__tableName'), newRow);
+        Logger.log('INSERT %s - %s', clazz.__tableName, newRow);
     }
     this._overwriteDbValuesCache(clazz, o);
 };
 
 GASton.Database._persistUpdate = function(clazz, o){
     var rowIndex = this._getRowIndex(clazz, o);
-    GASton.Util.getClassMetadataValue(clazz, '__props').forEach(function(prop, propIndex){
+    clazz.__props.forEach(function(prop, propIndex){
         if(!prop || o[prop] === o.__dbValues[prop]) {
             return;
         }
@@ -71,7 +70,7 @@ GASton.Database._persistUpdate = function(clazz, o){
         if(GASton.PROD_MODE){
             this._getSheet(clazz).getRange(rowIndex, propIndex + 1).setValue(o[prop]);
         } else {
-            Logger.log('UPDATE %s:%s - %s: %s', GASton.Util.getClassMetadataValue(clazz, '__tableName'), rowIndex, prop, o[prop]);
+            Logger.log('UPDATE %s:%s - %s: %s', clazz.__tableName, rowIndex, prop, o[prop]);
         }
         o.__dbValues[prop] = o[prop];
     }, this);

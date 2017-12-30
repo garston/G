@@ -5,7 +5,7 @@ function processTransactions() {
     var notProcessedStrings = [];
     var sharingInfos = GASton.Database.hydrate(HalfZs.SharingInfo);
 
-    GmailApp.search('label:' + HalfZs.Const.CHASE_LABEL).forEach(function(thread){
+    GmailApp.search('label:*ChaseTransaction').forEach(function(thread){
         thread.getMessages().
             filter(function(message){return !message.isInTrash()}).
             forEach(function(message){

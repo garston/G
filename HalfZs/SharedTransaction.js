@@ -6,6 +6,6 @@ HalfZs.SharedTransaction = function(month, year, what, iPayed, percentOwed) {
     this.percentOwed = percentOwed;
 };
 
-HalfZs.SharedTransaction.__tableName = function(){ return HalfZs.Const.SHARED_TRANSACTION_TABLE_NAME; };
+HalfZs.SharedTransaction.__tableName = 'SHARED_TRANSACTIONS';
 HalfZs.SharedTransaction.__firstRow = 2;
 HalfZs.SharedTransaction.__props = ['month', 'year', 'what', null, 'iPayed', 'percentOwed'];
