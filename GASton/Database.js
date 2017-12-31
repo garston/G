@@ -22,15 +22,18 @@ GASton.Database.hydrate = function(clazz){
     return objs;
 };
 
-GASton.Database.persist = function(clazz, o){
+GASton.Database.persist = function(o){
+    var clazz = o.constructor;
     if (JSUtil.ArrayUtil.contains(this._getCache(clazz) || [], o)) {
         this._persistUpdate(clazz, o);
     }else{
         this._persistNew(clazz, o);
     }
+    return o;
 };
 
-GASton.Database.remove = function(clazz, o){
+GASton.Database.remove = function(o){
+    var clazz = o.constructor;
     if(GASton.PROD_MODE){
         this._getSheet(clazz).deleteRow(this._getRowIndex(clazz, o));
     } else {

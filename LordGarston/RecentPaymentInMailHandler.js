@@ -5,7 +5,7 @@ LordGarston.RecentPaymentInMailHandler = function(toEmail, depositRowDisplayValu
 
 LordGarston.RecentPaymentInMailHandler.prototype.doHandle = function(rentPayment) {
     rentPayment.paidWith = this.depositRowDisplayValue;
-    GASton.Database.persist(LordGarston.RentPayment, rentPayment);
+    GASton.Database.persist(rentPayment);
 };
 
 LordGarston.RecentPaymentInMailHandler.prototype.shouldHandle = function(rentPayment) {

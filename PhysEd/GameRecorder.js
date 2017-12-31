@@ -4,7 +4,7 @@ PhysEd.GameRecorder.record = function(side1, side2){
     var league = GASton.Database.findBy(PhysEd.League, 'guid', side1.leagueGuid);
 
     var game = new PhysEd.Game(side1.month, side1.day, side1.year, league.guid);
-    GASton.Database.persist(PhysEd.Game, game);
+    GASton.Database.persist(game);
 
     this._recordSide(side1, game);
     this._recordSide(side2, game);
@@ -21,16 +21,16 @@ PhysEd.GameRecorder.record = function(side1, side2){
         league.getMailingList().statsEmail
     );
 
-    GASton.Database.remove(PhysEd.Side, side1);
-    GASton.Database.remove(PhysEd.Side, side2);
+    GASton.Database.remove(side1);
+    GASton.Database.remove(side2);
 };
 
 PhysEd.GameRecorder._recordSide = function(side, game){
     var team = new PhysEd.Team(game.guid, side.score);
-    GASton.Database.persist(PhysEd.Team, team);
+    GASton.Database.persist(team);
 
     side.getPeople().forEach(function(person){
-        GASton.Database.persist(PhysEd.Person, person);
-        GASton.Database.persist(PhysEd.PersonTeam, new PhysEd.PersonTeam(person.guid, team.guid));
+        GASton.Database.persist(person);
+        GASton.Database.persist(new PhysEd.PersonTeam(person.guid, team.guid));
     });
 };

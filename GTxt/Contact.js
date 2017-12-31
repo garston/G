@@ -11,7 +11,7 @@ GTxt.Contact.allWithShortId = function(){
 
 GTxt.Contact.prototype.createShortId = function(){
     this.shortId = GTxt.Contact.allWithShortId().length + 1;
-    GASton.Database.persist(GTxt.Contact, this);
+    GASton.Database.persist(this);
     return this.shortId;
 };
 

@@ -21,11 +21,7 @@ PhysEd.PlayerStatusParser.prototype._getPersonGuid = function(message){
         return person.email === fromParts.email ||
             (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) ||
             person.getAlternateNames().some(function(name){ return name === fromParts.email || name === fromParts.firstName + ' ' + fromParts.lastName; });
-    });
-    if(!person){
-        person = new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
-        GASton.Database.persist(PhysEd.Person, person);
-    }
+    }) || GASton.Database.persist(new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName));
     return person.guid;
 };
 

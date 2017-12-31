@@ -6,7 +6,7 @@ GTxt.MissedCallEnabler.changeEnabled = function(config) {
         filter(function(message){ return !message.isInTrash() && message.isUnread() && this._isToggleEnabledRequest(message, config); }, this).
         forEach(function(message){
             config.forwardToPhysicalPhone = config.forwardToPhysicalPhone ? 0 : 1;
-            GASton.Database.persist(GTxt.Config, config);
+            GASton.Database.persist(config);
             GASton.Mail.forward(message, (config.forwardToPhysicalPhone ? 'Enabled' : 'Disabled') + ' ' + SpreadsheetApp.getActiveSpreadsheet().getUrl(), Session.getActiveUser().getEmail());
             GASton.Mail.markRead(message);
         });

@@ -24,5 +24,5 @@ function recordGames(){
 }
 
 function createPerson(){
-    GASton.Database.persist(PhysEd.Person, new PhysEd.Person('email@test.com', 'first', 'last'));
+    GASton.Database.persist(new PhysEd.Person('email@test.com', 'first', 'last'));
 }

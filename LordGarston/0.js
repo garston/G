@@ -6,7 +6,7 @@ function createRentPayment(){
         forEach(function(renter){
             var dueDate = JSUtil.DateUtil.startOfDay(JSUtil.DateUtil.lastDayOfMonth(new Date()));
             var newRowNum = GASton.Database.hydrate(LordGarston.RentPayment).length + 1;
-            GASton.Database.persist(LordGarston.RentPayment, new LordGarston.RentPayment(
+            GASton.Database.persist(new LordGarston.RentPayment(
                 dueDate, renter.name, renter.baseAmount, renter.getAdditionalAmountValue(dueDate), '=C' + newRowNum + ' + ' + 'D' + newRowNum, ''
             ));
         });

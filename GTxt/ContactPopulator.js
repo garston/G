@@ -5,7 +5,7 @@ GTxt.ContactPopulator.execute = function(noDateLimitation) {
         map(function(thread){ return GTxt.Voice.parseFromTxt(thread.getMessages()[0]); }).
         forEach(function(fromParts){
             if(!GASton.Database.findBy(GTxt.Contact, 'number', fromParts.number)){
-                GASton.Database.persist(GTxt.Contact, new GTxt.Contact(fromParts.number, fromParts.gvKey));
+                GASton.Database.persist(new GTxt.Contact(fromParts.number, fromParts.gvKey));
             }
         });
 };
