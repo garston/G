@@ -8,9 +8,11 @@ GTxt.Compression.compress = function(str){
 };
 
 GTxt.Compression.decompress = function(str) {
-    return this.compress(str).split('').map(function(ch, i, str){
+    return str.split('').map(function(ch, i, str){
         var prevCh = str[i - 1];
-        if(/[.!?]/.test(prevCh) || (!/\d/.test(prevCh) && /\d/.test(ch))){
+        if(prevCh === ' '){
+            return ch;
+        } else if(/[.!?]/.test(prevCh) || (!/[\d:;]/.test(prevCh) && /[\d:;]/.test(ch))){
             return ' ' + ch;
         } else if(prevCh && /[A-Z]/.test(ch)){
             return ' ' + ch.toLowerCase();
