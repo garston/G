@@ -55,8 +55,8 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
     var threads = GmailApp.search('-subject:re:' +
         ' from:' + GASton.Mail.getNameUsedForSending() +
         ' (' + JSUtil.ArrayUtil.unique(leagues.map(function(league){ return 'to:' + league.getMailingList().email; })).join(' OR ') + ')' +
-        ' after:' + JSUtil.DateUtil.toSearchString(JSUtil.DateUtil.addDays(-1, this.today)) +
-        ' before:' + JSUtil.DateUtil.toSearchString(this.today)
+        ' after:' + GASton.Mail.toSearchString(JSUtil.DateUtil.addDays(-1, this.today)) +
+        ' before:' + GASton.Mail.toSearchString(this.today)
     );
 
     var threadInfos = threads.map(function(thread){

@@ -60,6 +60,10 @@ GASton.Mail.sendToList = function(subject, body, email){
     this._sendNewEmail(subject, body, email, email);
 };
 
+GASton.Mail.toSearchString = function(date) {
+    return date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
+};
+
 GASton.Mail._checkProdMode = function (actionDesc, threadSubject, to, replyTo, body){
     return GASton.checkProdMode('%s\nThread Subject: %s\nTo: %s\nReply-To: %s\nBody: %s', [actionDesc, threadSubject, to, replyTo, body]);
 };

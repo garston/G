@@ -27,7 +27,7 @@ function processTransactions() {
     });
 
     var now = new Date();
-    var receivedTodaySearchStr = ' after:' + JSUtil.DateUtil.toSearchString(now);
+    var receivedTodaySearchStr = ' after:' + GASton.Mail.toSearchString(now);
 
     var xcelThread = GmailApp.search('subject:"Account Notification: Your Xcel Energy statement is ready to view"' + receivedTodaySearchStr)[0];
     if(xcelThread) {

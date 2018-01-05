@@ -37,9 +37,5 @@ JSUtil.DateUtil = {
 
     toPrettyString: function(date, omitYear) {
         return (date.getMonth()+1) + '/' + date.getDate() + (omitYear ? '' : '/' + date.getFullYear());
-    },
-
-    toSearchString: function(date) {
-        return date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
     }
 };
