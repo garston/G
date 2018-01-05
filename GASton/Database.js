@@ -34,11 +34,8 @@ GASton.Database.persist = function(o){
 
 GASton.Database.remove = function(o){
     var clazz = o.constructor;
-    if(GASton.PROD_MODE){
+    GASton.checkProdMode('DELETE %s:%s', [clazz.__tableName, this._getRowIndex(clazz, o)]) &&
         this._getSheet(clazz).deleteRow(this._getRowIndex(clazz, o));
-    } else {
-        Logger.log('DELETE %s:%s', clazz.__tableName, this._getRowIndex(clazz, o));
-    }
     JSUtil.ArrayUtil.remove(this._getCache(clazz), o);
 };
 
@@ -58,11 +55,8 @@ GASton.Database._persistNew = function(clazz, o){
     this.hydrate(clazz).push(o);
 
     var newRow = clazz.__props.map(function(prop){ return prop ? o[prop] : ''; });
-    if(GASton.PROD_MODE){
+    GASton.checkProdMode('INSERT %s - %s', [clazz.__tableName, newRow]) &&
         this._getSheet(clazz).appendRow(newRow);
-    } else {
-        Logger.log('INSERT %s - %s', clazz.__tableName, newRow);
-    }
     this._overwriteDbValuesCache(clazz, o);
 };
 
@@ -73,11 +67,8 @@ GASton.Database._persistUpdate = function(clazz, o){
             return;
         }
 
-        if(GASton.PROD_MODE){
+        GASton.checkProdMode('UPDATE %s:%s - %s: %s', [clazz.__tableName, rowIndex, prop, o[prop]]) &&
             this._getSheet(clazz).getRange(rowIndex, propIndex + 1).setValue(o[prop]);
-        } else {
-            Logger.log('UPDATE %s:%s - %s: %s', clazz.__tableName, rowIndex, prop, o[prop]);
-        }
         o.__dbValues[prop] = o[prop];
     }, this);
 };

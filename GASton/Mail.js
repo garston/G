@@ -61,11 +61,7 @@ GASton.Mail.sendToList = function(subject, body, email){
 };
 
 GASton.Mail._checkProdMode = function (actionDesc, threadSubject, to, replyTo, body){
-    if(GASton.PROD_MODE){
-        return true;
-    }
-
-    Logger.log('%s\nThread Subject: %s\nTo: %s\nReply-To: %s\nBody: %s', actionDesc, threadSubject, to, replyTo, body);
+    return GASton.checkProdMode('%s\nThread Subject: %s\nTo: %s\nReply-To: %s\nBody: %s', [actionDesc, threadSubject, to, replyTo, body]);
 };
 
 GASton.Mail._getOptions = function(body, replyTo){
