@@ -21,7 +21,14 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
             forEach(function(league){
                 var subject = (league.cuteSportName ? league.cuteSportName + ' ' + JSUtil.DateUtil.dayOfWeekString(tomorrowDay) : league.sportName + ' Tomorrow') +
                     JSUtil.ArrayUtil.range(Math.floor(Math.random() * 6)).reduce(function(str){ return str + '!'; }, '');
-                GASton.Mail.sendToList(subject, '', league.getMailingList().email);
+                var mailingList = league.getMailingList();
+
+                GASton.Mail.sendToList(subject, '', mailingList.email);
+
+                var flowdock = mailingList.createFlowdock();
+                if(flowdock) {
+                    flowdock.sendMessage(subject);
+                }
             });
 
         if(chosenSport){
@@ -37,7 +44,7 @@ PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
         if(opts.earlyWarningMailingList) {
             var thresholdReached = opts.playerStatusParser.inPlayers.length >= opts.league.earlyWarningThreshold;
             if(thresholdReached) {
-                var earlyWarningEmailBody = opts.league.getMailingList().name + ' crew is looking to get a game together today. We play at ' + opts.league.getMailingList().gameLocation +
+                var earlyWarningEmailBody = opts.mailingList.name + ' crew is looking to get a game together today. We play at ' + opts.mailingList.gameLocation +
                     '. <b>' + opts.playerStatusParser.inPlayers.length + '</b> people are currently in. Anybody interested?';
                 GASton.Mail.sendToList(JSUtil.DateUtil.toPrettyString(this.today), earlyWarningEmailBody, opts.earlyWarningMailingList.email);
             }
@@ -78,10 +85,15 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
             threads = threads.concat(earlyWarningThread || []);
         }
 
+        var flowdock = mailingList.createFlowdock();
+        var flowdockThreadInfo = this._parseFlowdockThread(flowdock, sportName);
         return {
             earlyWarningMailingList: earlyWarningMailingList,
+            flowdock: flowdock,
+            flowdockThreadId: flowdockThreadInfo.threadId,
             league: league,
-            playerStatusParser: new PhysEd.PlayerStatusParser(threads),
+            mailingList: mailingList,
+            playerStatusParser: new PhysEd.PlayerStatusParser(PhysEd.MessageAdapter.gmailThreads(threads).concat(flowdockThreadInfo.messages)),
             thread: thread
         };
     }, this);
@@ -100,6 +112,31 @@ PhysEd.GamePreparer.prototype._findInProgressSport = function(leagues) {
 
 PhysEd.GamePreparer.prototype._findLowestSport = function(leagues) {
     return leagues.reduce(function(lowestSport, league){ return league.gameDayCount < lowestSport.gameDayCount ? league : lowestSport; });
+};
+
+PhysEd.GamePreparer.prototype._parseFlowdockThread = function (flowdock, sportName) {
+    if (flowdock) {
+        var flowMessages = flowdock.fetchMessages();
+
+        var startOfToday = JSUtil.DateUtil.startOfDay(this.today);
+        var startOfYesterday = JSUtil.DateUtil.addDays(-1, startOfToday);
+        var threadStarterMessage = JSUtil.ArrayUtil.find(flowMessages, function(m){
+            return m.thread.initial_message === m.id &&
+                flowdock.isSentByUs(m) &&
+                m.sent > startOfYesterday.getTime() &&
+                m.sent < startOfToday.getTime() &&
+                JSUtil.StringUtil.contains(m.content, sportName);
+        });
+
+        if (threadStarterMessage) {
+            var threadId = threadStarterMessage.thread_id;
+            return {
+                messages: PhysEd.MessageAdapter.flowdockMessages(flowMessages.filter(function(m){ return m.thread_id === threadId; }), flowdock),
+                threadId: threadId
+            };
+        }
+    }
+    return { messages: [] };
 };
 
 PhysEd.GamePreparer.prototype._persistSides = function(opts){
@@ -127,7 +164,12 @@ PhysEd.GamePreparer.prototype._sendPlayerCountEmail = function(opts, introLines)
             concat(opts.competingThreadInfos.map(function(threadInfo){
                 return threadInfo.league.sportName + ' currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
             }));
-        GASton.Mail.replyAll(opts.thread, bodyLines.join('<br/>'), opts.league.getMailingList().email);
+
+        GASton.Mail.replyAll(opts.thread, bodyLines.join('<br/>'), opts.mailingList.email);
+
+        if(opts.flowdockThreadId) {
+            opts.flowdock.sendMessage(bodyLines.join('\n'), opts.flowdockThreadId);
+        }
     }
 };
 

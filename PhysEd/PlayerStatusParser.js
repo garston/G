@@ -1,14 +1,14 @@
-PhysEd.PlayerStatusParser = function(threads){
+PhysEd.PlayerStatusParser = function(messages){
     this.inPlayers = [];
     this.maybePlayers = [];
     this.outPlayers = [];
     this.unknownPlayers = [];
 
     var statusArrayByPersonGuid = {};
-    JSUtil.ArrayUtil.flatten(threads.map(function(thread){ return thread.getMessages(); })).
-        filter(function(message){ return !GASton.Mail.isSentByUs(message); }).
-        sort(function(m1, m2){ return m1.getDate() - m2.getDate(); }).
-        forEach(function(message){ this._processMessage(message, statusArrayByPersonGuid); }, this);
+    messages.
+        filter(function(m){ return !m.sentByUs; }).
+        sort(function(m1, m2){ return m1.date - m2.date; }).
+        forEach(function(m){ this._processMessage(m, statusArrayByPersonGuid); }, this);
 
     for(var personGuid in statusArrayByPersonGuid) {
         this[statusArrayByPersonGuid[personGuid]].push(GASton.Database.findBy(PhysEd.Person, 'guid', personGuid));
@@ -16,7 +16,7 @@ PhysEd.PlayerStatusParser = function(threads){
 };
 
 PhysEd.PlayerStatusParser.prototype._getPersonGuid = function(message){
-    var fromParts = GASton.Mail.parseFrom(message);
+    var fromParts = message.fromParts;
     var person = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person) {
         return person.email === fromParts.email ||
             (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) ||
@@ -26,7 +26,7 @@ PhysEd.PlayerStatusParser.prototype._getPersonGuid = function(message){
 };
 
 PhysEd.PlayerStatusParser.prototype._processMessage = function (message, statusArrayByPersonGuid) {
-    var newStatusArray = GASton.Mail.getMessageWords(message).reduce(function(playerStatusArray, word, index, words){
+    var newStatusArray = message.words.reduce(function(playerStatusArray, word, index, words){
         var statusArray;
         if (/^in\W*$/i.test(word)) {
             statusArray = 'inPlayers';
