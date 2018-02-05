@@ -6,12 +6,17 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     this._processTxtEmails(
         'from:' + GTxt.Voice.TXT_DOMAIN + ' subject:' + GTxt.Voice.TXT_SUBJECT,
         function(message){ return GTxt.Voice.parseFromTxt(message).number; },
-        GTxt.Voice.getTxt,
+        function(message){ return GTxt.Voice.getTxt(message); },
         config
     ).concat(this._processTxtEmails(
         'from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.GROUP_TXT_SUBJECT,
         function(message){ return GTxt.Voice.getFirstNumberMentioned(message.getSubject()); },
-        function(){ return 'Group msg'; },
+        function(){ return 'GM'; },
+        config
+    )).concat(this._processTxtEmails(
+        'from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.VOICEMAIL_SUBJECT,
+        function(message){ return GTxt.Voice.getVoicemailFrom(message); },
+        function(message){ return 'VM: ' + GTxt.Voice.getVoicemailText(message); },
         config
     )).forEach(function(obj, index, objs){
         if(index){
@@ -41,20 +46,20 @@ GTxt.MonkeyInTheMiddle._getThreadMessagesToForward = function(searchStr) {
         filter(function(messages){ return messages.length; });
 };
 
-GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFromNumber, getMessageText, config) {
+GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessageText, config) {
     var physicalPhoneMessageObjs = [];
     this._getThreadMessagesToForward(searchStr).forEach(function(messages){
         var message = messages[0];
-        var fromNumber = getFromNumber(message);
-        if(fromNumber === config.getPhysicalPhoneContact().number){
+        var from = getFrom(message);
+        if(from === config.getPhysicalPhoneContact().number){
             this._txtContacts(messages, getMessageText, function(errorMessage){
                 physicalPhoneMessageObjs.push({ message: message, text: errorMessage });
             }, config);
         }else if(config.forwardToPhysicalPhone){
-            var contact = GASton.Database.findBy(GTxt.Contact, 'number', fromNumber);
+            var contact = GASton.Database.findBy(GTxt.Contact, 'number', from);
             physicalPhoneMessageObjs.push({
                 message: message,
-                text: [contact ? contact.shortId || (fromNumber + '(' + contact.createShortId() + ')') : fromNumber].concat(messages.map(function(message){
+                text: [contact ? contact.shortId || (from + '(' + contact.createShortId() + ')') : from].concat(messages.map(function(message){
                     var messageDate = message.getDate();
                     var dateStrings = [JSUtil.DateUtil.toPrettyString(messageDate, true) + '@', messageDate.getHours(), ':' + messageDate.getMinutes()];
                     var dateStr = ['DAYS', 'HRS', 'MINS'].map(function(unit, index){

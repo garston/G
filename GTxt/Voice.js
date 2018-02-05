@@ -4,6 +4,7 @@ GTxt.Voice.MISSED_CALL_SUBJECT = '"missed call"';
 GTxt.Voice.NO_REPLY_EMAIL = 'voice-noreply@google.com';
 GTxt.Voice.TXT_DOMAIN = 'txt.voice.google.com';
 GTxt.Voice.TXT_SUBJECT = '"text message"';
+GTxt.Voice.VOICEMAIL_SUBJECT = 'voicemail';
 
 GTxt.Voice.forwardTxt = function(message, text, gvNumber, number, gvKey){
     GASton.Mail.forward(message, text, '1' + gvNumber + '.' + (number.toString().length === 10 ? 1 : '') + number + '.' + gvKey + '@' + this.TXT_DOMAIN);
@@ -15,14 +16,26 @@ GTxt.Voice.getFirstNumberMentioned = function(str){
 };
 
 GTxt.Voice.getTxt = function(message){
-    var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
-    var endOfTxtLineIndex = JSUtil.ArrayUtil.findIndex(lines, function(line) {
+    return this._getMessageText(message, function(line) {
         return line === 'To respond to this text message, reply to this email or visit Google Voice.' || JSUtil.StringUtil.startsWith(line, 'YOUR ACCOUNT ');
     });
-    return lines.slice(2, endOfTxtLineIndex).join(' ');
+};
+
+GTxt.Voice.getVoicemailFrom = function(message) {
+    var subject = message.getSubject();
+    return this.getFirstNumberMentioned(subject) || subject.match(/from (.+) at/)[1];
+};
+
+GTxt.Voice.getVoicemailText = function(message){
+    return this._getMessageText(message, function(line){ return line === 'play message'; });
 };
 
 GTxt.Voice.parseFromTxt = function(message){
     var match = GASton.Mail.parseFrom(message).email.match(/^\d+\.1?(\d+)\.(.+)@/);
     return { gvKey: match[2], number: +match[1] };
+};
+
+GTxt.Voice._getMessageText = function(message, isEndOfTextFn) {
+    var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
+    return lines.slice(2, JSUtil.ArrayUtil.findIndex(lines, isEndOfTextFn)).join(' ');
 };
