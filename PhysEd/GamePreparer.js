@@ -5,7 +5,6 @@ PhysEd.GamePreparer = function() {
 PhysEd.GamePreparer.prototype.checkGameStatus = function(){
     this._eachTodayThread(function(opts){
         this._sendPlayerCountEmail(opts);
-        this._persistSides(opts);
     });
 };
 
@@ -36,6 +35,20 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
             GASton.Database.persist(chosenSport);
         }
     }
+};
+
+PhysEd.GamePreparer.prototype.persistSides = function(){
+    this._eachTodayThread(function(opts){
+        if(GASton.Database.hydrate(PhysEd.Game).some(function(game){ return game.leagueGuid === opts.league.guid; })) {
+            var teams = [[], []];
+            opts.playerStatusParser.inPlayers.concat(opts.playerStatusParser.maybePlayers).forEach(function(player, index){
+                teams[index % teams.length].push(player.email);
+            });
+
+            GASton.Database.persist(new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[0]));
+            GASton.Database.persist(new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[1]));
+        }
+    });
 };
 
 PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
@@ -137,18 +150,6 @@ PhysEd.GamePreparer.prototype._parseFlowdockThread = function (flowdock, sportNa
         }
     }
     return { messages: [] };
-};
-
-PhysEd.GamePreparer.prototype._persistSides = function(opts){
-    if(GASton.Database.hydrate(PhysEd.Game).some(function(game){ return game.leagueGuid === opts.league.guid; })) {
-        var teams = [[], []];
-        opts.playerStatusParser.inPlayers.forEach(function(player, index){
-            teams[index % teams.length].push(player.email);
-        });
-
-        GASton.Database.persist(new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[0]));
-        GASton.Database.persist(new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[1]));
-    }
 };
 
 PhysEd.GamePreparer.prototype._sendFlowdockMessage = function(league, bodyLines, flowdock, threadId) {

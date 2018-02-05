@@ -4,12 +4,16 @@ function notifyGameTomorrow(){
     new PhysEd.GamePreparer().notifyGameTomorrow();
 }
 
+function earlyWarnGameStatus(){
+    new PhysEd.GamePreparer().sendEarlyWarning();
+}
+
 function checkGameStatus(){
     new PhysEd.GamePreparer().checkGameStatus();
 }
 
-function earlyWarnGameStatus(){
-    new PhysEd.GamePreparer().sendEarlyWarning();
+function persistSides(){
+    new PhysEd.GamePreparer().persistSides();
 }
 
 function recordGames(){
