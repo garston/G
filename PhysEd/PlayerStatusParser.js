@@ -1,13 +1,12 @@
-PhysEd.PlayerStatusParser = function(messages){
+PhysEd.PlayerStatusParser = function(dateSortedMessages){
     this.inPlayers = [];
     this.maybePlayers = [];
     this.outPlayers = [];
     this.unknownPlayers = [];
 
     var statusArrayByPersonGuid = {};
-    messages.
+    dateSortedMessages.
         filter(function(m){ return !m.sentByScript; }).
-        sort(function(m1, m2){ return m1.date - m2.date; }).
         forEach(function(m){ this._processMessage(m, statusArrayByPersonGuid); }, this);
 
     for(var personGuid in statusArrayByPersonGuid) {

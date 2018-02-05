@@ -9,7 +9,7 @@ function earlyWarnGameStatus(){
 }
 
 function checkGameStatus(){
-    new PhysEd.GamePreparer().checkGameStatus();
+    new PhysEd.GamePreparer().sendPlayerCounts();
 }
 
 function persistSides(){
