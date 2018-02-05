@@ -13,7 +13,7 @@ PhysEd.MessageAdapter.flowdockMessages = function(flowdockMessages, flowdock) {
                 lastName: userNameParts.slice(1).join(' ')
             },
             sentByScript: flowdock.isSentByScript(m),
-            words: m.content.split(' ')
+            words: JSUtil.ArrayUtil.compact(m.content.replace(/\s/g, ' ').split(' '))
         };
     });
 };
