@@ -159,13 +159,12 @@ PhysEd.GamePreparer.prototype._sendPlayerCountEmail = function(opts, introLines)
                 this._toPlayerNames('Maybe', opts.playerStatusParser.maybePlayers),
                 this._toPlayerNames('Out', opts.playerStatusParser.outPlayers),
                 this._toPlayerNames('Unknown', opts.playerStatusParser.unknownPlayers)
-            ])).
-            concat('').
-            concat(opts.competingThreadInfos.map(function(threadInfo){
-                return threadInfo.league.sportName + ' currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
-            }));
+            ]));
+        var competingSportsLines = [''].concat(opts.competingThreadInfos.map(function(threadInfo){
+            return threadInfo.league.sportName + ' currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
+        }));
 
-        GASton.Mail.replyAll(opts.thread, bodyLines.join('<br/>'), opts.mailingList.email);
+        GASton.Mail.replyAll(opts.thread, bodyLines.concat(competingSportsLines).join('<br/>'), opts.mailingList.email);
 
         if(opts.flowdockThreadId) {
             opts.flowdock.sendMessage(bodyLines.join('\n'), opts.flowdockThreadId);
