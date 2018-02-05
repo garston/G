@@ -27,9 +27,9 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
 
                 var flowdock = mailingList.createFlowdock();
                 if(flowdock) {
-                    flowdock.sendMessage(subject);
+                    this._sendFlowdockMessage(league, subject, flowdock);
                 }
-            });
+            }, this);
 
         if(chosenSport){
             chosenSport.gameDayCount += 1;
@@ -151,6 +151,11 @@ PhysEd.GamePreparer.prototype._persistSides = function(opts){
     }
 };
 
+PhysEd.GamePreparer.prototype._sendFlowdockMessage = function(league, bodyLines, flowdock, threadId) {
+    var sportName = league.sportName.toLowerCase();
+    flowdock.sendMessage(['@@' + sportName + ' :' + sportName + ':'].concat(bodyLines).join('\n'), threadId);
+};
+
 PhysEd.GamePreparer.prototype._sendPlayerCountEmail = function(opts, introLines) {
     if(opts.playerStatusParser.inPlayers.length) {
         var bodyLines = (introLines || []).
@@ -167,7 +172,7 @@ PhysEd.GamePreparer.prototype._sendPlayerCountEmail = function(opts, introLines)
         GASton.Mail.replyAll(opts.thread, bodyLines.concat(competingSportsLines).join('<br/>'), opts.mailingList.email);
 
         if(opts.flowdockThreadId) {
-            opts.flowdock.sendMessage(bodyLines.join('\n'), opts.flowdockThreadId);
+            this._sendFlowdockMessage(opts.league, bodyLines, opts.flowdock, opts.flowdockThreadId);
         }
     }
 };

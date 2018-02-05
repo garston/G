@@ -3,7 +3,7 @@ PhysEd.Flowdock = function(apiToken, flow){
     this._flowUrl = 'https://api.flowdock.com/flows/' + flow;;
 };
 
-PhysEd.Flowdock.MESSAGE_START = SpreadsheetApp.getActiveSpreadsheet().getName() + ' - @team\n';
+PhysEd.Flowdock.MESSAGE_START = SpreadsheetApp.getActiveSpreadsheet().getName() + ' - ';
 
 PhysEd.Flowdock.prototype.fetchMessages = function(){
     return this._request(this._flowUrl + '/messages?event=message&limit=100');
