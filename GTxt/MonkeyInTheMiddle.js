@@ -1,5 +1,6 @@
 GTxt.MonkeyInTheMiddle = {};
 GTxt.MonkeyInTheMiddle.SEPARATOR = '|';
+GTxt.MonkeyInTheMiddle.DOUBLE_SEPARATOR = '||';
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     this._processTxtEmails(
@@ -16,7 +17,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         if(index){
             GASton.Mail.forward(obj.message, 'Handled by batch: ' + objs[0].message.getSubject(), Session.getActiveUser().getEmail());
         }else{
-            var text = objs.map(function(obj){ return obj.text; }).join(this.SEPARATOR + this.SEPARATOR);
+            var text = objs.map(function(obj){ return obj.text; }).join(this.DOUBLE_SEPARATOR);
             this._sendTxt(obj.message, GTxt.Compression.compress(text), config.getPhysicalPhoneContact(), config);
         }
     }, this);
@@ -73,14 +74,16 @@ GTxt.MonkeyInTheMiddle._sendTxt = function(message, text, contact, config) {
 
 GTxt.MonkeyInTheMiddle._txtContacts = function (messages, getMessageText, onContactNotFound, config) {
     messages.forEach(function(message){
-        var messageParts = getMessageText(message).split(this.SEPARATOR);
-        messageParts[0].split(',').forEach(function(number){
-            var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', +number) || GASton.Database.findBy(GTxt.Contact, 'number', +number);
-            if(contact){
-                this._sendTxt(message, GTxt.Compression.decompress(messageParts[1]), contact, config);
-            }else{
-                onContactNotFound.call(this, 'Cannot find ' + number);
-            }
+        getMessageText(message).split(this.DOUBLE_SEPARATOR).forEach(function(messageText){
+            var messageParts = messageText.split(this.SEPARATOR);
+            messageParts[0].split(',').forEach(function(number){
+                var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', +number) || GASton.Database.findBy(GTxt.Contact, 'number', +number);
+                if(contact){
+                    this._sendTxt(message, GTxt.Compression.decompress(messageParts[1]), contact, config);
+                }else{
+                    onContactNotFound.call(this, 'Cannot find ' + number);
+                }
+            }, this);
         }, this);
     }, this);
 };
