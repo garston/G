@@ -37,7 +37,7 @@ GTxt.MonkeyInTheMiddle.sendTextsFromEmails = function(config) {
 
 GTxt.MonkeyInTheMiddle._getThreadMessagesToForward = function(searchStr) {
     return GmailApp.search('in:inbox is:unread ' + searchStr).
-        map(function(thread){ return GASton.Mail.getMessagesAfterLatestMessageSentByUs(thread).filter(function(message){ return message.isInInbox() && message.isUnread(); }); }).
+        map(function(thread){ return GASton.Mail.getMessagesAfterLatestMessageSentByScript(thread).filter(function(message){ return message.isInInbox() && message.isUnread(); }); }).
         filter(function(messages){ return messages.length; });
 };
 

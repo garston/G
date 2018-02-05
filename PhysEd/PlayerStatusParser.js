@@ -6,7 +6,7 @@ PhysEd.PlayerStatusParser = function(messages){
 
     var statusArrayByPersonGuid = {};
     messages.
-        filter(function(m){ return !m.sentByUs; }).
+        filter(function(m){ return !m.sentByScript; }).
         sort(function(m1, m2){ return m1.date - m2.date; }).
         forEach(function(m){ this._processMessage(m, statusArrayByPersonGuid); }, this);
 

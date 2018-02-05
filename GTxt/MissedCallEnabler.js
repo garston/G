@@ -2,7 +2,7 @@ GTxt.MissedCallEnabler = {};
 
 GTxt.MissedCallEnabler.changeEnabled = function(config) {
     GmailApp.search('from:' + GTxt.Voice.NO_REPLY_EMAIL + ' is:unread subject:' + GTxt.Voice.MISSED_CALL_SUBJECT).
-        reduce(function (messages, thread){ return messages.concat(GASton.Mail.getMessagesAfterLatestMessageSentByUs(thread)); }, []).
+        reduce(function (messages, thread){ return messages.concat(GASton.Mail.getMessagesAfterLatestMessageSentByScript(thread)); }, []).
         filter(function(message){ return !message.isInTrash() && message.isUnread() && this._isToggleEnabledRequest(message, config); }, this).
         forEach(function(message){
             config.forwardToPhysicalPhone = config.forwardToPhysicalPhone ? 0 : 1;

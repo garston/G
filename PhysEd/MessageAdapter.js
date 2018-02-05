@@ -12,7 +12,7 @@ PhysEd.MessageAdapter.flowdockMessages = function(flowdockMessages, flowdock) {
                 firstName: userNameParts[0],
                 lastName: userNameParts.slice(1).join(' ')
             },
-            sentByUs: flowdock.isSentByUs(m),
+            sentByScript: flowdock.isSentByScript(m),
             words: m.content.split(' ')
         };
     });
@@ -24,7 +24,7 @@ PhysEd.MessageAdapter.gmailThreads = function(threads) {
             return {
                 date: m.getDate(),
                 fromParts: GASton.Mail.parseFrom(m),
-                sentByUs: GASton.Mail.isSentByUs(m),
+                sentByScript: GASton.Mail.isSentByScript(m),
                 words: GASton.Mail.getMessageWords(m)
             };
         }));

@@ -122,7 +122,7 @@ PhysEd.GamePreparer.prototype._parseFlowdockThread = function (flowdock, sportNa
         var startOfYesterday = JSUtil.DateUtil.addDays(-1, startOfToday);
         var threadStarterMessage = JSUtil.ArrayUtil.find(flowMessages, function(m){
             return m.thread.initial_message === m.id &&
-                flowdock.isSentByUs(m) &&
+                flowdock.isSentByScript(m) &&
                 m.sent > startOfYesterday.getTime() &&
                 m.sent < startOfToday.getTime() &&
                 JSUtil.StringUtil.contains(m.content, sportName);

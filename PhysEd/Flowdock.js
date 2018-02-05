@@ -13,7 +13,7 @@ PhysEd.Flowdock.prototype.fetchUsers = function(){
     return this._request(this._flowUrl + '/users');
 };
 
-PhysEd.Flowdock.prototype.isSentByUs = function(message){
+PhysEd.Flowdock.prototype.isSentByScript = function(message){
     this._userId = this._userId || this._request('https://api.flowdock.com/user').id;
     return +message.user === this._userId && JSUtil.StringUtil.startsWith(message.content, PhysEd.Flowdock.MESSAGE_START);
 };

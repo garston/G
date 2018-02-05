@@ -5,8 +5,8 @@ GASton.Mail.forward = function(message, body, email) {
         message.forward(email, this._getOptions(body));
 };
 
-GASton.Mail.getMessagesAfterLatestMessageSentByUs = function(thread){
-    return thread.getMessages().reduce(function(messages, message){ return GASton.Mail.isSentByUs(message) ? [] : messages.concat(message); }, []);
+GASton.Mail.getMessagesAfterLatestMessageSentByScript = function(thread){
+    return thread.getMessages().reduce(function(messages, message){ return GASton.Mail.isSentByScript(message) ? [] : messages.concat(message); }, []);
 };
 
 GASton.Mail.getMessageWords = function(message) {
@@ -25,7 +25,7 @@ GASton.Mail.getMessageWords = function(message) {
 };
 
 GASton.Mail.getNameUsedForSending = function() { return SpreadsheetApp.getActiveSpreadsheet().getName(); };
-GASton.Mail.isSentByUs = function(message){ return JSUtil.StringUtil.contains(message.getFrom(), this.getNameUsedForSending()); };
+GASton.Mail.isSentByScript = function(message){ return JSUtil.StringUtil.contains(message.getFrom(), this.getNameUsedForSending()); };
 
 GASton.Mail.markRead = function(message) {
     this._checkProdMode('MARK READ', message.getThread().getFirstMessageSubject()) && message.markRead();
