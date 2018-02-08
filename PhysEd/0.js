@@ -4,10 +4,6 @@ function notifyGameTomorrow(){
     new PhysEd.GamePreparer().notifyGameTomorrow();
 }
 
-function earlyWarnGameStatus(){
-    new PhysEd.GamePreparer().sendEarlyWarning();
-}
-
 function checkGameStatus(){
     new PhysEd.GamePreparer().sendPlayerCounts();
 }

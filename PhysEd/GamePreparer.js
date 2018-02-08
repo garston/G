@@ -45,26 +45,44 @@ PhysEd.GamePreparer.prototype.persistSides = function(){
     });
 };
 
-PhysEd.GamePreparer.prototype.sendEarlyWarning = function(){
+PhysEd.GamePreparer.prototype.sendPlayerCounts = function(){
     this._eachTodayThread(function(opts){
-        var introLines = [];
-        if(opts.earlyWarningMailingList) {
-            var thresholdReached = opts.playerStatusParser.inPlayers.length >= opts.league.earlyWarningThreshold;
-            if(thresholdReached) {
-                var earlyWarningEmailBody = opts.mailingList.name + ' crew is looking to get a game together today. We play at ' + opts.mailingList.gameLocation +
-                    '. <b>' + opts.playerStatusParser.inPlayers.length + '</b> people are currently in. Anybody interested?';
-                GASton.Mail.sendToList(JSUtil.DateUtil.toPrettyString(this.today), earlyWarningEmailBody, opts.earlyWarningMailingList.email);
-            }
-
-            introLines.push('Email ' + (thresholdReached ? '' : 'not ') + 'sent to ' + opts.earlyWarningMailingList.name + ' list. Current numbers:');
+        if(JSUtil.ArrayUtil.last(opts.dateSortedMessages).sentByScript){
+            return;
         }
 
-        this._sendPlayerCounts(opts, introLines);
-    });
-};
+        var currentNumbers = JSUtil.ArrayUtil.compact([
+            this._toPlayerNames('In', opts.playerStatusParser.inPlayers),
+            this._toPlayerNames('Maybe', opts.playerStatusParser.maybePlayers),
+            this._toPlayerNames('Out', opts.playerStatusParser.outPlayers),
+            this._toPlayerNames('Unknown', opts.playerStatusParser.unknownPlayers)
+        ]);
 
-PhysEd.GamePreparer.prototype.sendPlayerCounts = function(){
-    this._eachTodayThread(this._sendPlayerCounts);
+        var competingSports = [''].concat(opts.competingThreadInfos.map(function(threadInfo){
+            return threadInfo.league.sportName + ' currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
+        }));
+
+        var primaryIntro = [];
+        if(opts.earlyWarningMailingList) {
+            var secondaryEmail = opts.earlyWarningMailingList.email;
+            var secondaryBody = currentNumbers.concat(competingSports);
+
+            if(opts.earlyWarningThread){
+                GASton.Mail.replyAll(opts.earlyWarningThread, secondaryBody.join('<br/>'), secondaryEmail);
+            }else if(opts.playerStatusParser.inPlayers.length >= opts.league.earlyWarningThreshold) {
+                GASton.Mail.sendToList(JSUtil.DateUtil.toPrettyString(this.today), [
+                    opts.mailingList.name + ' crew is looking to get a game together today. We play at ' + opts.mailingList.gameLocation + '. Anybody interested? Current numbers:'
+                ].concat(secondaryBody).join('<br/>'), secondaryEmail);
+                primaryIntro.push('Email sent to ' + opts.earlyWarningMailingList.name + ' list. Current numbers:');
+            }
+        }
+
+        var primaryBody = primaryIntro.concat(currentNumbers);
+        GASton.Mail.replyAll(opts.thread, primaryBody.concat(competingSports).join('<br/>'), opts.mailingList.email);
+        if(opts.flowdockThreadId) {
+            this._sendFlowdockMessage(opts.league, primaryBody, opts.flowdock, opts.flowdockThreadId);
+        }
+    });
 };
 
 PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
@@ -85,10 +103,10 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
         });
 
         var threads = [thread];
-        var earlyWarningMailingList;
+        var earlyWarningMailingList, earlyWarningThread;
         if(league.earlyWarningMailingListGuid) {
             earlyWarningMailingList = GASton.Database.findBy(PhysEd.MailingList, 'guid', league.earlyWarningMailingListGuid);
-            var earlyWarningThread = GmailApp.search(
+            earlyWarningThread = GmailApp.search(
                 'from:' + GASton.Mail.getNameUsedForSending() +
                 ' to:' + earlyWarningMailingList.email +
                 ' subject:' + JSUtil.DateUtil.toPrettyString(this.today),
@@ -104,6 +122,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
         return {
             dateSortedMessages: dateSortedMessages,
             earlyWarningMailingList: earlyWarningMailingList,
+            earlyWarningThread: earlyWarningThread,
             flowdock: flowdock,
             flowdockThreadId: flowdockThreadInfo.threadId,
             league: league,
@@ -157,27 +176,6 @@ PhysEd.GamePreparer.prototype._parseFlowdockThread = function (flowdock, sportNa
 PhysEd.GamePreparer.prototype._sendFlowdockMessage = function(league, bodyLines, flowdock, threadId) {
     var sportName = league.sportName.toLowerCase();
     flowdock.sendMessage(['@@' + sportName + ' :' + sportName + ':'].concat(bodyLines).join('\n'), threadId);
-};
-
-PhysEd.GamePreparer.prototype._sendPlayerCounts = function(opts, introLines) {
-    if(!JSUtil.ArrayUtil.last(opts.dateSortedMessages).sentByScript) {
-        var bodyLines = (introLines || []).
-            concat(JSUtil.ArrayUtil.compact([
-                this._toPlayerNames('In', opts.playerStatusParser.inPlayers),
-                this._toPlayerNames('Maybe', opts.playerStatusParser.maybePlayers),
-                this._toPlayerNames('Out', opts.playerStatusParser.outPlayers),
-                this._toPlayerNames('Unknown', opts.playerStatusParser.unknownPlayers)
-            ]));
-        var competingSportsLines = [''].concat(opts.competingThreadInfos.map(function(threadInfo){
-            return threadInfo.league.sportName + ' currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
-        }));
-
-        GASton.Mail.replyAll(opts.thread, bodyLines.concat(competingSportsLines).join('<br/>'), opts.mailingList.email);
-
-        if(opts.flowdockThreadId) {
-            this._sendFlowdockMessage(opts.league, bodyLines, opts.flowdock, opts.flowdockThreadId);
-        }
-    }
 };
 
 PhysEd.GamePreparer.prototype._toPlayerNames = function(categoryDisplayString, players) {
