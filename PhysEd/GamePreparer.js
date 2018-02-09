@@ -51,36 +51,38 @@ PhysEd.GamePreparer.prototype.sendPlayerCounts = function(){
             return;
         }
 
-        var currentNumbers = JSUtil.ArrayUtil.compact([
+        var currentNumbers = opts.dateSortedMessages.reduce(function(statusCall, msg){
+            var match = msg.words.join(' ').match(/^game (on|off)/i);
+            return match ? [[match[0].toUpperCase(), 'has been called at', msg.date, 'by', msg.fromParts.firstName, msg.fromParts.lastName + '!'].join(' ')] : statusCall;
+        }, []).concat(JSUtil.ArrayUtil.compact([
             this._toPlayerNames('In', opts.playerStatusParser.inPlayers),
             this._toPlayerNames('Maybe', opts.playerStatusParser.maybePlayers),
             this._toPlayerNames('Out', opts.playerStatusParser.outPlayers),
             this._toPlayerNames('Unknown', opts.playerStatusParser.unknownPlayers)
-        ]);
+        ]));
 
-        var competingSports = [''].concat(opts.competingThreadInfos.map(function(threadInfo){
+        var numbersAndCompetition = currentNumbers.concat('').concat(opts.competingThreadInfos.map(function(threadInfo){
             return threadInfo.league.sportName + ' currently has ' + threadInfo.playerStatusParser.inPlayers.length + ' players in';
         }));
 
         var primaryIntro = [];
         if(opts.secondaryMailingList) {
             var secondaryEmail = opts.secondaryMailingList.email;
-            var secondaryBody = currentNumbers.concat(competingSports);
 
             if(opts.secondaryThread){
-                GASton.Mail.replyAll(opts.secondaryThread, secondaryBody.join('<br/>'), secondaryEmail);
+                GASton.Mail.replyAll(opts.secondaryThread, numbersAndCompetition.join('<br/>'), secondaryEmail);
             }else if(opts.playerStatusParser.inPlayers.length >= opts.league.secondaryThreshold) {
                 GASton.Mail.sendToList(JSUtil.DateUtil.toPrettyString(this.today), [
-                    opts.mailingList.name + ' crew is looking to get a game together today. We play at ' + opts.mailingList.gameLocation + '. Anybody interested? Current numbers:'
-                ].concat(secondaryBody).join('<br/>'), secondaryEmail);
-                primaryIntro.push('Email sent to ' + opts.secondaryMailingList.name + ' list. Current numbers:');
+                    opts.mailingList.name + ' crew is looking to get a game together today. We play at ' + opts.mailingList.gameLocation + '. Anybody interested?',
+                    ''
+                ].concat(numbersAndCompetition).join('<br/>'), secondaryEmail);
+                primaryIntro = ['Email sent to ' + opts.secondaryMailingList.name + ' list', ''];
             }
         }
 
-        var primaryBody = primaryIntro.concat(currentNumbers);
-        GASton.Mail.replyAll(opts.thread, primaryBody.concat(competingSports).join('<br/>'), opts.mailingList.email);
+        GASton.Mail.replyAll(opts.thread, primaryIntro.concat(numbersAndCompetition).join('<br/>'), opts.mailingList.email);
         if(opts.flowdockThreadId) {
-            this._sendFlowdockMessage(opts.league, primaryBody, opts.flowdock, opts.flowdockThreadId);
+            this._sendFlowdockMessage(opts.league, primaryIntro.concat(currentNumbers), opts.flowdock, opts.flowdockThreadId);
         }
     });
 };
