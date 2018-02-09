@@ -3,7 +3,7 @@ GTxt.MonkeyInTheMiddle.SEPARATOR = '|';
 GTxt.MonkeyInTheMiddle.DOUBLE_SEPARATOR = '||';
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
-    this._processTxtEmails(
+    var physicalPhoneMessageObjs = this._processTxtEmails(
         'from:' + GTxt.Voice.TXT_DOMAIN + ' subject:' + GTxt.Voice.TXT_SUBJECT,
         function(message){ return GTxt.Voice.parseFromTxt(message).number; },
         function(message){ return GTxt.Voice.getTxt(message); },
@@ -18,14 +18,19 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         function(message){ return GTxt.Voice.getVoicemailFrom(message); },
         function(message){ return 'VM: ' + GTxt.Voice.getVoicemailText(message); },
         config
-    )).forEach(function(obj, index, objs){
-        if(index){
-            GASton.Mail.forward(obj.message, 'Handled by batch: ' + objs[0].message.getSubject(), Session.getActiveUser().getEmail());
-        }else{
-            var text = objs.map(function(obj){ return obj.text; }).join(this.DOUBLE_SEPARATOR);
-            this._sendTxt(obj.message, GTxt.Compression.compress(text), config.getPhysicalPhoneContact(), config);
-        }
-    }, this);
+    ));
+
+    var primaryMessageObj = JSUtil.ArrayUtil.find(physicalPhoneMessageObjs, function(obj){ return obj.plainMessage; });
+    if(primaryMessageObj){
+        physicalPhoneMessageObjs.forEach(function(obj){
+            if(obj === primaryMessageObj){
+                var text = GTxt.Compression.compress(physicalPhoneMessageObjs.map(function(obj){ return obj.text; }).join(this.DOUBLE_SEPARATOR));
+                this._sendTxt(obj.message, text, config.getPhysicalPhoneContact(), config);
+            }else{
+                GASton.Mail.forward(obj.message, 'Handled by batch: ' + primaryMessageObj.message.getSubject(), Session.getActiveUser().getEmail());
+            }
+        }, this);
+    }
 };
 
 GTxt.MonkeyInTheMiddle.sendTextsFromEmails = function(config) {
@@ -53,12 +58,14 @@ GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessa
         var from = getFrom(message);
         if(from === config.getPhysicalPhoneContact().number){
             this._txtContacts(messages, getMessageText, function(errorMessage){
-                physicalPhoneMessageObjs.push({ message: message, text: errorMessage });
+                physicalPhoneMessageObjs.push({ message: message, plainMessage: message, text: errorMessage });
             }, config);
         }else if(config.forwardToPhysicalPhone){
             var contact = GASton.Database.findBy(GTxt.Contact, 'number', from);
+            var plainMessage = JSUtil.ArrayUtil.find(messages, function(msg){ return !msg.getAttachments().length; });
             physicalPhoneMessageObjs.push({
-                message: message,
+                message: plainMessage || message,
+                plainMessage: plainMessage,
                 text: [contact ? contact.shortId || (from + '(' + contact.createShortId() + ')') : from].concat(messages.map(function(message){
                     var messageDate = message.getDate();
                     var dateStrings = [JSUtil.DateUtil.toPrettyString(messageDate, true) + '@', messageDate.getHours(), ':' + messageDate.getMinutes()];
