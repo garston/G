@@ -7,7 +7,8 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         'from:' + GTxt.Voice.TXT_DOMAIN + ' subject:' + GTxt.Voice.TXT_SUBJECT,
         function(message){ return GTxt.Voice.parseFromTxt(message).number; },
         function(message){ return GTxt.Voice.getTxt(message); },
-        config
+        config,
+        GTxt.Voice.isNotMarketing
     ).concat(this._processTxtEmails(
         'from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.GROUP_TXT_SUBJECT,
         function(message){ return GTxt.Voice.getFirstNumberMentioned(message.getSubject()); },
@@ -51,7 +52,7 @@ GTxt.MonkeyInTheMiddle._getThreadMessagesToForward = function(searchStr) {
         filter(function(messages){ return messages.length; });
 };
 
-GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessageText, config) {
+GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessageText, config, filterFn) {
     var physicalPhoneMessageObjs = [];
     this._getThreadMessagesToForward(searchStr).forEach(function(messages){
         var message = messages[0];
@@ -60,7 +61,7 @@ GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessa
             this._txtContacts(messages, getMessageText, function(errorMessage){
                 physicalPhoneMessageObjs.push({ message: message, plainMessage: message, text: errorMessage });
             }, config);
-        }else if(config.forwardToPhysicalPhone){
+        }else if(config.forwardToPhysicalPhone && (!filterFn || filterFn(from))){
             var contact = GASton.Database.findBy(GTxt.Contact, 'number', from);
             var plainMessage = JSUtil.ArrayUtil.find(messages, function(msg){ return !msg.getAttachments().length; });
             physicalPhoneMessageObjs.push({

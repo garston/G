@@ -7,7 +7,7 @@ GTxt.Voice.TXT_SUBJECT = '"text message"';
 GTxt.Voice.VOICEMAIL_SUBJECT = 'voicemail';
 
 GTxt.Voice.forwardTxt = function(message, text, gvNumber, number, gvKey){
-    GASton.Mail.forward(message, text, '1' + gvNumber + '.' + (number.toString().length === 10 ? 1 : '') + number + '.' + gvKey + '@' + this.TXT_DOMAIN);
+    GASton.Mail.forward(message, text, '1' + gvNumber + '.' + (this.isNotMarketing(number) ? 1 : '') + number + '.' + gvKey + '@' + this.TXT_DOMAIN);
 };
 
 GTxt.Voice.getFirstNumberMentioned = function(str){
@@ -29,6 +29,8 @@ GTxt.Voice.getVoicemailFrom = function(message) {
 GTxt.Voice.getVoicemailText = function(message){
     return this._getMessageText(message, function(line){ return line === 'play message'; });
 };
+
+GTxt.Voice.isNotMarketing = function(number){ return number.toString().length === 10; };
 
 GTxt.Voice.parseFromTxt = function(message){
     var match = GASton.Mail.parseFrom(message).email.match(/^\d+\.1?(\d+)\.(.+)@/);
