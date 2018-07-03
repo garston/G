@@ -10,9 +10,7 @@ GTxt.Compression.compress = function(str){
 GTxt.Compression.decompress = function(str) {
     return str.split('').map(function(ch, i, str){
         var prevCh = str[i - 1];
-        if(prevCh === ' '){
-            return ch;
-        } else if(/[.!?]/.test(prevCh) || (!/[\d:;]/.test(prevCh) && /[\d:;]/.test(ch))){
+        if(/[.!?]/.test(prevCh) || (!/[\d:;]/.test(prevCh) && /[\d:;]/.test(ch))){
             return ' ' + ch;
         } else if(prevCh && /[A-Z]/.test(ch)){
             return ' ' + ch.toLowerCase();
@@ -20,3 +18,5 @@ GTxt.Compression.decompress = function(str) {
         return ch;
     }).join('');
 };
+
+GTxt.Compression.isCompressed = function(str){ return !JSUtil.StringUtil.contains(str, ' ') && /[A-Z]/.test(str); };

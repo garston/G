@@ -95,7 +95,8 @@ GTxt.MonkeyInTheMiddle._txtContacts = function (messages, getMessageText, onCont
             messageParts[0].split(',').forEach(function(number){
                 var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', +number) || GASton.Database.findBy(GTxt.Contact, 'number', +number);
                 if(contact){
-                    this._sendTxt(message, GTxt.Compression.decompress(messageParts[1]), contact, config);
+                    var text = messageParts[1];
+                    this._sendTxt(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, contact, config);
                 }else{
                     onContactNotFound.call(this, 'Cannot find ' + number);
                 }
