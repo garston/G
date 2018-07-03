@@ -25,8 +25,9 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     if(primaryMessageObj){
         physicalPhoneMessageObjs.forEach(function(obj){
             if(obj === primaryMessageObj){
-                var text = GTxt.Compression.compress(physicalPhoneMessageObjs.map(function(obj){ return obj.text; }).join(this.DOUBLE_SEPARATOR));
-                this._sendTxt(obj.message, text, config.getPhysicalPhoneContact(), config);
+                var text = physicalPhoneMessageObjs.map(function(obj){ return obj.text; }).join(this.DOUBLE_SEPARATOR);
+                var compressedText = GTxt.Compression.compress(text);
+                this._sendTxt(obj.message, this._numTexts(compressedText) < this._numTexts(text) ? compressedText : text, config.getPhysicalPhoneContact(), config);
             }else{
                 GASton.Mail.forward(obj.message, 'Handled by batch: ' + primaryMessageObj.message.getSubject(), Session.getActiveUser().getEmail());
             }
@@ -51,6 +52,8 @@ GTxt.MonkeyInTheMiddle._getThreadMessagesToForward = function(searchStr) {
         map(function(thread){ return GASton.Mail.getMessagesAfterLatestMessageSentByScript(thread).filter(function(message){ return message.isInInbox() && message.isUnread(); }); }).
         filter(function(messages){ return messages.length; });
 };
+
+GTxt.MonkeyInTheMiddle._numTexts = function(text){ return Math.ceil(text.length / 160); };
 
 GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessageText, config, filterFn) {
     var physicalPhoneMessageObjs = [];
