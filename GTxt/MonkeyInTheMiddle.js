@@ -37,9 +37,9 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
 
 GTxt.MonkeyInTheMiddle.sendTextsFromEmails = function(config) {
     var currentUserEmail = Session.getActiveUser().getEmail();
-    this._getThreadMessagesToForward('from:' + currentUserEmail + ' subject:' + SpreadsheetApp.getActiveSpreadsheet().getName() + ' to:' + currentUserEmail).forEach(function(messages){
+    this._getInboxState('from:' + currentUserEmail + ' subject:' + SpreadsheetApp.getActiveSpreadsheet().getName() + ' to:' + currentUserEmail).threadMessagesToForward.forEach(function(messages){
         this._txtContacts(
-            messages,
+            messages, [],
             function(message){ return GASton.Mail.getMessageWords(message).join(' '); },
             function(errorMessage){ GASton.Mail.forward(messages[0], errorMessage, currentUserEmail); },
             config
@@ -47,25 +47,53 @@ GTxt.MonkeyInTheMiddle.sendTextsFromEmails = function(config) {
     }, this);
 };
 
-GTxt.MonkeyInTheMiddle._getThreadMessagesToForward = function(searchStr) {
-    return GmailApp.search('in:inbox is:unread ' + searchStr).
+GTxt.MonkeyInTheMiddle._findContacts = function(quickReplyContacts, numberList, onError){
+    if(numberList){
+        return JSUtil.ArrayUtil.compact(numberList.split(',').map(function(number){
+            var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', +number) || GTxt.Contact.findByNumber(+number);
+            if(!contact){
+                onError('Cannot find ' + number);
+            }
+            return contact;
+        }));
+    }
+
+    if (quickReplyContacts.length === 1){
+        return quickReplyContacts;
+    }
+
+    onError('Quick reply n/a: ' + quickReplyContacts.map(function(c){ return c.number; }));
+    return [];
+};
+
+GTxt.MonkeyInTheMiddle._getInboxState = function(searchStr) {
+    var allThreads = GmailApp.search('in:inbox is:unread ' + searchStr);
+    var threadMessagesToForward = allThreads.
         map(function(thread){ return GASton.Mail.getMessagesAfterLatestMessageSentByScript(thread).filter(function(message){ return message.isInInbox() && message.isUnread(); }); }).
         filter(function(messages){ return messages.length; });
+    return { allThreads: allThreads, threadMessagesToForward: threadMessagesToForward };
 };
 
 GTxt.MonkeyInTheMiddle._numTexts = function(text){ return Math.ceil(text.length / 160); };
 
 GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessageText, config, filterFn) {
+    filterFn = filterFn || function(){ return true; };
     var physicalPhoneMessageObjs = [];
-    this._getThreadMessagesToForward(searchStr).forEach(function(messages){
+    var inboxState = this._getInboxState(searchStr);
+    inboxState.threadMessagesToForward.forEach(function(messages){
         var message = messages[0];
         var from = getFrom(message);
-        if(from === config.getPhysicalPhoneContact().number){
-            this._txtContacts(messages, getMessageText, function(errorMessage){
+        var physicalPhoneNumber = config.getPhysicalPhoneContact().number;
+        if(from === physicalPhoneNumber){
+            var quickReplyContacts = JSUtil.ArrayUtil.compact(inboxState.allThreads.map(function(thread){
+                var from = getFrom(thread.getMessages()[0]);
+                return filterFn(from) && from !== physicalPhoneNumber && GTxt.Contact.findByNumber(from);
+            }));
+            this._txtContacts(messages, quickReplyContacts, getMessageText, function(errorMessage){
                 physicalPhoneMessageObjs.push({ message: message, plainMessage: message, text: errorMessage });
             }, config);
-        }else if(config.forwardToPhysicalPhone && (!filterFn || filterFn(from))){
-            var contact = GASton.Database.findBy(GTxt.Contact, 'number', from);
+        }else if(config.forwardToPhysicalPhone && filterFn(from)){
+            var contact = GTxt.Contact.findByNumber(from);
             var plainMessage = JSUtil.ArrayUtil.find(messages, function(msg){ return !msg.getAttachments().length; });
             physicalPhoneMessageObjs.push({
                 message: plainMessage || message,
@@ -88,18 +116,15 @@ GTxt.MonkeyInTheMiddle._sendTxt = function(message, text, contact, config) {
     GTxt.Voice.forwardTxt(message, text, config.gvNumber, contact.number, contact.gvKey);
 };
 
-GTxt.MonkeyInTheMiddle._txtContacts = function (messages, getMessageText, onContactNotFound, config) {
+GTxt.MonkeyInTheMiddle._txtContacts = function (messages, quickReplyContacts, getMessageText, onError, config) {
     messages.forEach(function(message){
         getMessageText(message).split(this.DOUBLE_SEPARATOR).forEach(function(messageText){
             var messageParts = messageText.split(this.SEPARATOR);
-            messageParts[0].split(',').forEach(function(number){
-                var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', +number) || GASton.Database.findBy(GTxt.Contact, 'number', +number);
-                if(contact){
-                    var text = messageParts[1];
-                    this._sendTxt(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, contact, config);
-                }else{
-                    onContactNotFound.call(this, 'Cannot find ' + number);
-                }
+            var isQuickReply = messageParts.length === 1;
+
+            this._findContacts(quickReplyContacts, !isQuickReply && messageParts[0], onError).forEach(function(contact){
+                var text = messageParts[isQuickReply ? 0 : 1];
+                this._sendTxt(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, contact, config);
             }, this);
         }, this);
     }, this);

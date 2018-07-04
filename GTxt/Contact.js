@@ -9,6 +9,8 @@ GTxt.Contact.allWithShortId = function(){
     return GASton.Database.hydrate(this).filter(function(c){ return c.shortId; });
 };
 
+GTxt.Contact.findByNumber = function(number){ return GASton.Database.findBy(this, 'number', number); };
+
 GTxt.Contact.prototype.createShortId = function(){
     this.shortId = GTxt.Contact.allWithShortId().length + 1;
     GASton.Database.persist(this);
