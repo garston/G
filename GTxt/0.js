@@ -1,4 +1,6 @@
 GTxt = {};
+GTxt.DOUBLE_SEPARATOR = '||';
+GTxt.SEPARATOR = '|';
 
 function clearShortIds () {
     GTxt.Contact.allWithShortId().forEach(function(c){
@@ -13,9 +15,10 @@ function go() {
     var config = GASton.Database.hydrate(GTxt.Config)[0];
     GTxt.MissedCallEnabler.changeEnabled(config);
     GTxt.MonkeyInTheMiddle.forwardTexts(config);
-    GTxt.MonkeyInTheMiddle.sendTextsFromEmails(config);
+    GTxt.SenderMonkey.sendTextsFromEmails(config);
 }
 
 function populateContacts() {
     GTxt.ContactPopulator.execute(true);
 }
+
