@@ -37,17 +37,30 @@ GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessa
                 physicalPhoneMessageObjs.push({ message: message, plainMessage: message, text: errorMessage });
             }, config);
         }else if(config.forwardToPhysicalPhone && filterFn(from)){
+            var plainMessage;
             var contact = GTxt.Contact.findByNumber(from);
-            var plainMessage = JSUtil.ArrayUtil.find(messages, function(msg){ return !msg.getAttachments().length; });
+            var text = [contact ? contact.shortId || (from + '(' + contact.createShortId() + ')') : from].concat(messages.map(function(message){
+                var messageDate = message.getDate();
+                var metadata = (JSUtil.DateUtil.diff(messageDate, new Date()) ? JSUtil.DateUtil.toPrettyString(messageDate, true) + '@' : '') +
+                    [messageDate.getHours(), messageDate.getMinutes()].join(':');
+
+                var messageText = getMessageText(message);
+                if(message.getAttachments().length) {
+                    metadata += ',MMS';
+                    if(messageText === 'MMS Received'){
+                        messageText = '';
+                    }
+                } else {
+                    plainMessage = message;
+                }
+
+                return metadata + (messageText && ('-' + messageText));
+            })).join(GTxt.SEPARATOR);
+
             physicalPhoneMessageObjs.push({
                 message: plainMessage || message,
                 plainMessage: plainMessage,
-                text: [contact ? contact.shortId || (from + '(' + contact.createShortId() + ')') : from].concat(messages.map(function(message){
-                    var messageDate = message.getDate();
-                    var dateStr = (JSUtil.DateUtil.diff(messageDate, new Date()) ? JSUtil.DateUtil.toPrettyString(messageDate, true) + '@' : '') +
-                        [messageDate.getHours(), messageDate.getMinutes()].join(':');
-                    return dateStr + '-' + getMessageText(message);
-                })).join(GTxt.SEPARATOR)
+                text: text
             });
         }
     });
