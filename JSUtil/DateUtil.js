@@ -9,9 +9,8 @@ JSUtil.DateUtil = {
         return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
     },
 
-    diff: function(date1, date2, unit) {
-        var numMillis = { DAYS: 86400000, HRS: 3600000, MINS: 60000 }[unit];
-        return Math.floor((date2 - date1) / numMillis);
+    diff: function(date1, date2) {
+        return Math.floor((date2 - date1) / 86400000);
     },
 
     lastDayOfMonth: function(date) {

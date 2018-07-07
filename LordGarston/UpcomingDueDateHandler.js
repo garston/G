@@ -7,5 +7,5 @@ LordGarston.UpcomingDueDateHandler.prototype.doHandle = function(rentPayment) {
 };
 
 LordGarston.UpcomingDueDateHandler.prototype.shouldHandle = function(rentPayment) {
-    return JSUtil.DateUtil.diff(_startOfToday(), rentPayment.dueDate, 'DAYS') === LordGarston.UpcomingDueDateHandler.REMINDER_DAYS && _shouldSendMail(1);
+    return JSUtil.DateUtil.diff(_startOfToday(), rentPayment.dueDate) === LordGarston.UpcomingDueDateHandler.REMINDER_DAYS && _shouldSendMail(1);
 };

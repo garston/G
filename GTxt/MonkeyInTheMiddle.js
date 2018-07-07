@@ -44,11 +44,9 @@ GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessa
                 plainMessage: plainMessage,
                 text: [contact ? contact.shortId || (from + '(' + contact.createShortId() + ')') : from].concat(messages.map(function(message){
                     var messageDate = message.getDate();
-                    var dateStrings = [JSUtil.DateUtil.toPrettyString(messageDate, true) + '@', messageDate.getHours(), ':' + messageDate.getMinutes()];
-                    var dateStr = ['DAYS', 'HRS', 'MINS'].map(function(unit, index){
-                        return JSUtil.DateUtil.diff(messageDate, new Date(), unit) ? dateStrings[index] : '';
-                    }).join('');
-                    return (dateStr && ('(' + dateStr + ')')) + getMessageText(message);
+                    var dateStr = (JSUtil.DateUtil.diff(messageDate, new Date()) ? JSUtil.DateUtil.toPrettyString(messageDate, true) + '@' : '') +
+                        [messageDate.getHours(), messageDate.getMinutes()].join(':');
+                    return dateStr + '-' + getMessageText(message);
                 })).join(GTxt.SEPARATOR)
             });
         }
