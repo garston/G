@@ -6,10 +6,6 @@ GTxt.Voice.TXT_DOMAIN = 'txt.voice.google.com';
 GTxt.Voice.TXT_SUBJECT = '"text message"';
 GTxt.Voice.VOICEMAIL_SUBJECT = 'voicemail';
 
-GTxt.Voice.forwardTxt = function(message, text, gvNumber, number, gvKey){
-    GASton.Mail.forward(message, text, '1' + gvNumber + '.' + (this.isNotMarketing(number) ? 1 : '') + number + '.' + gvKey + '@' + this.TXT_DOMAIN);
-};
-
 GTxt.Voice.getFirstNumberMentioned = function(str){
     var match = str.match(/\((\d+)\) (\d+)-(\d+)/);
     return match && +match.slice(1).join('');

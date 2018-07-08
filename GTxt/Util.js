@@ -8,6 +8,6 @@ GTxt.Util.getInboxState = function(searchStr) {
     return { allThreads: allThreads, threadMessagesToForward: threadMessagesToForward };
 };
 
-GTxt.Util.sendTxt = function(message, text, contact, config) {
-    GTxt.Voice.forwardTxt(message, text, config.gvNumber, contact.number, contact.gvKey);
+GTxt.Util.getTxtEmail = function(contact, config) {
+    return ['1' + config.gvNumber, (GTxt.Voice.isNotMarketing(contact.number) ? '1' : '') + contact.number, contact.gvKey].join('.') + '@' + GTxt.Voice.TXT_DOMAIN;
 };

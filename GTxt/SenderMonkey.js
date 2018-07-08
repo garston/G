@@ -20,7 +20,7 @@ GTxt.SenderMonkey.txtContacts = function(messages, quickReplyContacts, getMessag
 
             this._findContacts(quickReplyContacts, !isQuickReply && messageParts[0], onError).forEach(function(contact){
                 var text = messageParts[isQuickReply ? 0 : 1];
-                GTxt.Util.sendTxt(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, contact, config);
+                GASton.Mail.forward(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, GTxt.Util.getTxtEmail(contact, config));
             });
         }, this);
     }, this);
