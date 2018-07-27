@@ -10,7 +10,7 @@ for projectName in "$@"
 do
     echo "Building $projectName"
     echo "//$PLUSES $projectName $PLUSES" >> $SCRIPT_DIR/bundle.txt
-    cat $projectName/* >> $SCRIPT_DIR/bundle.txt
+    cat $projectName/*.js >> $SCRIPT_DIR/bundle.txt
     echo "//$MINUSES $projectName $MINUSES" >> $SCRIPT_DIR/bundle.txt
 done
 
