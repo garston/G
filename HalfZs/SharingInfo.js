@@ -4,6 +4,4 @@ HalfZs.SharingInfo = function(prettyName, splitPercent, chaseName) {
     this.chaseName = chaseName;
 };
 
-HalfZs.SharingInfo.__tableName = 'SHARING_INFO';
-HalfZs.SharingInfo.__firstRow = 2;
-HalfZs.SharingInfo.__props = ['prettyName', 'splitPercent', 'chaseName'];
+GASton.Database.register(HalfZs.SharingInfo, 'SHARING_INFO', ['prettyName', 'splitPercent', 'chaseName'], true);

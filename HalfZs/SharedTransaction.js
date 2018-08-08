@@ -6,6 +6,4 @@ HalfZs.SharedTransaction = function(month, year, what, iPayed, percentOwed) {
     this.percentOwed = percentOwed;
 };
 
-HalfZs.SharedTransaction.__tableName = 'SHARED_TRANSACTIONS';
-HalfZs.SharedTransaction.__firstRow = 2;
-HalfZs.SharedTransaction.__props = ['month', 'year', 'what', null, 'iPayed', 'percentOwed'];
+GASton.Database.register(HalfZs.SharedTransaction, 'SHARED_TRANSACTIONS', ['month', 'year', 'what', null, 'iPayed', 'percentOwed'], true);

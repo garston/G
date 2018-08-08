@@ -15,5 +15,4 @@ PhysEd.Person.prototype.getDisplayString = function(){
     return this.firstName && this.lastName ? this.firstName + ' ' + this.lastName : this.email;
 };
 
-PhysEd.Person.__props = ['guid', 'creationDate', 'email', 'firstName', 'lastName', 'alternateNames'];
-PhysEd.Person.__tableName = 'PERSON';
+GASton.Database.register(PhysEd.Person, 'PERSON', ['guid', 'creationDate', 'email', 'firstName', 'lastName', 'alternateNames']);

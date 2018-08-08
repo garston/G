@@ -7,7 +7,7 @@ GASton.Database.findBy = function(clazz, prop, value){
 
 GASton.Database.hydrate = function(clazz){
     var objs = this._getCache(clazz) || this._getSheet(clazz).getDataRange().getValues().
-        filter(function(rowData, rowIndex){ return rowIndex + 1 >= this._getFirstRow(clazz); }, this).
+        filter(function(rowData, rowIndex){ return rowIndex + 1 >= clazz.__firstRow; }).
         map(function(rowData){
             var o = new clazz();
             clazz.__props.forEach(function(prop, propIndex){
@@ -32,6 +32,12 @@ GASton.Database.persist = function(o){
     return o;
 };
 
+GASton.Database.register = function(clazz, tableName, props, hasHeaders){
+    clazz.__tableName = tableName;
+    clazz.__props = props;
+    clazz.__firstRow = hasHeaders ? 2 : 1;
+};
+
 GASton.Database.remove = function(o){
     var clazz = o.constructor;
     GASton.checkProdMode('DELETE %s:%s', [clazz.__tableName, this._getRowIndex(clazz, o)]) &&
@@ -40,8 +46,7 @@ GASton.Database.remove = function(o){
 };
 
 GASton.Database._getCache = function(clazz){ return this._cache[clazz.__tableName]; };
-GASton.Database._getFirstRow = function(clazz){ return clazz.__firstRow || 1; };
-GASton.Database._getRowIndex = function(clazz, o){ return this._getCache(clazz).indexOf(o) + this._getFirstRow(clazz); };
+GASton.Database._getRowIndex = function(clazz, o){ return this._getCache(clazz).indexOf(o) + clazz.__firstRow; };
 GASton.Database._getSheet = function (clazz){ return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(clazz.__tableName); };
 
 GASton.Database._overwriteDbValuesCache = function(clazz, o) {

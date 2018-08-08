@@ -5,5 +5,4 @@ PhysEd.PersonTeam = function(personGuid, teamGuid) {
     this.teamGuid = teamGuid;
 };
 
-PhysEd.PersonTeam.__props = ['guid', 'creationDate', 'personGuid', 'teamGuid'];
-PhysEd.PersonTeam.__tableName = 'PERSON_TEAM';
+GASton.Database.register(PhysEd.PersonTeam, 'PERSON_TEAM', ['guid', 'creationDate', 'personGuid', 'teamGuid']);

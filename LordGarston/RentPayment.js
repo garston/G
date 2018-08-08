@@ -13,6 +13,4 @@ LordGarston.RentPayment.prototype.getRenter = function() {
     }, this);
 };
 
-LordGarston.RentPayment.__tableName = 'Rent payments';
-LordGarston.RentPayment.__firstRow = 2;
-LordGarston.RentPayment.__props = ['dueDate', 'renterName', 'baseAmount', 'additionalAmount', 'totalAmount', 'paidWith'];
+GASton.Database.register(LordGarston.RentPayment, 'Rent payments', ['dueDate', 'renterName', 'baseAmount', 'additionalAmount', 'totalAmount', 'paidWith'], true);

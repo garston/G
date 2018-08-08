@@ -5,5 +5,4 @@ PhysEd.Team = function(gameGuid, score) {
     this.score = score;
 };
 
-PhysEd.Team.__props = ['guid', 'creationDate', 'gameGuid', 'score'];
-PhysEd.Team.__tableName = 'TEAM';
+GASton.Database.register(PhysEd.Team, 'TEAM', ['guid', 'creationDate', 'gameGuid', 'score']);

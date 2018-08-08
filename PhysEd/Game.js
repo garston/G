@@ -7,5 +7,4 @@ PhysEd.Game = function(month, day, year, leagueGuid) {
     this.leagueGuid = leagueGuid;
 };
 
-PhysEd.Game.__props = ['guid', 'creationDate', 'month', 'day', 'year', 'leagueGuid'];
-PhysEd.Game.__tableName = 'GAME';
+GASton.Database.register(PhysEd.Game, 'GAME', ['guid', 'creationDate', 'month', 'day', 'year', 'leagueGuid']);

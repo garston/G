@@ -11,5 +11,4 @@ PhysEd.League.prototype.getMailingList = function(){
 
 PhysEd.League.prototype.hasPredeterminedSchedule = function(){ return this.gameDayCount >= 0; };
 
-PhysEd.League.__props = ['guid', 'sportName', 'cuteSportName', 'mailingListGuid', 'secondaryMailingListGuid', 'secondaryThreshold', 'gameDays', 'gameDayCount'];
-PhysEd.League.__tableName = 'LEAGUE';
+GASton.Database.register(PhysEd.League, 'LEAGUE', ['guid', 'sportName', 'cuteSportName', 'mailingListGuid', 'secondaryMailingListGuid', 'secondaryThreshold', 'gameDays', 'gameDayCount']);

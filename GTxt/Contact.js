@@ -17,5 +17,4 @@ GTxt.Contact.prototype.createShortId = function(){
     return this.shortId;
 };
 
-GTxt.Contact.__props = ['guid', 'number', 'gvKey', 'shortId'];
-GTxt.Contact.__tableName = 'CONTACTS';
+GASton.Database.register(GTxt.Contact, 'CONTACTS', ['guid', 'number', 'gvKey', 'shortId']);

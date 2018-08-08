@@ -24,8 +24,6 @@ PhysEd.Side.prototype.getPlayerEmails = function() {
     return JSUtil.ArrayUtil.compact(JSUtil.ArrayUtil.range(PhysEd.Side.MAX_PLAYERS).map(function(i){ return this['playerEmail' + i]; }, this));
 };
 
-PhysEd.Side.__firstRow = 2;
-PhysEd.Side.__props = JSUtil.ArrayUtil.range(PhysEd.Side.MAX_PLAYERS).reduce(function(props, i){
+GASton.Database.register(PhysEd.Side, 'GAME_RECORDER', JSUtil.ArrayUtil.range(PhysEd.Side.MAX_PLAYERS).reduce(function(props, i){
     return props.concat('playerEmail' + i);
-}, ['month', 'day', 'year', 'leagueGuid', 'score']);
-PhysEd.Side.__tableName = 'GAME_RECORDER';
+}, ['month', 'day', 'year', 'leagueGuid', 'score']), true);
