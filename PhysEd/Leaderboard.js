@@ -126,7 +126,7 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
 PhysEd.Leaderboard._getCellStyle = function(column){ return 'border: 1px solid black;' + (column.borderBefore ? ' border-left-width: 3px;' : '') + ' padding: 4px;'; };
 
 PhysEd.Leaderboard._sort = function(personSports, sorters){
-    return personSports.map(function(personSport){return personSport;}).sort(function(ps1, ps2){
+    return personSports.slice().sort(function(ps1, ps2){
         var sortVal;
         return sorters.some(function(sorter){
             sortVal = sorter(ps1, ps2);

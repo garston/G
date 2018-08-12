@@ -26,7 +26,6 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
 
         if(chosenSport){
             chosenSport.gameDayCount += 1;
-            GASton.Database.persist(chosenSport);
         }
     }
 };
@@ -39,8 +38,8 @@ PhysEd.GamePreparer.prototype.persistSides = function(){
                 teams[index % teams.length].push(player.email);
             });
 
-            GASton.Database.persist(new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[0]));
-            GASton.Database.persist(new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[1]));
+            new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[0]);
+            new PhysEd.Side(this.today.getMonth() + 1, this.today.getDate(), this.today.getFullYear(), opts.league.guid, '', teams[1]);
         }
     });
 };

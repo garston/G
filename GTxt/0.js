@@ -5,7 +5,6 @@ GTxt.SEPARATOR = '|';
 function clearShortIds () {
     GTxt.Contact.allWithShortId().forEach(function(c){
         c.shortId = 0;
-        GASton.Database.persist(c);
     });
 }
 

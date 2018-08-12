@@ -2,9 +2,7 @@ PhysEd.GameRecorder = {};
 
 PhysEd.GameRecorder.record = function(side1, side2){
     var league = GASton.Database.findBy(PhysEd.League, 'guid', side1.leagueGuid);
-
     var game = new PhysEd.Game(side1.month, side1.day, side1.year, league.guid);
-    GASton.Database.persist(game);
 
     this._recordSide(side1, game);
     this._recordSide(side2, game);
@@ -27,10 +25,8 @@ PhysEd.GameRecorder.record = function(side1, side2){
 
 PhysEd.GameRecorder._recordSide = function(side, game){
     var team = new PhysEd.Team(game.guid, side.score);
-    GASton.Database.persist(team);
 
     side.getPeople().forEach(function(person){
-        GASton.Database.persist(person);
-        GASton.Database.persist(new PhysEd.PersonTeam(person.guid, team.guid));
+        new PhysEd.PersonTeam(person.guid, team.guid);
     });
 };
