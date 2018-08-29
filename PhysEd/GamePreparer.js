@@ -176,7 +176,8 @@ PhysEd.GamePreparer.prototype._parseFlowdockThread = function (flowdock, sportNa
 
 PhysEd.GamePreparer.prototype._sendFlowdockMessage = function(league, bodyLines, flowdock, threadId) {
     var sportName = league.sportName.toLowerCase();
-    flowdock.sendMessage(['@@' + sportName + ' :' + sportName + ':'].concat(bodyLines).join('\n'), threadId);
+    var tag = GASton.Database.hydrate(PhysEd.League).some(function(l){ return l !== league && l.mailingListGuid === league.mailingListGuid; }) ? '@@' + sportName : '@team';
+    flowdock.sendMessage([tag + ' :' + sportName + ':'].concat(bodyLines).join('\n'), threadId);
 };
 
 PhysEd.GamePreparer.prototype._toPlayerNames = function(categoryDisplayString, players) {
