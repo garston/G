@@ -8,10 +8,14 @@ function clearShortIds () {
     });
 }
 
+function doGet() {
+    return ContentService.createTextOutput(GTxt.Config.soleInstance().toggleForwardToPhysicalPhone().toString());
+}
+
 function go() {
     GTxt.ContactPopulator.execute();
 
-    var config = GASton.Database.hydrate(GTxt.Config)[0];
+    var config = GTxt.Config.soleInstance();
     GTxt.MissedCallEnabler.changeEnabled(config);
     GTxt.MonkeyInTheMiddle.forwardTexts(config);
     GTxt.SenderMonkey.sendTextsFromEmails(config);
