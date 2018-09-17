@@ -11,9 +11,6 @@ GTxt.Contact.allWithShortId = function(){
 
 GTxt.Contact.findByNumber = function(number){ return GASton.Database.findBy(this, 'number', number); };
 
-GTxt.Contact.prototype.createShortId = function(){
-    this.shortId = GTxt.Contact.allWithShortId().length + 1;
-    return this.shortId;
-};
+GTxt.Contact.prototype.createShortId = function(){ return this.shortId = GTxt.Contact.allWithShortId().length + 1; };
 
 GASton.Database.register(GTxt.Contact, 'CONTACTS', ['guid', 'number', 'gvKey', 'shortId']);

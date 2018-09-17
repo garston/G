@@ -10,7 +10,8 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         },
         function(message){ return message.getAttachments().length ? 'MMS' : ''; },
         config,
-        GTxt.Voice.isNotMarketing
+        GTxt.Voice.isNotMarketing,
+        true
     ).concat(this._processTxtEmails(
         'from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.GROUP_TXT_SUBJECT,
         function(message){ return GTxt.Voice.getFirstNumberMentioned(message.getSubject()); },
@@ -26,27 +27,36 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     )), config);
 };
 
-GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessageText, getMetadata, config, filterFn) {
+GTxt.MonkeyInTheMiddle._processTxtEmails = function(searchStr, getFrom, getMessageText, getMetadata, config, filterFn, canQuickReply) {
     filterFn = filterFn || function(){ return true; };
     var physicalPhoneMessageObjs = [];
+
     var inboxState = GTxt.Util.getInboxState(searchStr);
+    var physicalPhoneNumber = config.getPhysicalPhoneContact().number;
+    var quickReplyContacts = canQuickReply ? JSUtil.ArrayUtil.compact(inboxState.allThreads.map(function(thread){
+        var from = getFrom(thread.getMessages()[0]);
+        return filterFn(from) && from !== physicalPhoneNumber && GTxt.Contact.findByNumber(from);
+    })) : [];
+    var quickReplyContact = quickReplyContacts.length === 1 && quickReplyContacts[0];
+
     inboxState.threadMessagesToForward.forEach(function(messages){
         var message = messages[0];
         var from = getFrom(message);
-        var physicalPhoneNumber = config.getPhysicalPhoneContact().number;
         if(from === physicalPhoneNumber){
-            var quickReplyContacts = JSUtil.ArrayUtil.compact(inboxState.allThreads.map(function(thread){
-                var from = getFrom(thread.getMessages()[0]);
-                return filterFn(from) && from !== physicalPhoneNumber && GTxt.Contact.findByNumber(from);
-            }));
-            GTxt.SenderMonkey.txtContacts(messages, quickReplyContacts, getMessageText, function(errorMessage){
+            GTxt.SenderMonkey.txtContacts(messages, quickReplyContact, getMessageText, function(errorMessage){
                 physicalPhoneMessageObjs.push({ message: message, plainMessage: message, text: errorMessage });
             }, config);
         }else if(config.forwardToPhysicalPhone && filterFn(from)){
             var plainMessage = JSUtil.ArrayUtil.last(messages.filter(function(m){ return !m.getAttachments().length; }));
 
+            var fromStr = from;
             var contact = GTxt.Contact.findByNumber(from);
-            var text = [contact ? contact.shortId || (from + '(' + contact.createShortId() + ')') : from].concat(messages.map(function(message){
+            if(contact){
+                var quickReplyNotation = quickReplyContact ? '!' : '';
+                fromStr = contact.shortId ? contact.shortId + quickReplyNotation : from + '(' + contact.createShortId() + quickReplyNotation + ')';
+            }
+
+            var text = [fromStr].concat(messages.map(function(message){
                 var messageDate = message.getDate();
                 var dateMetadata = (JSUtil.DateUtil.diff(messageDate, new Date()) ? JSUtil.DateUtil.toPrettyString(messageDate, true) + '@' : '') +
                     [messageDate.getHours(), messageDate.getMinutes()].join(':');
