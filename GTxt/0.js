@@ -9,7 +9,7 @@ function clearShortIds () {
 }
 
 function doGet() {
-    return ContentService.createTextOutput(GTxt.Config.soleInstance().toggleForwardToPhysicalPhone().toString());
+    return HtmlService.createHtmlOutput('<span style="font-size: 500px">' + GTxt.Config.soleInstance().toggleForwardToPhysicalPhone() + '</span>');
 }
 
 function go() {
