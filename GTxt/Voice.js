@@ -35,7 +35,7 @@ GTxt.Voice.parseFromTxt = function(message){
 
 GTxt.Voice._getMessageText = function(message, isEndOfTextFn) {
     var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
-    return lines.slice(2, JSUtil.ArrayUtil.findIndex(lines, isEndOfTextFn)).reduce(function(text, line, i, lines){
-        return text + (GTxt.Compression.isCompressed(lines[i-1]) ? '' : ' ') + line;
-    });
+    var textLines = lines.slice(2, JSUtil.ArrayUtil.findIndex(lines, isEndOfTextFn));
+    var compressedText = textLines.join('');
+    return GTxt.Compression.isCompressed(compressedText) ? compressedText : textLines.join(' ');
 };
