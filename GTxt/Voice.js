@@ -11,19 +11,9 @@ GTxt.Voice.getFirstNumberMentioned = function(str){
     return match && +match.slice(1).join('');
 };
 
-GTxt.Voice.getTxt = function(message){
-    return this._getMessageText(message, function(line) {
-        return line === 'To respond to this text message, reply to this email or visit Google Voice.' || JSUtil.StringUtil.startsWith(line, 'YOUR ACCOUNT ');
-    });
-};
-
-GTxt.Voice.getVoicemailFrom = function(message) {
-    var subject = message.getSubject();
-    return this.getFirstNumberMentioned(subject) || subject.match(/from (.+) at/)[1];
-};
-
-GTxt.Voice.getVoicemailText = function(message){
-    return this._getMessageText(message, function(line){ return line === 'play message'; });
+GTxt.Voice.getTxtLines = function(message, isEndOfTextFn) {
+    var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
+    return lines.slice(2, JSUtil.ArrayUtil.findIndex(lines, isEndOfTextFn));
 };
 
 GTxt.Voice.isNotMarketing = function(number){ return number.toString().length === 10; };
@@ -31,11 +21,4 @@ GTxt.Voice.isNotMarketing = function(number){ return number.toString().length ==
 GTxt.Voice.parseFromTxt = function(message){
     var match = GASton.Mail.parseFrom(message).email.match(/^\d+\.1?(\d+)\.(.+)@/);
     return { gvKey: match[2], number: +match[1] };
-};
-
-GTxt.Voice._getMessageText = function(message, isEndOfTextFn) {
-    var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
-    var textLines = lines.slice(2, JSUtil.ArrayUtil.findIndex(lines, isEndOfTextFn));
-    var compressedText = textLines.join('');
-    return GTxt.Compression.isCompressed(compressedText) ? compressedText : textLines.join(' ');
 };

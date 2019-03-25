@@ -5,7 +5,11 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         'from:' + GTxt.Voice.TXT_DOMAIN + ' subject:' + GTxt.Voice.TXT_SUBJECT,
         function(message){ return GTxt.Voice.parseFromTxt(message).number; },
         function(message){
-            var txt = GTxt.Voice.getTxt(message);
+            var lines = GTxt.Voice.getTxtLines(message, function (line) {
+                return line === 'To respond to this text message, reply to this email or visit Google Voice.' || JSUtil.StringUtil.startsWith(line, 'YOUR ACCOUNT ');
+            });
+            var compressedTxt = lines.join('');
+            var txt = GTxt.Compression.isCompressed(compressedTxt) ? compressedTxt : lines.join(' ');
             return txt === 'MMS Received' ? '' : txt;
         },
         function(message){ return message.getAttachments().length ? 'MMS' : ''; },
@@ -20,8 +24,11 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         config
     )).concat(this._processTxtEmails(
         'from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.VOICEMAIL_SUBJECT,
-        function(message){ return GTxt.Voice.getVoicemailFrom(message); },
-        function(message){ return GTxt.Voice.getVoicemailText(message); },
+        function(message){
+            var subject = message.getSubject();
+            return GTxt.Voice.getFirstNumberMentioned(subject) || subject.match(/from (.+) at/)[1];
+        },
+        function(message){ return GTxt.Voice.getTxtLines(message, function(line){ return line === 'play message'; }).join(' '); },
         function(){ return 'VM'; },
         config
     )), config);
