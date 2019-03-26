@@ -7,7 +7,3 @@ GTxt.Util.getInboxState = function(searchStr) {
         filter(function(messages){ return messages.length; });
     return { allThreads: allThreads, threadMessagesToForward: threadMessagesToForward };
 };
-
-GTxt.Util.getTxtEmail = function(contact, config) {
-    return ['1' + config.gvNumber, (GTxt.Voice.isNotMarketing(contact.number) ? '1' : '') + contact.number, contact.gvKey].join('.') + '@' + GTxt.Voice.TXT_DOMAIN;
-};

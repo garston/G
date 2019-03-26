@@ -8,7 +8,7 @@ GTxt.ReceiverMonkey.txtPhysicalPhone = function(msgObjs, config) {
     var primaryObj = JSUtil.ArrayUtil.find(msgObjs, function(obj){ return obj.plainMessage; });
     var primaryMsgSubject = primaryObj ? primaryObj.message.getSubject() : Date.now().toString();
 
-    var txtEmail = GTxt.Util.getTxtEmail(config.getPhysicalPhoneContact(), config);
+    var txtEmail = GTxt.Voice.getTxtEmail(config.getPhysicalPhoneContact(), config);
     msgObjs.forEach(function(obj){
         if(obj === primaryObj){
             GASton.Mail.forward(obj.plainMessage, text, txtEmail);
@@ -16,7 +16,7 @@ GTxt.ReceiverMonkey.txtPhysicalPhone = function(msgObjs, config) {
             if(!primaryObj){
                 GASton.Mail.sendToIndividual(primaryMsgSubject, text, txtEmail)
             }
-            GASton.Mail.forward(obj.message, 'Handled by batch: ' + primaryMsgSubject, Session.getActiveUser().getEmail());
+            GASton.Mail.forward(obj.message, 'Handled by: ' + primaryMsgSubject, Session.getActiveUser().getEmail());
         }
     });
 };

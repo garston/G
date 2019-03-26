@@ -11,6 +11,10 @@ GTxt.Voice.getFirstNumberMentioned = function(str){
     return match && +match.slice(1).join('');
 };
 
+GTxt.Voice.getTxtEmail = function(contact, config) {
+    return ['1' + config.gvNumber, (this.isNotMarketing(contact.number) ? '1' : '') + contact.number, contact.gvKey].join('.') + '@' + this.TXT_DOMAIN;
+};
+
 GTxt.Voice.getTxtLines = function(message, isEndOfTextFn) {
     var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
     return lines.slice(2, JSUtil.ArrayUtil.findIndex(lines, isEndOfTextFn));
