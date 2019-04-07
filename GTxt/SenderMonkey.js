@@ -17,11 +17,15 @@ GTxt.SenderMonkey.txtContacts = function(messages, quickReplyContact, getMessage
         getMessageText(message).split(GTxt.DOUBLE_SEPARATOR).forEach(function(messageText){
             var messageParts = messageText.split(GTxt.SEPARATOR);
             var isQuickReply = messageParts.length === 1;
+            var text = messageParts[isQuickReply ? 0 : 1];
 
-            this._findContacts(quickReplyContact, !isQuickReply && messageParts[0], onError).forEach(function(contact){
-                var text = messageParts[isQuickReply ? 0 : 1];
-                GASton.Mail.forward(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, GTxt.Voice.getTxtEmail(contact, config));
-            });
+            if(text){
+                this._findContacts(quickReplyContact, !isQuickReply && messageParts[0], onError).forEach(function(contact){
+                    GASton.Mail.forward(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, GTxt.Voice.getTxtEmail(contact, config));
+                });
+            } else {
+                onError('Couldn\'t parse txt sent at ' + message.getDate());
+            }
         }, this);
     }, this);
 };

@@ -15,9 +15,10 @@ GTxt.Voice.getTxtEmail = function(contact, config) {
     return ['1' + config.gvNumber, (this.isNotMarketing(contact.number) ? '1' : '') + contact.number, contact.gvKey].join('.') + '@' + this.TXT_DOMAIN;
 };
 
-GTxt.Voice.getTxtLines = function(message, isEndOfTextFn) {
+GTxt.Voice.getTxtLines = function(message, isEndOfTxtFn) {
     var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
-    return lines.slice(2, JSUtil.ArrayUtil.findIndex(lines, isEndOfTextFn));
+    var endOfTxtIndex = JSUtil.ArrayUtil.findIndex(lines, isEndOfTxtFn);
+    return endOfTxtIndex < 0 ? [] : lines.slice(2, endOfTxtIndex);
 };
 
 GTxt.Voice.isNotMarketing = function(number){ return number.toString().length === 10; };
