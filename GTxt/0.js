@@ -19,6 +19,10 @@ function go() {
     GTxt.MissedCallEnabler.changeEnabled(config);
     GTxt.MonkeyInTheMiddle.forwardTexts(config);
     GTxt.SenderMonkey.sendTextsFromEmails(config);
+
+    if(!config.forwardToPhysicalPhone && config.quickReplyContactGuid){
+        config.quickReplyContactGuid = '';
+    }
 }
 
 function populateContacts() {

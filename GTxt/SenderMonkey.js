@@ -20,7 +20,7 @@ GTxt.SenderMonkey.txtContacts = function(messages, quickReplyContact, getMessage
             var text = messageParts[isQuickReply ? 0 : 1];
 
             if(text){
-                this._findContacts(quickReplyContact, !isQuickReply && messageParts[0], onError).forEach(function(contact){
+                this._findContacts(quickReplyContact, !isQuickReply && messageParts[0], onError, config).forEach(function(contact){
                     GASton.Mail.forward(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, GTxt.Voice.getTxtEmail(contact, config));
                 });
             } else {
@@ -30,12 +30,16 @@ GTxt.SenderMonkey.txtContacts = function(messages, quickReplyContact, getMessage
     }, this);
 };
 
-GTxt.SenderMonkey._findContacts = function(quickReplyContact, numberList, onError){
+GTxt.SenderMonkey._findContacts = function(quickReplyContact, numberList, onError, config){
     if(numberList){
-        return JSUtil.ArrayUtil.compact(numberList.split(',').map(function(number){
-            var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', +number) || GTxt.Contact.findByNumber(+number);
+        return JSUtil.ArrayUtil.compact(numberList.split(',').map(function(numberStr){
+            var numberMatch = numberStr.match(/(\d+)(!?)/);
+            var number = +numberMatch[1];
+            var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', number) || GTxt.Contact.findByNumber(number);
             if(!contact){
                 onError('Cannot find ' + number);
+            } else if (numberMatch[2]){
+                config.quickReplyContactGuid = contact.guid;
             }
             return contact;
         }));

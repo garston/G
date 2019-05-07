@@ -4,10 +4,12 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     var getNumberFromTxt = function (message) { return GTxt.Voice.parseFromTxt(message).number; };
     var txtFilterFn = GTxt.Voice.isNotMarketing;
     var txtInboxState = GTxt.Util.getInboxState('from:' + GTxt.Voice.TXT_DOMAIN + ' subject:' + GTxt.Voice.TXT_SUBJECT);
-    var quickReplyContacts = JSUtil.ArrayUtil.compact(txtInboxState.allThreads.map(function(thread){
-        var from = getNumberFromTxt(thread.getMessages()[0]);
-        return txtFilterFn(from) && from !== config.getPhysicalPhoneContact().number && GTxt.Contact.findByNumber(from);
-    }));
+    var quickReplyContacts = config.quickReplyContactGuid ?
+        [GASton.Database.findBy(GTxt.Contact, 'guid', config.quickReplyContactGuid)] :
+        JSUtil.ArrayUtil.compact(txtInboxState.allThreads.map(function(thread){
+            var from = getNumberFromTxt(thread.getMessages()[0]);
+            return txtFilterFn(from) && from !== config.getPhysicalPhoneContact().number && GTxt.Contact.findByNumber(from);
+        }));
     var quickReplyContact = quickReplyContacts.length === 1 && quickReplyContacts[0];
 
     GTxt.ReceiverMonkey.txtPhysicalPhone(this._processTxtEmails(
