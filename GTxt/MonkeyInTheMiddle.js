@@ -1,19 +1,12 @@
 GTxt.MonkeyInTheMiddle = {};
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
-    var getNumberFromTxt = function (message) { return GTxt.Voice.parseFromTxt(message).number; };
     var txtInboxState = GTxt.Util.getInboxState('from:' + GTxt.Voice.TXT_DOMAIN + ' subject:' + GTxt.Voice.TXT_SUBJECT);
-    var quickReplyContacts = config.quickReplyContactGuid ?
-        [GASton.Database.findBy(GTxt.Contact, 'guid', config.quickReplyContactGuid)] :
-        JSUtil.ArrayUtil.compact(txtInboxState.allThreads.map(function(thread){
-            var from = getNumberFromTxt(thread.getMessages()[0]);
-            return from !== config.getPhysicalPhoneContact().number && GTxt.Contact.findByNumber(from);
-        }));
-    var quickReplyContact = quickReplyContacts.length === 1 && quickReplyContacts[0];
+    var quickReplyContact = GTxt.QuickReplyContactManager.compute(txtInboxState, config);
 
     GTxt.ReceiverMonkey.txtPhysicalPhone(this._processEmails(
         txtInboxState,
-        getNumberFromTxt,
+        function(message){ return GTxt.Voice.parseFromTxt(message).number; },
         function(message){
             var lines = GTxt.Voice.getTxtLines(message, function (line) {
                 return line === 'To respond to this text message, reply to this email or visit Google Voice.' || JSUtil.StringUtil.startsWith(line, 'YOUR ACCOUNT ');

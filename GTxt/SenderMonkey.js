@@ -39,7 +39,7 @@ GTxt.SenderMonkey._findContacts = function(quickReplyContact, numberList, onErro
             if(!contact){
                 onError('Cannot find ' + number);
             } else if (numberMatch[2]){
-                config.quickReplyContactGuid = contact.guid;
+                GTxt.QuickReplyContactManager.set(contact, config);
             }
             return contact;
         }));
