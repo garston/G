@@ -38,7 +38,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         GTxt.Util.getInboxState('from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.VOICEMAIL_SUBJECT),
         function(message){
             var subject = message.getSubject();
-            var match = subject.match(/from (.+)\.$/);
+            var match = subject.match(/from (.+?)\.?$/);
             return GTxt.Voice.getFirstNumberMentioned(subject) || (match ? match[1] : '?');
         },
         function(message){ return GTxt.Voice.getTxtLines(message, function(line){ return line === 'play message'; }).join(' '); },
