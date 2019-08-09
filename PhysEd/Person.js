@@ -4,7 +4,6 @@ PhysEd.Person = function(email, firstName, lastName) {
     this.email = email;
     this.firstName = firstName || '';
     this.lastName = lastName || '';
-    this.alternateNames = '';
 };
 
 PhysEd.Person.prototype.getAlternateNames = function(){

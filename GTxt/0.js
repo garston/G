@@ -20,7 +20,7 @@ function go() {
     GTxt.MonkeyInTheMiddle.forwardTexts(config);
     GTxt.SenderMonkey.sendTextsFromEmails(config);
 
-    if(!config.forwardToPhysicalPhone && config.quickReplyContactGuid){
+    if(!config.forwardToPhysicalPhone){
         config.quickReplyContactGuid = '';
     }
 }

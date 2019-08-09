@@ -37,18 +37,18 @@ GASton.Database.register = function(clazz, tableName, props, hasHeaders){
                     return;
                 }
 
-                if (this.__values){
-                    var rowIndex = GASton.Database._getRowIndex(clazz, this);
-                    GASton.checkProdMode('UPDATE %s:%s - %s: %s', [tableName, rowIndex, prop, val]) &&
-                        GASton.Database._getSheet(clazz).getRange(rowIndex, propIndex + 1).setValue(val);
-                    this.__values[propIndex] = val;
-                }else{
+                if (!this.__values){
                     GASton.Database.hydrate(clazz).push(this);
 
                     var newRow = props.map(function(prop, i){ return i === propIndex ? val : ''; });
                     GASton.checkProdMode('INSERT %s - %s', [tableName, newRow]) &&
                         GASton.Database._getSheet(clazz).appendRow(newRow.slice());
                     this.__values = newRow;
+                }else if(this.__values[propIndex] !== val){
+                    var rowIndex = GASton.Database._getRowIndex(clazz, this);
+                    GASton.checkProdMode('UPDATE %s:%s - %s: %s -> %s', [tableName, rowIndex, prop, this.__values[propIndex], val]) &&
+                        GASton.Database._getSheet(clazz).getRange(rowIndex, propIndex + 1).setValue(val);
+                    this.__values[propIndex] = val;
                 }
             }
         });
