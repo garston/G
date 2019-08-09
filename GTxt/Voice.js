@@ -12,7 +12,7 @@ GTxt.Voice.getFirstNumberMentioned = function(str){
 };
 
 GTxt.Voice.getTxtEmail = function(contact, config) {
-    return ['1' + config.gvNumber, (this.isNotMarketing(contact.number) ? '1' : '') + contact.number, contact.gvKey].join('.') + '@' + this.TXT_DOMAIN;
+    return ['1' + config.gvNumber, (contact.number.toString().length === 10 ? '1' : '') + contact.number, contact.gvKey].join('.') + '@' + this.TXT_DOMAIN;
 };
 
 GTxt.Voice.getTxtLines = function(message, isEndOfTxtFn) {
@@ -20,8 +20,6 @@ GTxt.Voice.getTxtLines = function(message, isEndOfTxtFn) {
     var endOfTxtIndex = JSUtil.ArrayUtil.findIndex(lines, isEndOfTxtFn);
     return endOfTxtIndex < 0 ? [] : lines.slice(2, endOfTxtIndex);
 };
-
-GTxt.Voice.isNotMarketing = function(number){ return number.toString().length === 10; };
 
 GTxt.Voice.parseFromTxt = function(message){
     var match = GASton.Mail.parseFrom(message).email.match(/^\d+\.1?(\d+)\.(.+)@/);

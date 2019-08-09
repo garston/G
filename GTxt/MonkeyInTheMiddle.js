@@ -2,17 +2,16 @@ GTxt.MonkeyInTheMiddle = {};
 
 GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     var getNumberFromTxt = function (message) { return GTxt.Voice.parseFromTxt(message).number; };
-    var txtFilterFn = GTxt.Voice.isNotMarketing;
     var txtInboxState = GTxt.Util.getInboxState('from:' + GTxt.Voice.TXT_DOMAIN + ' subject:' + GTxt.Voice.TXT_SUBJECT);
     var quickReplyContacts = config.quickReplyContactGuid ?
         [GASton.Database.findBy(GTxt.Contact, 'guid', config.quickReplyContactGuid)] :
         JSUtil.ArrayUtil.compact(txtInboxState.allThreads.map(function(thread){
             var from = getNumberFromTxt(thread.getMessages()[0]);
-            return txtFilterFn(from) && from !== config.getPhysicalPhoneContact().number && GTxt.Contact.findByNumber(from);
+            return from !== config.getPhysicalPhoneContact().number && GTxt.Contact.findByNumber(from);
         }));
     var quickReplyContact = quickReplyContacts.length === 1 && quickReplyContacts[0];
 
-    GTxt.ReceiverMonkey.txtPhysicalPhone(this._processTxtEmails(
+    GTxt.ReceiverMonkey.txtPhysicalPhone(this._processEmails(
         txtInboxState,
         getNumberFromTxt,
         function(message){
@@ -25,16 +24,15 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         },
         function(message){ return message.getAttachments().length ? 'MMS' : ''; },
         quickReplyContact,
-        config,
-        txtFilterFn
-    ).concat(this._processTxtEmails(
+        config
+    ).concat(this._processEmails(
         GTxt.Util.getInboxState('from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.GROUP_TXT_SUBJECT),
         function(message){ return GTxt.Voice.getFirstNumberMentioned(message.getSubject()); },
         function(){ return ''; },
         function(){ return 'GM'; },
         quickReplyContact,
         config
-    )).concat(this._processTxtEmails(
+    )).concat(this._processEmails(
         GTxt.Util.getInboxState('from:' + GTxt.Voice.NO_REPLY_EMAIL + ' subject:' + GTxt.Voice.VOICEMAIL_SUBJECT),
         function(message){
             var subject = message.getSubject();
@@ -48,9 +46,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
     )), config);
 };
 
-GTxt.MonkeyInTheMiddle._processTxtEmails = function(inboxState, getFrom, getMessageText, getMetadata, quickReplyContact, config, filterFn) {
-    filterFn = filterFn || function(){ return true; };
-
+GTxt.MonkeyInTheMiddle._processEmails = function(inboxState, getFrom, getMessageText, getMetadata, quickReplyContact, config) {
     var physicalPhoneMessageObjs = [];
     inboxState.threadMessagesToForward.forEach(function(messages){
         var message = messages[0];
@@ -59,7 +55,7 @@ GTxt.MonkeyInTheMiddle._processTxtEmails = function(inboxState, getFrom, getMess
             GTxt.SenderMonkey.txtContacts(messages, quickReplyContact, getMessageText, function(errorMessage){
                 physicalPhoneMessageObjs.push({ message: message, plainMessage: message, text: errorMessage });
             }, config);
-        }else if(config.forwardToPhysicalPhone && filterFn(from)){
+        }else if(config.forwardToPhysicalPhone){
             var plainMessage = JSUtil.ArrayUtil.last(messages.filter(function(m){ return !m.getAttachments().length; }));
 
             var fromStr = from;
