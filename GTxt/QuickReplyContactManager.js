@@ -1,6 +1,6 @@
 GTxt.QuickReplyContactManager = {};
 
-GTxt.QuickReplyContactManager.compute = function(txtInboxState, config){
+GTxt.QuickReplyContactManager.compute = function(receivedTxtsInboxState, config){
     if(!config.forwardToPhysicalPhone){
         config.quickReplyContactGuid = '';
         return;
@@ -10,12 +10,9 @@ GTxt.QuickReplyContactManager.compute = function(txtInboxState, config){
         return GASton.Database.findBy(GTxt.Contact, 'guid', config.quickReplyContactGuid);
     }
 
-    var number = JSUtil.ArrayUtil.find(
-        txtInboxState.allThreads.map(function(thread){ return GTxt.Voice.parseFromTxt(thread.getMessages()[0]).number; }),
-        function(from){ return from !== config.getPhysicalPhoneContact().number; }
-    );
-    if(number){
-        var contact = GTxt.Contact.findByNumber(number);
+    var thread = receivedTxtsInboxState.allThreads[0];
+    if(thread){
+        var contact = GTxt.Contact.findByNumber(GTxt.Voice.parseFromTxt(thread.getMessages()[0]).number);
         this.set(contact, config);
         return contact;
     }

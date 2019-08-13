@@ -17,7 +17,9 @@ GTxt.Voice.getTxtEmail = function(contact, config) {
 
 GTxt.Voice.getTxtLines = function(message, isEndOfTxtFn) {
     var lines = message.getPlainBody().split('\n').map(function(line){ return line.trim(); });
-    var endOfTxtIndex = JSUtil.ArrayUtil.findIndex(lines, isEndOfTxtFn);
+    var endOfTxtIndex = JSUtil.ArrayUtil.findIndex(lines, isEndOfTxtFn || function(line){
+        return line === 'To respond to this text message, reply to this email or visit Google Voice.' || JSUtil.StringUtil.startsWith(line, 'YOUR ACCOUNT ');
+    });
     return endOfTxtIndex < 0 ? [] : lines.slice(2, endOfTxtIndex);
 };
 
