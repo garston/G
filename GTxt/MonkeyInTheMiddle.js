@@ -12,6 +12,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
             var compressedTxt = lines.join('');
             return GTxt.Compression.isCompressed(compressedTxt) ? compressedTxt : lines.join(' ');
         },
+        function(){ config.forwardToPhysicalPhone = 1; },
         function(errorMessage, message){ GTxt.ReceiverMonkey.txtPhysicalPhone([{ message: message, plainMessage: message, text: errorMessage }], config); },
         config
     );

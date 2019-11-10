@@ -6,12 +6,13 @@ GTxt.SenderMonkey.sendTextsFromEmails = function(config) {
         ['from:' + currentUserEmail, 'subject:' + SpreadsheetApp.getActiveSpreadsheet().getName(), 'to:' + currentUserEmail],
         null,
         function(message){ return GASton.Mail.getMessageWords(message).join(' '); },
+        function(){},
         function(errorMessage, message){ GASton.Mail.forward(message, errorMessage, currentUserEmail); },
         config
     );
 };
 
-GTxt.SenderMonkey.txtContacts = function(searchTerms, quickReplyContact, getMessageText, onError, config) {
+GTxt.SenderMonkey.txtContacts = function(searchTerms, quickReplyContact, getMessageText, onSuccess, onError, config) {
     GTxt.Util.getInboxState(searchTerms).threadMessagesToForward.forEach(function(messages){
         messages.forEach(function(message){
             getMessageText(message).split(GTxt.DOUBLE_SEPARATOR).forEach(function(messageText){
@@ -23,6 +24,7 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, quickReplyContact, getMess
                     this._findContacts(quickReplyContact, !isQuickReply && messageParts[0], onError, message, config).forEach(function(contact){
                         GASton.Mail.forward(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, GTxt.Voice.getTxtEmail(contact, config));
                     });
+                    onSuccess();
                 } else {
                     onError('Couldn\'t parse txt sent at ' + message.getDate(), message);
                 }
