@@ -34,7 +34,7 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, quickReplyContact, getMess
 GTxt.SenderMonkey._findContacts = function(quickReplyContact, numberList, onError, message, config){
     if(numberList){
         return JSUtil.ArrayUtil.compact(numberList.split(',').map(function(numberStr){
-            var numberMatch = numberStr.match(/(\d+)(!?)/);
+            var numberMatch = JSUtil.StringUtil.matchSafe(numberStr, /(\d+)(!?)/);
             var number = +numberMatch[1];
             var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', number) || GTxt.Contact.findByNumber(number);
             if(!contact){

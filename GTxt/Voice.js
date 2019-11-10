@@ -7,8 +7,7 @@ GTxt.Voice.TXT_SUBJECT = '"text message"';
 GTxt.Voice.VOICEMAIL_SUBJECT = 'voicemail';
 
 GTxt.Voice.getFirstNumberMentioned = function(str){
-    var match = str.match(/\((\d+)\) (\d+)-(\d+)/);
-    return match && +match.slice(1).join('');
+    return +JSUtil.StringUtil.matchSafe(str, /\((\d+)\) (\d+)-(\d+)/).slice(1).join('');
 };
 
 GTxt.Voice.getTxtEmail = function(contact, config) {
@@ -24,6 +23,6 @@ GTxt.Voice.getTxtLines = function(message, isEndOfTxtFn) {
 };
 
 GTxt.Voice.parseFromTxt = function(message){
-    var match = GASton.Mail.parseFrom(message).email.match(/^\d+\.1?(\d+)\.(.+)@/);
+    var match = JSUtil.StringUtil.matchSafe(GASton.Mail.parseFrom(message).email, /^\d+\.1?(\d+)\.(.+)@/);
     return { gvKey: match[2], number: +match[1] };
 };

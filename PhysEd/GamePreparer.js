@@ -51,8 +51,8 @@ PhysEd.GamePreparer.prototype.sendPlayerCounts = function(){
         }
 
         var currentNumbers = opts.dateSortedMessages.reduce(function(statusCall, msg){
-            var match = msg.words.join(' ').match(/^game (on|off)/i);
-            return match ? [[match[0].toUpperCase(), 'has been called at', msg.date, 'by', msg.fromParts.firstName, msg.fromParts.lastName + '!'].join(' ')] : statusCall;
+            var match = JSUtil.StringUtil.matchSafe(msg.words.join(' '), /^game (on|off)/i);
+            return match.length ? [[match[0].toUpperCase(), 'has been called at', msg.date, 'by', msg.fromParts.firstName, msg.fromParts.lastName + '!'].join(' ')] : statusCall;
         }, []).concat(JSUtil.ArrayUtil.compact([
             this._toPlayerNames('In', opts.playerStatusParser.inPlayers),
             this._toPlayerNames('Maybe', opts.playerStatusParser.maybePlayers),

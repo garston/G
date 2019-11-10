@@ -20,10 +20,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
         GTxt.ReceiverMonkey.txtPhysicalPhone(this._processEmails(
             receivedTxtsInboxState,
             function(message){ return GTxt.Voice.parseFromTxt(message).number; },
-            function(from, message){
-                var match = message.getFrom().match(/^"(.+) \(SMS\)"/);
-                return match && match[1];
-            },
+            function(from, message){ return JSUtil.StringUtil.matchSafe(message.getFrom(), /^"(.+) \(SMS\)"/)[1]; },
             function(message){
                 var txt = GTxt.Voice.getTxtLines(message).join(' ');
                 return txt === 'MMS Received' ? '' : txt;
@@ -44,8 +41,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
             GTxt.Util.getInboxState(['from:' + GTxt.Voice.NO_REPLY_EMAIL, 'subject:' + GTxt.Voice.VOICEMAIL_SUBJECT]),
             function(message){
                 var subject = message.getSubject();
-                var match = subject.match(/from (.+?)\.?$/);
-                return GTxt.Voice.getFirstNumberMentioned(subject) || (match ? match[1] : '?');
+                return GTxt.Voice.getFirstNumberMentioned(subject) || JSUtil.StringUtil.matchSafe(subject, /from (.+?)\.?$/)[1] || '?';
             },
             function(){},
             function(message){ return GTxt.Voice.getTxtLines(message, function(line){ return line === 'play message'; }).join(' '); },
