@@ -13,7 +13,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
             return GTxt.Compression.isCompressed(compressedTxt) ? compressedTxt : lines.join(' ');
         },
         function(){ config.forwardToPhysicalPhone = 1; },
-        function(errorMessage, message){ GTxt.ReceiverMonkey.txtPhysicalPhone([{ message: message, plainMessage: message, text: errorMessage }], config); },
+        function(errorMessage, message){ GTxt.ReceiverMonkey.txtPhysicalPhone([{ messages: [message], text: errorMessage }], config); },
         config
     );
 
@@ -58,10 +58,8 @@ GTxt.MonkeyInTheMiddle._processEmails = function(inboxState, getFrom, getFromNam
         var contact = GTxt.Contact.findByNumber(from);
         var fromStr = [getFromName(from, messages[0]) || from].concat(contact ? ['(', contact.shortId || contact.createShortId(), contact === quickReplyContact ? '!' : '', ')'] : []).join('');
 
-        var plainMessage = JSUtil.ArrayUtil.last(messages.filter(function(m){ return !m.getAttachments().length; }));
         return {
-            message: plainMessage || messages[0],
-            plainMessage: plainMessage,
+            messages: messages,
             text: [fromStr].concat(messages.map(function(message){
                 var messageDate = message.getDate();
                 var dateMetadata = (JSUtil.DateUtil.diff(messageDate, new Date()) ? JSUtil.DateUtil.toPrettyString(messageDate, true) + '@' : '') +

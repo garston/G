@@ -1,15 +1,15 @@
 GTxt.MissedCallEnabler = {};
 
 GTxt.MissedCallEnabler.changeEnabled = function(config) {
-    GmailApp.search('from:' + GTxt.Voice.NO_REPLY_EMAIL + ' is:unread subject:' + GTxt.Voice.MISSED_CALL_SUBJECT).
-        reduce(function (messages, thread){ return messages.concat(GASton.Mail.getMessagesAfterLatestMessageSentByScript(thread)); }, []).
-        filter(function(message){ return !message.isInTrash() && message.isUnread() && this._isToggleEnabledRequest(message, config); }, this).
-        forEach(function(message, i, msgs){
-            if(!i || msgs[i-1].getDate().getTime() !== message.getDate().getTime()){
-                GASton.Mail.forward(message, config.toggleForwardToPhysicalPhone() + ' ' + SpreadsheetApp.getActiveSpreadsheet().getUrl(), Session.getActiveUser().getEmail());
-            }
-            GASton.Mail.markRead(message);
+    GmailApp.search('from:' + GTxt.Voice.NO_REPLY_EMAIL + ' is:unread subject:' + GTxt.Voice.MISSED_CALL_SUBJECT).forEach(function(t){
+        t.getMessages().filter(function(m){ return !m.isInTrash() && m.isUnread() && this._isToggleEnabledRequest(m, config); }, this).forEach(function(m, i, msgs){
+            GTxt.Util.mail(
+                Session.getActiveUser().getEmail(),
+                i && msgs[i-1].getDate().getTime() === m.getDate().getTime() ? 'duplicate missed call email' : config.toggleForwardToPhysicalPhone() + ' ' + SpreadsheetApp.getActiveSpreadsheet().getUrl(),
+                [m]
+            );
         });
+    }, this);
 };
 
 GTxt.MissedCallEnabler._isToggleEnabledRequest = function(message, config) {

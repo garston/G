@@ -7,7 +7,7 @@ GTxt.SenderMonkey.sendTextsFromEmails = function(config) {
         null,
         function(message){ return GASton.Mail.getMessageWords(message).join(' '); },
         function(){},
-        function(errorMessage, message){ GASton.Mail.forward(message, errorMessage, currentUserEmail); },
+        function(errorMessage, message){ GTxt.Util.mail(currentUserEmail, errorMessage, [message]); },
         config
     );
 };
@@ -22,7 +22,11 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, quickReplyContact, getMess
 
                 if(text){
                     this._findContacts(quickReplyContact, !isQuickReply && messageParts[0], onError, message, config).forEach(function(contact){
-                        GASton.Mail.forward(message, GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text, GTxt.Voice.getTxtEmail(contact, config));
+                        GTxt.Util.mail(
+                            GTxt.Voice.getTxtEmail(contact, config),
+                            GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text,
+                            [message]
+                        );
                     });
                     onSuccess();
                 } else {

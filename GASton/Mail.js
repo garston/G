@@ -1,14 +1,5 @@
 GASton.Mail = {};
 
-GASton.Mail.forward = function(message, body, email) {
-    this._checkProdMode('FORWARD', message.getThread().getFirstMessageSubject(), email, null, body) &&
-        message.forward(email, this._getOptions(body));
-};
-
-GASton.Mail.getMessagesAfterLatestMessageSentByScript = function(thread){
-    return thread.getMessages().reduce(function(messages, message){ return GASton.Mail.isSentByScript(message) ? [] : messages.concat(message); }, []);
-};
-
 GASton.Mail.getMessageWords = function(message) {
     var words = [];
     JSUtil.StringUtil.stripTags(message.getBody().replace(/<br>/gi, '\n')).split('\n').some(function(line) {
