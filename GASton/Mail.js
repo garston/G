@@ -1,5 +1,9 @@
 GASton.Mail = {};
 
+GASton.Mail.addLabel = function(thread, label) {
+    this._checkProdMode('ADD LABEL: ' + label, thread.getFirstMessageSubject()) && thread.addLabel(GmailApp.getUserLabelByName(label));
+};
+
 GASton.Mail.getMessageWords = function(message) {
     var words = [];
     JSUtil.StringUtil.stripTags(message.getBody().replace(/<br>/gi, '\n')).split('\n').some(function(line) {
