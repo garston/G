@@ -1,12 +1,11 @@
 GTxt.SenderMonkey = {};
 
 GTxt.SenderMonkey.sendTextsFromEmails = function(config) {
-    var currentUserEmail = Session.getActiveUser().getEmail();
     this.txtContacts(
-        ['from:' + currentUserEmail, 'subject:' + SpreadsheetApp.getActiveSpreadsheet().getName(), 'to:' + currentUserEmail],
+        ['from:me', 'subject:' + SpreadsheetApp.getActiveSpreadsheet().getName()],
         function(message){ return GASton.Mail.getMessageWords(message).join(' '); },
         function(){},
-        function(errorMessage, message){ GTxt.Util.mail(currentUserEmail, errorMessage, [message]); },
+        function(errorMessage, message){ GTxt.Util.mail(Session.getActiveUser().getEmail(), errorMessage, [message]); },
         config
     );
 };
