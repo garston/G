@@ -31,22 +31,34 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
                 var gContact = from && ContactsApp.getContactsByPhone(from)[0];
                 return gContact && gContact.getFullName();
             },
-            function(){ return ''; },
+            function(){},
             function(){ return 'GM'; },
             config
         )).concat(this._processEmails(
             ['from:' + GTxt.Voice.NO_REPLY_EMAIL, 'subject:' + GTxt.Voice.VOICEMAIL_SUBJECT],
             function(message){
                 var subject = message.getSubject();
-                return GTxt.Voice.getFirstNumberMentioned(subject) || JSUtil.StringUtil.matchSafe(subject, /from (.+?)\.?$/)[1] || '?';
+                return GTxt.Voice.getFirstNumberMentioned(subject) || GTxt.MonkeyInTheMiddle._parseSubject(subject) || '?';
             },
             function(){},
             function(message){ return GTxt.Voice.getTxtLines(message, function(line){ return line === 'play message'; }).join(' '); },
             function(){ return 'VM'; },
             config
+        )).concat(this._processEmails(
+            ['from:' + GTxt.Voice.NO_REPLY_EMAIL, 'subject:' + GTxt.Voice.MISSED_CALL_SUBJECT],
+            function(message){ return GTxt.Voice.getFirstNumberMentioned(message.getBody()); },
+            function(from, message){
+                var fromStr = GTxt.MonkeyInTheMiddle._parseSubject(message.getSubject());
+                return GTxt.Voice.getFirstNumberMentioned(fromStr) !== from && fromStr;
+            },
+            function(){},
+            function(){ return 'MC'; },
+            config
         )), config);
     }
 };
+
+GTxt.MonkeyInTheMiddle._parseSubject = function(subject){ return JSUtil.StringUtil.matchSafe(subject, /from (.+?)\.?$/)[1]; };
 
 GTxt.MonkeyInTheMiddle._processEmails = function(searchTerms, getFrom, getFromName, getMessageText, getMetadata, config) {
     return GTxt.Util.getThreadMessagesToForward(searchTerms).map(function(messages){
