@@ -11,7 +11,7 @@ GTxt.ReceiverMonkey.txtPhysicalPhone = function(msgObjs, config) {
     GTxt.Util.mail(
         config.getPhysicalPhoneContactTxtEmail(),
         this._numTexts(compressedText) < this._numTexts(origText) ? compressedText : origText,
-        JSUtil.ArrayUtil.flatten(msgObjs.map(function(o){ return o.messages; }))
+        msgObjs.map(o => o.messages).flat()
     );
 };
 

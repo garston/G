@@ -111,7 +111,7 @@ PhysEd.Leaderboard.getLeaderboard = function(sportName, personSports, boldPlayer
                 }, this).join('') +
             '</tr>' +
             columns[sortColumnIndex].sorted.map(function(personSport, rowIndex){
-                return '<tr style="' + (rowIndex % 2 ? '' : 'background-color: lightgray;') + (JSUtil.ArrayUtil.contains(boldPlayerEmails, personSport.getPerson().email) ? ' font-weight: bold;' : '') + '">' +
+                return '<tr style="' + (rowIndex % 2 ? '' : 'background-color: lightgray;') + (boldPlayerEmails.includes(personSport.getPerson().email) ? ' font-weight: bold;' : '') + '">' +
                         columns.map(function(column, columnIndex){
                             var rowItem = column.getValue(personSport);
                             return '<td style="' + this._getCellStyle(column) + (rowItem.color ? ' color: ' + rowItem.color + ';' : '') + '">' +

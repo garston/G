@@ -2,7 +2,7 @@ GASton.Database = {};
 GASton.Database._cache = {};
 
 GASton.Database.findBy = function(clazz, prop, value){
-    return JSUtil.ArrayUtil.find(this.hydrate(clazz), function(o){ return o[prop] === value; });
+    return this.hydrate(clazz).find(o => o[prop] === value);
 };
 
 GASton.Database.hydrate = function(clazz){

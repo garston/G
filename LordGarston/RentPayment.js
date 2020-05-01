@@ -8,9 +8,7 @@ LordGarston.RentPayment = function(dueDate, renterName, baseAmount, additionalAm
 };
 
 LordGarston.RentPayment.prototype.getRenter = function() {
-    return JSUtil.ArrayUtil.find(LordGarston.Const.RENTERS, function(renter){
-        return renter.name === this.renterName;
-    }, this);
+    return LordGarston.Const.RENTERS.find(renter => renter.name === this.renterName);
 };
 
 GASton.Database.register(LordGarston.RentPayment, 'Rent payments', ['dueDate', 'renterName', 'baseAmount', 'additionalAmount', 'totalAmount', 'paidWith'], true);

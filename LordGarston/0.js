@@ -23,7 +23,7 @@ function hourly(){
     GASton.Database.hydrate(LordGarston.RentPayment).
         filter(function(rentPayment){ return rentPayment.paidWith === ''; }).
         forEach(function(rentPayment){
-            var handler = JSUtil.ArrayUtil.find(handlers, function(handler){ return handler.shouldHandle(rentPayment); });
+            const handler = handlers.find(handler => handler.shouldHandle(rentPayment));
             if(handler) {
                 handler.doHandle(rentPayment);
             }

@@ -19,12 +19,11 @@ PhysEd.StatsGenerator.generateStats = function(league){
         this._recordTeamStats(personSports1, isVictory1, winPercentages1, winPercentages2);
         this._recordTeamStats(personSports2, isVictory2, winPercentages2, winPercentages1);
 
-        var isFirstGameOfDay = JSUtil.ArrayUtil.find(games, function(processedGame){ return processedGame.month === game.month && processedGame.day === game.day && processedGame.year === game.year; }) === game;
+        const isFirstGameOfDay = games.find(processedGame => processedGame.month === game.month && processedGame.day === game.day && processedGame.year === game.year) === game;
         if(isFirstGameOfDay){
             var personSports = JSUtil.ArrayUtil.unique(personSports1.concat(personSports2));
-            allPersonSports.forEach(function(personSport){
-                personSport.incrementStreakableProp(JSUtil.ArrayUtil.contains(personSports, personSport) ? PhysEd.PersonSport.STREAKABLE_PROPS.INS : PhysEd.PersonSport.STREAKABLE_PROPS.OUTS);
-            });
+            allPersonSports.forEach(personSport =>
+                personSport.incrementStreakableProp(personSports.includes(personSport) ? PhysEd.PersonSport.STREAKABLE_PROPS.INS : PhysEd.PersonSport.STREAKABLE_PROPS.OUTS));
         }
     }, this);
 
@@ -39,7 +38,7 @@ PhysEd.StatsGenerator._mapPersonSportsToWinPercentages = function(personSports) 
 
 PhysEd.StatsGenerator._mapPersonTeamsToPersonSports = function(personTeams, allPersonSports) {
     return personTeams.map(function(personTeam){
-        var personSport = JSUtil.ArrayUtil.find(allPersonSports, function(personSport){ return personSport.personGuid === personTeam.personGuid; });
+        let personSport = allPersonSports.find(personSport => personSport.personGuid === personTeam.personGuid);
         if(!personSport) {
             personSport = new PhysEd.PersonSport(personTeam.personGuid);
             allPersonSports.push(personSport);

@@ -6,7 +6,7 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
     var leaguesByMailingListGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrate(PhysEd.League), function(league){ return league.mailingListGuid; });
     for(var mailingListGuid in leaguesByMailingListGuid) {
         var tomorrowDay = (this.today.getDay() + 1) % 7;
-        var tomorrowSports = leaguesByMailingListGuid[mailingListGuid].filter(function (league) { return JSUtil.ArrayUtil.contains(league.getGameDays(), tomorrowDay); });
+        const tomorrowSports = leaguesByMailingListGuid[mailingListGuid].filter(league => league.getGameDays().includes(tomorrowDay));
         var sportsByScheduleType = JSUtil.ArrayUtil.groupBy(tomorrowSports, function(league){ return league.hasPredeterminedSchedule(); });
         var chosenSport = sportsByScheduleType[true] && (this._findInProgressSport(sportsByScheduleType[true]) || this._findLowestSport(sportsByScheduleType[true]));
         (sportsByScheduleType[false] || []).
@@ -99,9 +99,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
     var threadInfos = threads.map(function(thread){
         var sportName = thread.getFirstMessageSubject().replace(/ [a-z]+[!]*$/i, '');
         var mailingList = GASton.Database.findBy(PhysEd.MailingList, 'email', thread.getMessages()[0].getReplyTo());
-        var league = JSUtil.ArrayUtil.find(leagues, function(league){
-            return (league.cuteSportName || league.sportName) === sportName && league.mailingListGuid === mailingList.guid;
-        });
+        const league = leagues.find(league => (league.cuteSportName || league.sportName) === sportName && league.mailingListGuid === mailingList.guid);
 
         var threads = [thread];
         var secondaryMailingList, secondaryThread;
@@ -142,7 +140,7 @@ PhysEd.GamePreparer.prototype._eachTodayThread = function(callback) {
 };
 
 PhysEd.GamePreparer.prototype._findInProgressSport = function(leagues) {
-    return JSUtil.ArrayUtil.find(leagues, function(league){ return league.gameDayCount % league.getGameDays().length !== 0; });
+    return leagues.find(league => league.gameDayCount % league.getGameDays().length !== 0);
 };
 
 PhysEd.GamePreparer.prototype._findLowestSport = function(leagues) {
@@ -155,13 +153,12 @@ PhysEd.GamePreparer.prototype._parseFlowdockThread = function (flowdock, sportNa
 
         var startOfToday = JSUtil.DateUtil.startOfDay(this.today);
         var startOfYesterday = JSUtil.DateUtil.addDays(-1, startOfToday);
-        var threadStarterMessage = JSUtil.ArrayUtil.find(flowMessages, function(m){
-            return m.thread.initial_message === m.id &&
+        const threadStarterMessage = flowMessages.find(m =>
+            m.thread.initial_message === m.id &&
                 flowdock.isSentByScript(m) &&
                 m.sent > startOfYesterday.getTime() &&
                 m.sent < startOfToday.getTime() &&
-                JSUtil.StringUtil.contains(m.content, sportName);
-        });
+                m.content.includes(sportName));
 
         if (threadStarterMessage) {
             var threadId = threadStarterMessage.thread_id;

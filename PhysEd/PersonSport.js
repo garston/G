@@ -56,7 +56,7 @@ PhysEd.PersonSport.prototype.getWinPercentage = function(){
 };
 
 PhysEd.PersonSport.prototype.incrementStreakableProp = function(prop){
-    var streakProp = JSUtil.ArrayUtil.contains([PhysEd.PersonSport.STREAKABLE_PROPS.INS, PhysEd.PersonSport.STREAKABLE_PROPS.OUTS], prop) ? 'participationStreak' : 'streak';
+    const streakProp = [PhysEd.PersonSport.STREAKABLE_PROPS.INS, PhysEd.PersonSport.STREAKABLE_PROPS.OUTS].includes(prop) ? 'participationStreak' : 'streak';
     var streakDirProp = streakProp + 'Dir';
 
     this[prop]++;

@@ -16,11 +16,11 @@ PhysEd.PlayerStatusParser = function(dateSortedMessages){
 
 PhysEd.PlayerStatusParser.prototype._getPersonGuid = function(message){
     var fromParts = message.fromParts;
-    var person = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person) {
-        return person.email === fromParts.email ||
+    const person = GASton.Database.hydrate(PhysEd.Person).find(person =>
+        person.email === fromParts.email ||
             (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) ||
-            person.getAlternateNames().some(function(name){ return name === fromParts.email || name === fromParts.firstName + ' ' + fromParts.lastName; });
-    }) || new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
+            person.getAlternateNames().some(name => name === fromParts.email || name === fromParts.firstName + ' ' + fromParts.lastName)
+    ) || new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
     return person.guid;
 };
 
@@ -44,9 +44,7 @@ PhysEd.PlayerStatusParser.prototype._processMessage = function (message, statusA
             }
 
             var possibleOtherPlayerName = JSUtil.StringUtil.capitalize(wordInPhrase.replace(/,$/, '').toLowerCase());
-            var otherPlayer = JSUtil.ArrayUtil.find(GASton.Database.hydrate(PhysEd.Person), function(person){
-                return JSUtil.ArrayUtil.contains([person.firstName, person.lastName], possibleOtherPlayerName);
-            });
+            const otherPlayer = GASton.Database.hydrate(PhysEd.Person).find(p => [p.firstName, p.lastName].includes(possibleOtherPlayerName));
             if(otherPlayer) {
                 isPhraseForOtherPlayer = true;
                 statusArrayByPersonGuid[otherPlayer.guid] = statusArray;

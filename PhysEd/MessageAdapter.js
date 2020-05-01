@@ -3,7 +3,7 @@ PhysEd.MessageAdapter = {};
 PhysEd.MessageAdapter.flowdockMessages = function(flowdockMessages, flowdock) {
     var users = flowdock.fetchUsers();
     return flowdockMessages.map(function(m){
-        var user = JSUtil.ArrayUtil.find(users, function(u){ return u.id === +m.user });
+        const user = users.find(u => u.id === +m.user);
         var userNameParts = user.name.split(' ');
         return {
             date: new Date(m.sent),

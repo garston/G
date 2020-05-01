@@ -19,15 +19,6 @@ JSUtil.DateUtil = {
         return newDate;
     },
 
-    splitPrettyDate: function(prettyDate){
-        var parts = prettyDate.split('/');
-        return {
-            month: parts[0],
-            day: parts[1],
-            year: parts[2]
-        };
-    },
-
     startOfDay: function(date) {
         var newDate = new Date(date);
         newDate.setHours(0, 0, 0, 0);

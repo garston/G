@@ -37,7 +37,7 @@ function processTransactions() {
     GmailApp.search('from:service@paypal.com subject:"You sent a payment"' + receivedTodaySearchStr).forEach(function(thread){
         thread.getMessages().forEach(function(message){
             var messageBody = message.getBody();
-            var sharingInfo = JSUtil.ArrayUtil.find(sharingInfos, function(sharingInfo){ return JSUtil.StringUtil.contains(messageBody, sharingInfo.prettyName); });
+            const sharingInfo = sharingInfos.find(sharingInfo => messageBody.includes(sharingInfo.prettyName));
             if(sharingInfo) {
                 _processMessageReceivedToday(sharingInfo, 'You sent a payment for', messageBody, processedStrings);
             }
@@ -45,16 +45,14 @@ function processTransactions() {
     });
 
     if(processedStrings.length || notProcessedStrings.length){
-        GASton.Mail.sendToIndividual('HalfZs ' + JSUtil.DateUtil.toPrettyString(now), JSUtil.ArrayUtil.flatten([
+        GASton.Mail.sendToIndividual('HalfZs ' + JSUtil.DateUtil.toPrettyString(now), [
             'Processed:', processedStrings, '', 'Not Processed:', notProcessedStrings, '', SpreadsheetApp.getActiveSpreadsheet().getUrl()
-        ]).join('<br/>'), Session.getActiveUser().getEmail());
+        ].flat().join('<br/>'), Session.getActiveUser().getEmail());
     }
 }
 
 function _findSharingInfo(name, sharingInfos) {
-    return JSUtil.ArrayUtil.find(sharingInfos, function (sharingInfo) {
-        return JSUtil.StringUtil.contains(name.toLowerCase(), (sharingInfo.chaseName || sharingInfo.prettyName).toLowerCase());
-    });
+    return sharingInfos.find(sharingInfo => name.toLowerCase().includes((sharingInfo.chaseName || sharingInfo.prettyName).toLowerCase()));
 }
 
 function _newSharedTransaction(month, year, iPayed, sharingInfo, processedStrings) {

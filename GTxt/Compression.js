@@ -19,4 +19,4 @@ GTxt.Compression.decompress = function(str) {
     }).join('');
 };
 
-GTxt.Compression.isCompressed = function(str){ return !JSUtil.StringUtil.contains(str, ' '); };
+GTxt.Compression.isCompressed = function(str){ return !str.includes(' '); };

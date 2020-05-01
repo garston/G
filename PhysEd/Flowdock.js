@@ -15,7 +15,7 @@ PhysEd.Flowdock.prototype.fetchUsers = function(){
 
 PhysEd.Flowdock.prototype.isSentByScript = function(message){
     this._userId = this._userId || this._request('https://api.flowdock.com/user').id;
-    return +message.user === this._userId && JSUtil.StringUtil.startsWith(message.content, PhysEd.Flowdock.MESSAGE_START);
+    return +message.user === this._userId && message.content.startsWith(PhysEd.Flowdock.MESSAGE_START);
 };
 
 PhysEd.Flowdock.prototype.sendMessage = function (content, threadId) {

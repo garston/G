@@ -1,40 +1,6 @@
 JSUtil.ArrayUtil = {
     average: function(a){ return a.length ? this.sum(a) / a.length : 0; },
     compact: function(a){ return a.filter(function(o){ return o; }); },
-    contains: function(a, obj){ return a.indexOf(obj) !== -1; },
-
-    find: function(a, fn, scope) {
-        for(var i = 0; i < a.length; i++) {
-            if(fn.call(scope || a, a[i], i)) {
-                return a[i];
-            }
-        }
-        return null;
-    },
-
-    findIndex: function(a, fn, scope) { return a.indexOf(this.find(a, fn, scope)); },
-
-    flatten: function(array) {
-        var worker = [];
-
-        function rFlatten(a) {
-            var i, ln, v;
-
-            for (i = 0, ln = a.length; i < ln; i++) {
-                v = a[i];
-
-                if (Array.isArray(v)) {
-                    rFlatten(v);
-                } else {
-                    worker.push(v);
-                }
-            }
-
-            return worker;
-        }
-
-        return rFlatten(array);
-    },
 
     groupBy: function(a, fn, scope) {
         var groups = {};
