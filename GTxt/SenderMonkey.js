@@ -25,8 +25,8 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, getMessageText, onSuccess,
                             GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text,
                             [message]
                         );
+                        onSuccess(contact);
                     });
-                    onSuccess();
                 } else {
                     onError('Couldn\'t parse txt sent at ' + message.getDate(), message);
                 }
@@ -44,7 +44,7 @@ GTxt.SenderMonkey._findContacts = function(numberList, onError, message, config)
             if(!contact){
                 onError('Cannot find ' + number, message);
             } else if (numberMatch[2]){
-                config.quickReplyContactGuid = contact.guid;
+                config.setQuickReplyContact(contact, true);
             }
             return contact;
         }));

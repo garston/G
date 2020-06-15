@@ -8,7 +8,10 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
             var compressedTxt = lines.join('');
             return GTxt.Compression.isCompressed(compressedTxt) ? compressedTxt : lines.join(' ');
         },
-        function(){ config.forwardToPhysicalPhone = 1; },
+        contact => {
+            config.forwardToPhysicalPhone = 1;
+            config.setQuickReplyContact(contact);
+        },
         function(errorMessage, message){ GTxt.ReceiverMonkey.txtPhysicalPhone([{ messages: [message], text: errorMessage }], config); },
         config
     );
@@ -52,7 +55,7 @@ GTxt.MonkeyInTheMiddle._processEmails = function(searchTerms, getFrom, getMessag
 
         const contact = from && GTxt.Contact.findByNumber(from);
         if(contact){
-            config.quickReplyContactGuid = config.quickReplyContactGuid || contact.guid;
+            config.setQuickReplyContact(contact);
             fromStr += ['(', contact.shortId || contact.createShortId(), contact === config.getQuickReplyContact() ? '!' : '', ')'].join('');
         }
 
