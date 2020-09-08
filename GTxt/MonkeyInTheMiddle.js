@@ -51,7 +51,7 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
 GTxt.MonkeyInTheMiddle._processEmails = function(searchTerms, getFrom, getMessageText, getMetadata, config) {
     return GTxt.Util.getThreadMessagesToForward(searchTerms).map(function(messages){
         var from = getFrom(messages[0]);
-        let fromStr = (JSUtil.StringUtil.matchSafe(messages[0].getSubject(), /from ([a-z ]*)/i)[1] || '').trim() || from;
+        let fromStr = (JSUtil.StringUtil.matchSafe(messages[0].getSubject(), /from ([^(\d.]*)/i)[1] || '').trim() || from;
 
         const contact = from && GTxt.Contact.findByNumber(from);
         if(contact){
