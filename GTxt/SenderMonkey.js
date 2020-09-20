@@ -38,12 +38,12 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, getMessageText, onSuccess,
 GTxt.SenderMonkey._findContacts = function(numberList, onError, message, config){
     if(numberList){
         return JSUtil.ArrayUtil.compact(numberList.split(',').map(function(numberStr){
-            var numberMatch = JSUtil.StringUtil.matchSafe(numberStr, /(\d+)(!?)/);
-            var number = +numberMatch[1];
+            const numberMatch = JSUtil.StringUtil.matchSafe(numberStr, /^(-?)(\d+)(!?)$/);
+            const number = +`${numberMatch[1]}${numberMatch[2]}`;
             var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', number) || GTxt.Contact.findByNumber(number);
             if(!contact){
                 onError('Cannot find ' + number, message);
-            } else if (numberMatch[2]){
+            } else if (numberMatch[3]){
                 config.setQuickReplyContact(contact, true);
             }
             return contact;

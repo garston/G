@@ -56,7 +56,7 @@ GTxt.MonkeyInTheMiddle._processEmails = function(searchTerms, getFrom, getMessag
         const contact = from && GTxt.Contact.findByNumber(from);
         if(contact){
             config.setQuickReplyContact(contact);
-            fromStr += ['(', contact.shortId || contact.createShortId(), contact === config.getQuickReplyContact() ? '!' : '', ')'].join('');
+            fromStr += `(${contact.hasShortId() ? contact.shortId : contact.createShortId()}${contact === config.getQuickReplyContact() ? '!' : ''})`;
         }
 
         return {

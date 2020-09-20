@@ -5,12 +5,12 @@ GTxt.Contact = function(number, gvKey){
     this.shortId = 0;
 };
 
-GTxt.Contact.allWithShortId = function(){
-    return GASton.Database.hydrate(this).filter(function(c){ return c.shortId; });
-};
-
 GTxt.Contact.findByNumber = function(number){ return GASton.Database.findBy(this, 'number', number); };
 
-GTxt.Contact.prototype.createShortId = function(){ return this.shortId = GTxt.Contact.allWithShortId().length + 1; };
+GTxt.Contact.prototype.createShortId = function(){
+    return this.shortId = GASton.Database.hydrate(GTxt.Contact).filter(c => c.hasShortId()).length + 1;
+};
+
+GTxt.Contact.prototype.hasShortId = function(){ return this.shortId > 0; };
 
 GASton.Database.register(GTxt.Contact, 'CONTACTS', ['guid', 'number', 'gvKey', 'shortId']);

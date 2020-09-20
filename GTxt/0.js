@@ -3,9 +3,7 @@ GTxt.DOUBLE_SEPARATOR = '||';
 GTxt.SEPARATOR = '|';
 
 function clearShortIds () {
-    GTxt.Contact.allWithShortId().forEach(function(c){
-        c.shortId = 0;
-    });
+    GASton.Database.hydrate(GTxt.Contact).forEach(c => c.shortId = c.hasShortId() ? -c.shortId : 0);
 }
 
 function doGet() {
