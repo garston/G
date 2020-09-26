@@ -18,7 +18,9 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, getMessageText, onSuccess,
                 var isQuickReply = messageParts.length === 1;
                 var text = messageParts[isQuickReply ? 0 : 1];
 
-                if(text){
+                if(messageParts.length > 2 || !text){
+                    onError(`Couldn't parse txt sent at ${message.getDate()}`, message);
+                } else {
                     this._findContacts(!isQuickReply && messageParts[0], onError, message, config).forEach(function(contact){
                         GTxt.Util.mail(
                             GTxt.Voice.getTxtEmail(contact, config),
@@ -27,8 +29,6 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, getMessageText, onSuccess,
                         );
                         onSuccess(contact);
                     });
-                } else {
-                    onError('Couldn\'t parse txt sent at ' + message.getDate(), message);
                 }
             }, this);
         }, this);
