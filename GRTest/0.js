@@ -1,7 +1,7 @@
 GRTest = {};
 
 GRTest.describe = (fnName, fnWithTests) => {
-    GRTest.it = (desc, dbValuesByModel, msgsByQuery, expectedDbSetValues) => {
+    GRTest.it = (desc, dbRowsOfOverridesByModel, msgsByQuery, expectedDbSetValues) => {
         const logBeginEnd = c => console.warn(['', ` ${fnName} ${desc} `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
         logBeginEnd('+');
 
@@ -20,7 +20,8 @@ GRTest.describe = (fnName, fnWithTests) => {
                 getSheetByName: tableName => ({
                     getDataRange: () => ({
                         getValues: () => {
-                            const dbValues = (dbValuesByModel.find(a => a[0].__tableName === tableName) || [null, []])[1];
+                            const overrides = dbRowsOfOverridesByModel.find(a => a[0].__tableName === tableName);
+                            const dbValues = overrides ? GRTest.Mock.create(overrides[0], overrides[1])[1] : [];
                             console.log('SpreadsheetApp.getValues', tableName, dbValues);
                             return dbValues;
                         }
