@@ -1,23 +1,35 @@
 GRTest = {};
 
+GRTest.UPDATE_TYPES = {
+    DB: {
+        APPEND_ROW: 'SpreadsheetApp.appendRow',
+        SET_VALUE: 'SpreadsheetApp.setValue'
+    }
+};
+
 GRTest.describe = (fnName, fnWithTests) => {
-    GRTest.it = (desc, dbRowsOfOverridesByModel, msgsByQuery, expectedDbSetValues) => {
+    GRTest.it = (desc, dbRowsOfOverridesByModel, threadsByQuery, expectedUpdates) => {
         const logBeginEnd = c => console.warn(['', ` ${fnName} ${desc} `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
         logBeginEnd('+');
+        GASton.Database._cache = {};
 
+        const actualUpdates = [];
+        const onUpdate = update => {
+            console.log(update);
+            actualUpdates.push(update);
+        };
         window.GmailApp = {
             search: q => {
-                const msgs = msgsByQuery[q] || [];
-                console.log('GmailApp.search', q, msgs);
-                return msgs;
+                const threads = threadsByQuery[q] || [];
+                console.log('GmailApp.search', q, threads);
+                return threads.map(GRTest.Mock.gmailThread);
             }
         };
-
-        const actualDbSetValues = [];
         window.SpreadsheetApp = {
             getActiveSpreadsheet: () => ({
                 getName: () => 'SPREADSHEET_NAME',
                 getSheetByName: tableName => ({
+                    appendRow: () => onUpdate([GRTest.UPDATE_TYPES.DB.APPEND_ROW, tableName]),
                     getDataRange: () => ({
                         getValues: () => {
                             const overrides = dbRowsOfOverridesByModel.find(a => a[0].__tableName === tableName);
@@ -27,11 +39,7 @@ GRTest.describe = (fnName, fnWithTests) => {
                         }
                     }),
                     getRange: (row, col) => ({
-                        setValue: val => {
-                            const valInfo = [tableName, row, col, val];
-                            console.log('SpreadsheetApp.setValue', valInfo);
-                            actualDbSetValues.push(valInfo);
-                        }
+                        setValue: val => onUpdate([GRTest.UPDATE_TYPES.DB.SET_VALUE, tableName, row, col, val])
                     })
                 })
             })
@@ -44,13 +52,13 @@ GRTest.describe = (fnName, fnWithTests) => {
             console.error('actual:', actual);
             throw `assertion failure: ${desc}`
         };
-        if(expectedDbSetValues.length !== actualDbSetValues.length) {
-            logAssertFail('different number of DB updates', expectedDbSetValues.length, actualDbSetValues.length);
+        if(expectedUpdates.length !== actualUpdates.length) {
+            logAssertFail('different number of DB updates', expectedUpdates.length, actualUpdates.length);
         }
-        expectedDbSetValues.forEach((expectedSetVal, i) => {
-            expectedSetVal[0] = expectedSetVal[0].__tableName;
-            if(JSON.stringify(expectedSetVal) !== JSON.stringify(actualDbSetValues[i])) {
-                logAssertFail(`different DB update at index ${i}`, expectedSetVal, actualDbSetValues[i]);
+        expectedUpdates.forEach((expectedUpdate, i) => {
+            expectedUpdate[1] = expectedUpdate[1].__tableName;
+            if(JSON.stringify(expectedUpdate) !== JSON.stringify(actualUpdates[i])) {
+                logAssertFail(`different DB update at index ${i}`, expectedUpdate, actualUpdates[i]);
             }
         });
 
