@@ -20,7 +20,7 @@ PhysEd.Flowdock.prototype.isSentByScript = function(message){
 
 PhysEd.Flowdock.prototype.sendMessage = function (content, threadId) {
     content = PhysEd.Flowdock.MESSAGE_START + content;
-    GASton.checkProdMode('SEND FD MESSAGE\nFlow: %s\nThread Id: %s\nContent: %s', [this._flowUrl, threadId, content]) &&
+    GASton.checkProdMode(`SEND FD MESSAGE\nFlow: ${this._flowUrl}\nThread Id: ${threadId}\nContent: ${content}`) &&
         this._request(this._flowUrl + '/messages', {
             method: 'post',
             payload: {

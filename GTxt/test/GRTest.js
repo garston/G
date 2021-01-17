@@ -18,6 +18,6 @@ GRTest.describe('go', () => {
         [GTxt.Config, [{quickReplyContactGuid: GRTest.Mock.guid(GTxt.Contact, 1)}]],
         [GTxt.Contact, [{}]]
     ], {}, [
-        [GRTest.UPDATE_TYPES.DB.SET_VALUE, GTxt.Config, 1, 4, '']
+        [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Config, 1, 4, '']
     ]);
 });

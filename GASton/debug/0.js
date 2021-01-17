@@ -1,3 +1,3 @@
-GASton.checkProdMode = function(str, values){
-    Logger.log.apply(Logger, [str].concat(values || []));
+GASton.checkProdMode = str => {
+    Logger.log(str);
 };

@@ -1,6 +1,6 @@
 GRTest.Util = {};
 
 GRTest.Util.expectedDbUpdatesNewRow = (model, rowNum, overrides) => [
-    [GRTest.UPDATE_TYPES.DB.APPEND_ROW, model],
-    ...GRTest.Mock.rowOfValues(model, overrides).slice(1).map((val, i) => [GRTest.UPDATE_TYPES.DB.SET_VALUE, model, rowNum, i + 2, val])
+    [GASton.UPDATE_TYPES.DB.INSERT, model],
+    ...GRTest.Mock.rowOfValues(model, overrides).slice(1).map((val, i) => [GASton.UPDATE_TYPES.DB.UPDATE, model, rowNum, i + 2, val])
 ];

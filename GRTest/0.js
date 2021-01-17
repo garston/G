@@ -1,23 +1,17 @@
 GRTest = {};
 
-GRTest.UPDATE_TYPES = {
-    DB: {
-        APPEND_ROW: 'SpreadsheetApp.appendRow',
-        SET_VALUE: 'SpreadsheetApp.setValue'
-    }
-};
-
 GRTest.describe = (fnName, fnWithTests) => {
+    GASton.checkProdMode = str => {
+        console.log(str);
+        return true;
+    };
+
     GRTest.it = (desc, dbRowsOfOverridesByModel, threadsByQuery, expectedUpdates) => {
         const logBeginEnd = c => console.warn(['', ` ${fnName} ${desc} `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
         logBeginEnd('+');
         GASton.Database._cache = {};
 
         const actualUpdates = [];
-        const onUpdate = update => {
-            console.log(update);
-            actualUpdates.push(update);
-        };
         window.GmailApp = {
             search: q => {
                 const threads = threadsByQuery[q] || [];
@@ -29,7 +23,7 @@ GRTest.describe = (fnName, fnWithTests) => {
             getActiveSpreadsheet: () => ({
                 getName: () => 'SPREADSHEET_NAME',
                 getSheetByName: tableName => ({
-                    appendRow: () => onUpdate([GRTest.UPDATE_TYPES.DB.APPEND_ROW, tableName]),
+                    appendRow: () => actualUpdates.push([GASton.UPDATE_TYPES.DB.INSERT, tableName]),
                     getDataRange: () => ({
                         getValues: () => {
                             const overrides = dbRowsOfOverridesByModel.find(a => a[0].__tableName === tableName);
@@ -39,7 +33,7 @@ GRTest.describe = (fnName, fnWithTests) => {
                         }
                     }),
                     getRange: (row, col) => ({
-                        setValue: val => onUpdate([GRTest.UPDATE_TYPES.DB.SET_VALUE, tableName, row, col, val])
+                        setValue: val => actualUpdates.push([GASton.UPDATE_TYPES.DB.UPDATE, tableName, row, col, val])
                     })
                 })
             })

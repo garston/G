@@ -1,7 +1,8 @@
 GASton.Mail = {};
 
 GASton.Mail.addLabel = function(thread, label) {
-    this._checkProdMode('ADD LABEL: ' + label, thread.getFirstMessageSubject()) && thread.addLabel(GmailApp.getUserLabelByName(label));
+    this._checkProdMode(`${GASton.UPDATE_TYPES.MAIL.ADD_LABEL}: ${label}`, thread.getFirstMessageSubject()) &&
+        thread.addLabel(GmailApp.getUserLabelByName(label));
 };
 
 GASton.Mail.getMessageWords = function(message) {
@@ -23,7 +24,7 @@ GASton.Mail.getNameUsedForSending = function() { return SpreadsheetApp.getActive
 GASton.Mail.isSentByScript = function(message){ return message.getFrom().includes(this.getNameUsedForSending()); };
 
 GASton.Mail.markRead = function(message) {
-    this._checkProdMode('MARK READ', message.getThread().getFirstMessageSubject()) && message.markRead();
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.MARK_READ, message.getThread().getFirstMessageSubject()) && message.markRead();
 };
 
 GASton.Mail.parseFrom = function(message){
@@ -43,7 +44,7 @@ GASton.Mail.parseFrom = function(message){
 };
 
 GASton.Mail.replyAll = function(thread, body, replyTo){
-    this._checkProdMode('REPLY ALL', thread.getFirstMessageSubject(), null, replyTo, body) &&
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, thread.getFirstMessageSubject(), null, replyTo, body) &&
         thread.replyAll(body, this._getOptions(body, replyTo));
 };
 
@@ -60,7 +61,7 @@ GASton.Mail.toSearchString = function(date) {
 };
 
 GASton.Mail._checkProdMode = function (actionDesc, threadSubject, to, replyTo, body){
-    return GASton.checkProdMode('%s\nThread Subject: %s\nTo: %s\nReply-To: %s\nBody: %s', [actionDesc, threadSubject, to, replyTo, body]);
+    return GASton.checkProdMode(`${actionDesc}\nThread Subject: ${threadSubject}\nTo: ${to}\nReply-To: ${replyTo}\nBody: ${body}`);
 };
 
 GASton.Mail._getOptions = function(body, replyTo){
@@ -73,6 +74,6 @@ GASton.Mail._getOptions = function(body, replyTo){
 };
 
 GASton.Mail._sendNewEmail = function(subject, body, email, replyTo) {
-    this._checkProdMode('NEW EMAIL', subject, email, replyTo, body) &&
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, email, replyTo, body) &&
         MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), this._getOptions(body, replyTo));
 };
