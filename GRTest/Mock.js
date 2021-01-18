@@ -13,10 +13,4 @@ GRTest.Mock.create = (model, defaultValuesByModel, rowsOfOverrides) => [model, r
     return values;
 })];
 
-GRTest.Mock.gmailThread = (msgs) => ({
-    getMessages: () => msgs.map(m => ({
-        getFrom: () => m.from
-    }))
-});
-
 GRTest.Mock.guid = (model, id) => `${model.__tableName}${id}`;
