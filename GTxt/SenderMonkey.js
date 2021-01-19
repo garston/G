@@ -19,7 +19,7 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, getMessageText, onSuccess,
                 var text = messageParts[isQuickReply ? 0 : 1];
 
                 if(messageParts.length > 2 || !text){
-                    onError(`Couldn't parse txt sent at ${message.getDate()}`, message);
+                    onError(`Can't parse txt sent @ ${message.getDate()}`, message);
                 } else {
                     this._findContacts(!isQuickReply && messageParts[0], onError, message, config).forEach(function(contact){
                         GTxt.Util.mail(
@@ -42,7 +42,7 @@ GTxt.SenderMonkey._findContacts = function(numberList, onError, message, config)
             const number = +`${numberMatch[1]}${numberMatch[2]}`;
             var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', number) || GTxt.Contact.findByNumber(number);
             if(!contact){
-                onError('Cannot find ' + number, message);
+                onError(`Can't find #${numberStr}# -> ${number}`, message);
             } else if (numberMatch[3]){
                 config.setQuickReplyContact(contact, true);
             }
