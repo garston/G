@@ -65,7 +65,7 @@ GRTest.describeApp = (appName, defaultValuesByModel, queryNames, fnWithDescribes
 
             window[fnName]();
 
-            expectedUpdates = expectedUpdates.map(u => [u[0], u[1].__tableName || u[1], ...u.slice(2)]);
+            expectedUpdates = expectedUpdates.map(a => a.map(u => u.__tableName || u));
             const logAssertFail = (desc, expected, actual) => {
                 console.error('expected:', expected);
                 console.error('actual:', actual);
