@@ -23,7 +23,6 @@ GASton.Database.hydrate = function(clazz){
 
 GASton.Database.register = function(clazz, tableName, props, hasHeaders){
     clazz.__firstRow = hasHeaders ? 2 : 1;
-    clazz.__props = props;
     clazz.__tableName = tableName;
 
     props.forEach(function(prop, propIndex){

@@ -1,13 +1,13 @@
 GRTest = {};
 
-GRTest.describeApp = (appName, defaultValuesByModel, queryNames, fnWithDescribes) => {
+GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
     GASton.checkProdMode = str => {
         console.log(str);
         return true;
     };
 
     GRTest.describeFn = (fnName, fnWithTests) => {
-        GRTest.it = (desc, dbRowsOfOverridesByModel, threadsByQuery, expectedUpdates) => {
+        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates) => {
             const logBeginEnd = c => console.warn(['', ` ${appName} ${fnName}() ${desc} `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
             logBeginEnd('+');
             GASton.Database._cache = {};
@@ -50,8 +50,7 @@ GRTest.describeApp = (appName, defaultValuesByModel, queryNames, fnWithDescribes
                         appendRow: () => actualUpdates.push([GASton.UPDATE_TYPES.DB.INSERT, tableName]),
                         getDataRange: () => ({
                             getValues: () => {
-                                const overrides = dbRowsOfOverridesByModel.find(a => a[0].__tableName === tableName);
-                                const dbValues = overrides ? GRTest.Mock.create(overrides[0], defaultValuesByModel, overrides[1])[1] : [];
+                                const dbValues = dbRowsByModel.find(a => a[0].__tableName === tableName)[1];
                                 console.log('SpreadsheetApp.getValues', tableName, dbValues);
                                 return dbValues;
                             }
