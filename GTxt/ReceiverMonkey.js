@@ -1,7 +1,7 @@
 GTxt.ReceiverMonkey = {};
 
 GTxt.ReceiverMonkey.txtPhysicalPhone = function(msgObjs, config) {
-    if(!msgObjs.length){
+    if(msgObjs.every(o => o.optional)){
         return;
     }
 

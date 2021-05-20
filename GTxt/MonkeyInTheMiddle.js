@@ -37,18 +37,20 @@ GTxt.MonkeyInTheMiddle.forwardTexts = function(config) {
             message => GTxt.Voice.getFirstNumberMentioned(message.getSubject()),
             function(message){ return GTxt.Voice.getTxtLines(message, function(line){ return line === 'play message'; }).join(' '); },
             function(){ return 'VM'; },
-            config
+            config,
+            true
         )).concat(this._processEmails(
             ['from:' + GTxt.Voice.NO_REPLY_EMAIL, 'subject:' + GTxt.Voice.MISSED_CALL_SUBJECT],
             function(message){ return GTxt.Voice.getFirstNumberMentioned(message.getBody()); },
             function(){},
             function(){ return 'MC'; },
-            config
+            config,
+            true
         )), config);
     }
 };
 
-GTxt.MonkeyInTheMiddle._processEmails = function(searchTerms, getFrom, getMessageText, getMetadata, config) {
+GTxt.MonkeyInTheMiddle._processEmails = function(searchTerms, getFrom, getMessageText, getMetadata, config, isEmptyMsgFromUnknownNumOptional) {
     return GTxt.Util.getThreadMessagesToForward(searchTerms).map(function(messages){
         var from = getFrom(messages[0]);
         let fromStr = (JSUtil.StringUtil.matchSafe(messages[0].getSubject(), /from ([^(\d.]*)/i)[1] || '').trim() || from;
@@ -59,16 +61,18 @@ GTxt.MonkeyInTheMiddle._processEmails = function(searchTerms, getFrom, getMessag
             fromStr += `(${contact.hasShortId() ? contact.shortId : contact.createShortId()}${contact === config.getQuickReplyContact() ? '!' : ''})`;
         }
 
+        const msgTexts = messages.map(getMessageText);
         return {
             messages: messages,
-            text: [fromStr].concat(messages.map(message => {
+            optional: isEmptyMsgFromUnknownNumOptional && fromStr === from && msgTexts.every(txt => !txt),
+            text: [fromStr, ...messages.map((message, i) => {
                 var messageDate = message.getDate();
                 var dateMetadata = (JSUtil.DateUtil.diff(messageDate, new Date()) ? JSUtil.DateUtil.toPrettyString(messageDate, true) + '@' : '') +
                     [messageDate.getHours(), messageDate.getMinutes()].join(':');
                 var metadata = JSUtil.ArrayUtil.compact([dateMetadata, getMetadata(message)]).join(',');
 
-                return JSUtil.ArrayUtil.compact([metadata, getMessageText(message)]).join('-');
-            })).join(GTxt.SEPARATOR)
+                return JSUtil.ArrayUtil.compact([metadata, msgTexts[i]]).join('-');
+            })].join(GTxt.SEPARATOR)
         };
     });
 };

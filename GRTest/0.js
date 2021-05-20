@@ -1,4 +1,5 @@
 GRTest = {};
+GRTest.SPREADSHEET_NAME = 'SPREADSHEET_NAME';
 
 GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
     GASton.checkProdMode = str => {
@@ -45,7 +46,7 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
             };
             window.SpreadsheetApp = {
                 getActiveSpreadsheet: () => ({
-                    getName: () => 'SPREADSHEET_NAME',
+                    getName: () => GRTest.SPREADSHEET_NAME,
                     getSheetByName: tableName => ({
                         appendRow: () => actualUpdates.push([GASton.UPDATE_TYPES.DB.INSERT, tableName]),
                         getDataRange: () => ({
