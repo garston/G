@@ -2,6 +2,8 @@ GRTest = {};
 GRTest.SPREADSHEET_NAME = 'SPREADSHEET_NAME';
 
 GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
+    let testCount = 0;
+
     GASton.checkProdMode = str => {
         console.log(str);
         return true;
@@ -9,7 +11,8 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
 
     GRTest.describeFn = (fnName, fnWithTests) => {
         GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates) => {
-            const logBeginEnd = c => console.warn(['', ` ${appName} ${fnName}() ${desc} `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
+            const logBeginEnd = c => console.warn(['', ` ${appName} ${fnName}() ${desc} (${testCount}) `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
+            testCount++;
             logBeginEnd('+');
             GASton.Database._cache = {};
 
