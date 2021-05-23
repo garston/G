@@ -3,18 +3,19 @@ const phoneNum = i => 3030000000 + i;
 const txtEmail = i => `1${phoneNum(0)}.1${(phoneNum(i))}.${gvKey(i)}@txt.voice.google.com`;
 
 GRTest.describeApp('GTxt', {
-    [`after:${GASton.Mail.toSearchString(new Date())} from:txt.voice.google.com in:anywhere subject:"text message" to:me`]: 'todayTxts',
     [`in:inbox is:unread to:me from:txt.voice.google.com -from:${txtEmail(1)} subject:"text message"`]: 'incomingTxts',
-    'in:inbox is:unread to:me from:voice-noreply@google.com subject:voicemail': 'incomingVMs'
+    'in:inbox is:unread to:me from:voice-noreply@google.com subject:voicemail': 'incomingVMs',
+    [`in:inbox is:unread to:me from:${txtEmail(1)} subject:"text message"`]: 'outgoingTxts',
+    [`after:${GASton.Mail.toSearchString(new Date())} from:txt.voice.google.com in:anywhere subject:"text message" to:me`]: 'todayTxts'
 }, () => {
     GRTest.describeFn('go', () => {
         const contactName = 'Contact Name';
         const defaultTxt = 'txt msg';
         const defaultVM = 'VM msg';
 
-        const createEmailTxt = i => emailInboxUnread({
+        const createEmailTxt = (i, txt = defaultTxt) => emailInboxUnread({
             getFrom: () => txtEmail(i),
-            getPlainBody: () => `\n\n${defaultTxt}\nTo respond to this text message, reply to this email or visit Google Voice.`,
+            getPlainBody: () => `\n\n${txt}\nTo respond to this text message, reply to this email or visit Google Voice.`,
             getSubject: () => `New text message from ${phoneNumStr(i)}`,
         });
 
@@ -24,7 +25,7 @@ GRTest.describeApp('GTxt', {
         });
 
         const createModelConfig = (o = {}) => [GTxt.Config, [[o.disableForwarding ? 0 : 1, phoneNum(0), 1, o.quickReplyContactGuid || '', '']]];
-        const createModelsContact = () => [GTxt.Contact, JSUtil.ArrayUtil.range(2).map(i => [i + 1, phoneNum(i + 1), gvKey(i + 1), 0])];
+        const createModelsContact = shortId => [GTxt.Contact, JSUtil.ArrayUtil.range(2).map(i => [i + 1, phoneNum(i + 1), gvKey(i + 1), (i && shortId) || 0])];
         const emailInboxUnread = (email, inboxUnread = true) => ({ ...email, isInInbox: () => inboxUnread, isUnread: () => inboxUnread });
 
         const expectedMailMsgUpdatesSend = (queryName, threadIndex, msgIndex) => [
@@ -39,6 +40,15 @@ GRTest.describeApp('GTxt', {
         };
 
         const nowStr = `${new Date().getHours()}:${new Date().getMinutes()}`;
+
+        [phoneNum(2), '303-000-0002', '+1 (303) 000-0002', -1, 1].forEach(n =>
+            GRTest.it(`sends outgoing text to number formatted as ${n}`,
+                [createModelConfig(), createModelsContact([-1, 1].includes(n) ? n : 0)],
+                { outgoingTxts: [[createEmailTxt(1, `${n}|${defaultTxt}`)]] }, [
+                    [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(2), defaultTxt],
+                    ...expectedMailMsgUpdatesSend('outgoingTxts', 0, 0),
+                    [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Config, 1, 4, 2]
+                ]));
 
         GRTest.it('does nothing when no incoming texts', [createModelConfig(), createModelsContact()], {}, []);
 

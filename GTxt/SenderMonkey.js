@@ -38,7 +38,8 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, getMessageText, onSuccess,
 GTxt.SenderMonkey._findContacts = function(numberList, onError, message, config){
     if(numberList){
         return JSUtil.ArrayUtil.compact(numberList.split(',').map(function(numberStr){
-            const numberMatch = JSUtil.StringUtil.matchSafe(numberStr, /^(-?)(\d+)(!?)$/);
+            const cleanedNumberStr = numberStr.replace(/[+ ()]/g, '').replace(/(\d)-/g, '$1').replace(/^1(\d{10})$/, '$1');
+            const numberMatch = JSUtil.StringUtil.matchSafe(cleanedNumberStr, /^(-?)(\d+)(!?)$/);
             const number = +`${numberMatch[1]}${numberMatch[2]}`;
             var contact = GASton.Database.findBy(GTxt.Contact, 'shortId', number) || GTxt.Contact.findByNumber(number);
             if(!contact){
