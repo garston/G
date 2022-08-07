@@ -3,7 +3,7 @@ GTxt.SenderMonkey = {};
 GTxt.SenderMonkey.sendTextsFromEmails = function(config) {
     this.txtContacts(
         ['from:me', 'subject:' + SpreadsheetApp.getActiveSpreadsheet().getName()],
-        function(message){ return GASton.Mail.getMessageWords(message).join(' '); },
+        GASton.Mail.getMessageText,
         function(){},
         function(errorMessage, message){ GTxt.Util.mail(Session.getActiveUser().getEmail(), errorMessage, [message]); },
         config

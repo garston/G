@@ -66,11 +66,7 @@ GTxt.MonkeyInTheMiddle._processEmails = function(searchTerms, getFrom, getMessag
             messages: messages,
             optional: isEmptyMsgFromUnknownNumOptional && fromStr === from && msgTexts.every(txt => !txt),
             text: [fromStr, ...messages.map((message, i) => {
-                var messageDate = message.getDate();
-                var dateMetadata = (JSUtil.DateUtil.diff(messageDate, new Date()) ? JSUtil.DateUtil.toPrettyString(messageDate, true) + '@' : '') +
-                    [messageDate.getHours(), messageDate.getMinutes()].join(':');
-                var metadata = JSUtil.ArrayUtil.compact([dateMetadata, getMetadata(message)]).join(',');
-
+                const metadata = JSUtil.ArrayUtil.compact([GASton.Mail.getMessageDatePretty(message, true), getMetadata(message)]).join(',');
                 return JSUtil.ArrayUtil.compact([metadata, msgTexts[i]]).join('-');
             })].join(GTxt.SEPARATOR)
         };

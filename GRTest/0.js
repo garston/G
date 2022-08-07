@@ -10,13 +10,14 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
     };
 
     GRTest.describeFn = (fnName, fnWithTests) => {
-        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates) => {
+        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates, expectedReturn) => {
             const logBeginEnd = c => console.warn(['', ` ${appName} ${fnName}() ${desc} (${testCount}) `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
             testCount++;
             logBeginEnd('+');
             GASton.Database._cache = {};
 
             const actualUpdates = [];
+            window.ContentService = {createTextOutput: s => s};
             window.GmailApp = {
                 getUserLabelByName: label => label,
                 search: q => {
@@ -66,14 +67,18 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
                 })
             };
 
-            window[fnName]();
+            const actualReturn = window[fnName]();
 
-            expectedUpdates = expectedUpdates.map(a => a.map(u => u.__tableName || u));
             const logAssertFail = (desc, expected, actual) => {
                 console.error('expected:', expected);
-                console.error('actual:', actual);
+                console.error('actual:  ', actual);
                 throw `assertion failure: ${desc}`
             };
+            if(expectedReturn !== actualReturn){
+                logAssertFail('different return value', expectedReturn, actualReturn);
+            }
+
+            expectedUpdates = expectedUpdates.map(a => a.map(u => u.__tableName || u));
             if(expectedUpdates.length !== actualUpdates.length) {
                 logAssertFail('different number of updates', expectedUpdates, actualUpdates);
             }

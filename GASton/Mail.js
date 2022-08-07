@@ -5,6 +5,13 @@ GASton.Mail.addLabel = function(thread, label) {
         thread.addLabel(GmailApp.getUserLabelByName(label));
 };
 
+GASton.Mail.getMessageDatePretty = (message, omitYear) => {
+    const messageDate = message.getDate();
+    return (JSUtil.DateUtil.diff(messageDate, new Date()) ? `${JSUtil.DateUtil.toPrettyString(messageDate, omitYear)}@` : '') +
+        `${messageDate.getHours()}:${messageDate.getMinutes()}`
+};
+
+GASton.Mail.getMessageText = message => GASton.Mail.getMessageWords(message).join(' ');
 GASton.Mail.getMessageWords = function(message) {
     var words = [];
     JSUtil.StringUtil.stripTags(message.getBody().replace(/<br>/gi, '\n')).split('\n').some(function(line) {

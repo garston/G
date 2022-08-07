@@ -39,8 +39,6 @@ GRTest.describeApp('GTxt', {
             return `(${parts[0]}) ${parts[1]}-${parts[2]}`;
         };
 
-        const nowStr = `${new Date().getHours()}:${new Date().getMinutes()}`;
-
         [phoneNum(2), '303-000-0002', '+1 (303) 000-0002', -1, 1].forEach(n =>
             GRTest.it(`sends outgoing text to number formatted as ${n}`,
                 [createModelConfig(), createModelsContact([-1, 1].includes(n) ? n : 0)],
@@ -62,13 +60,13 @@ GRTest.describeApp('GTxt', {
             {incomingTxts: [[createEmailTxt(2)]]}, [
                 [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Config, 1, 4, 2],
                 [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Contact, 2, 4, 1],
-                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${phoneNum(2)}(1!)|${nowStr}-${defaultTxt}`],
+                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${phoneNum(2)}(1!)|${GRTest.Util.nowStr}-${defaultTxt}`],
                 ...expectedMailMsgUpdatesSend('incomingTxts', 0, 0)
             ]);
 
         [
-            { desc: 'txts', emailBody: `${phoneNum(3)}|${nowStr}-${defaultTxt}`, threadsByQuery: {incomingTxts: [[createEmailTxt(3)]]} },
-            { desc: 'VMs', emailBody: `${contactName}|${nowStr},VM-${defaultVM}`, threadsByQuery: {incomingVMs: [[createEmailVM(contactName)]]} }
+            { desc: 'txts', emailBody: `${phoneNum(3)}|${GRTest.Util.nowStr}-${defaultTxt}`, threadsByQuery: {incomingTxts: [[createEmailTxt(3)]]} },
+            { desc: 'VMs', emailBody: `${contactName}|${GRTest.Util.nowStr},VM-${defaultVM}`, threadsByQuery: {incomingVMs: [[createEmailVM(contactName)]]} }
         ].forEach(o =>
             GRTest.it(`forwards incoming ${o.desc}`,
                 [createModelConfig(), createModelsContact()],
@@ -81,7 +79,7 @@ GRTest.describeApp('GTxt', {
             [createModelConfig(), createModelsContact()],
             {incomingVMs: [[createEmailVM(contactName, '')]]},
             [
-                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${contactName}|${nowStr},VM`],
+                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${contactName}|${GRTest.Util.nowStr},VM`],
                 ...expectedMailMsgUpdatesSend('incomingVMs', 0, 0)
             ]);
 
@@ -92,7 +90,7 @@ GRTest.describeApp('GTxt', {
                 incomingVMs: [[createEmailVM(phoneNumStr(1234567), '')]]
             },
             [
-                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${phoneNum(1234567)}|${nowStr}-${defaultTxt}||${phoneNum(1234567)}|${nowStr},VM`],
+                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${phoneNum(1234567)}|${GRTest.Util.nowStr}-${defaultTxt}||${phoneNum(1234567)}|${GRTest.Util.nowStr},VM`],
                 ...expectedMailMsgUpdatesSend('incomingTxts', 0, 0),
                 ...expectedMailMsgUpdatesSend('incomingVMs', 0, 0)
             ]);
