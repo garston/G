@@ -3,7 +3,7 @@ GRTest.describeApp('Dialup', {
     ['from:voice-noreply@google.com in:inbox subject:"missed call from Home"']: 'missedCalls'
 }, () => {
     GRTest.describeFn('doGet', () => {
-        GRTest.it('renders 0 when not enabled', [], {}, [], '0');
+        GRTest.it('renders 0 when not enabled', [], {}, [], {'': ['0']});
 
         GRTest.it('renders inbox', [], {
             inbox: [[
@@ -11,6 +11,9 @@ GRTest.describeApp('Dialup', {
                 {getBody: () => 'b2', getFrom: () => 'f l <email>', isUnread: () => true}
             ]],
             missedCalls: [[{isInInbox: () => false}, {isInInbox: () => true}]]
-        }, [], `<table><tr><th></th><th>s1</th><th></th></tr><tr><td>email</td><td>b1</td><td>${GRTest.Util.nowStr}</td></tr><tr style="font-weight: bold"><td>f l</td><td>b2</td><td>${GRTest.Util.nowStr}</td></tr></table>`);
+        }, [], {
+            td: ['email', 'b1', GRTest.Util.nowStr, 'f l', 'b2', GRTest.Util.nowStr],
+            th: ['', 's1', '']
+        });
     });
 });

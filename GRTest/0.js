@@ -10,7 +10,21 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
     };
 
     GRTest.describeFn = (fnName, fnWithTests) => {
-        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates, expectedReturn) => {
+        function assertEqualJson(expected, actual, desc) {
+            if (JSON.stringify(expected) !== JSON.stringify(actual)) {
+                assertFail(desc, expected, actual);
+            }
+        }
+
+        function assertFail(desc, expected, actual) {
+            console.error('expected:', expected);
+            console.error('actual:  ', actual);
+            throw `assertion failure: ${desc}`
+        }
+
+        const renderHtml = html => document.body.innerHTML = html;
+
+        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates, expectedTextContentsBySelector = {}) => {
             const logBeginEnd = c => console.warn(['', ` ${appName} ${fnName}() ${desc} (${testCount}) `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
             testCount++;
             logBeginEnd('+');
@@ -67,27 +81,25 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
                 })
             };
 
-            const actualReturn = window[fnName]();
-
-            const logAssertFail = (desc, expected, actual) => {
-                console.error('expected:', expected);
-                console.error('actual:  ', actual);
-                throw `assertion failure: ${desc}`
-            };
-            if(expectedReturn !== actualReturn){
-                logAssertFail('different return value', expectedReturn, actualReturn);
-            }
+            renderHtml(window[fnName]() || '');
 
             expectedUpdates = expectedUpdates.map(a => a.map(u => u.__tableName || u));
             if(expectedUpdates.length !== actualUpdates.length) {
-                logAssertFail('different number of updates', expectedUpdates, actualUpdates);
+                assertFail('different number of updates', expectedUpdates, actualUpdates);
             }
             expectedUpdates.forEach((expectedUpdate, i) => {
-                if(JSON.stringify(expectedUpdate) !== JSON.stringify(actualUpdates[i])) {
-                    logAssertFail(`different update at index ${i}`, expectedUpdate, actualUpdates[i]);
-                }
+                assertEqualJson(expectedUpdate, actualUpdates[i], `different update at index ${i}`);
             });
 
+            Object.entries(expectedTextContentsBySelector).forEach(([selector, expectedTextContents]) => {
+                assertEqualJson(
+                    expectedTextContents,
+                    (selector ? Array.from(document.body.querySelectorAll(selector)) : [document.body]).map(el => el.textContent),
+                    `different textContext for '${selector}'`
+                );
+            });
+
+            renderHtml('');
             logBeginEnd('-');
         };
 
