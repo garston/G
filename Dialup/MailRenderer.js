@@ -11,7 +11,7 @@ Dialup.MailRenderer.generateHtml = () => GmailApp.search('in:inbox').map(t => [
             return [
                 `<tr${m.isUnread() ? ' style="font-weight: bold"' : ''}>`,
                     `<td>${from.firstName || from.lastName ? `${from.firstName} ${from.lastName}` : from.email}</td>`,
-                    `<td>${GASton.Mail.getMessageText(m)}</td>`,
+                    `<td>${JSUtil.StringUtil.escapeHTML(m.getPlainBody())}</td>`,
                     `<td>${GASton.Mail.getMessageDatePretty(m)}</td>`,
                 '</tr>'
             ].join('');

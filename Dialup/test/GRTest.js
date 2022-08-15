@@ -3,17 +3,34 @@ GRTest.describeApp('Dialup', {
     ['from:voice-noreply@google.com in:inbox subject:"missed call from Home"']: 'missedCalls'
 }, () => {
     GRTest.describeFn('doGet', () => {
+        const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom()} = {}) => ({td: [from, body, GRTest.Util.nowStr]});
+        const expectedThTextContents = (subject = msg.getSubject()) => ({th: ['', subject, '']});
+        const missedCalls = [[{isInInbox: () => false}, {isInInbox: () => true}]];
+        const msg = {getFrom: () => 'email', getPlainBody: () => 'b1', getSubject: () => 's1', isUnread: () => false};
+
         GRTest.it('renders 0 when not enabled', [], {}, [], {'': ['0']});
 
         GRTest.it('renders inbox', [], {
-            inbox: [[
-                {getBody: () => 'b1', getFrom: () => 'email', getSubject: () => 's1', isUnread: () => false},
-                {getBody: () => 'b2', getFrom: () => 'f l <email>', isUnread: () => true}
-            ]],
-            missedCalls: [[{isInInbox: () => false}, {isInInbox: () => true}]]
+            inbox: [[msg, {...msg, getFrom: () => 'email2', getPlainBody: () => 'b2'}]],
+            missedCalls
         }, [], {
-            td: ['email', 'b1', GRTest.Util.nowStr, 'f l', 'b2', GRTest.Util.nowStr],
-            th: ['', 's1', '']
+            ...expectedThTextContents(),
+            td: [...expectedTdTextContents().td, ...expectedTdTextContents({body: 'b2', from: 'email2'}).td],
         });
+
+        GRTest.it('displays message sender first/last name when avail', [], {
+            inbox: [[{...msg, getFrom: () => 'f l <email>'}]],
+            missedCalls
+        }, [], expectedTdTextContents({from: 'f l'}));
+
+        GRTest.it('HTML encodes message body', [], {
+            inbox: [[{...msg, getPlainBody: () => '<http://gmail.com>'}]],
+            missedCalls
+        }, [], expectedTdTextContents({body: '<http://gmail.com>'}));
+
+        GRTest.it('HTML encodes message subject', [], {
+            inbox: [[{...msg, getSubject: () => `'"&`}]],
+            missedCalls
+        }, [], expectedThTextContents(`'"&`));
     });
 });
