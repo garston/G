@@ -1,5 +1,5 @@
 Dialup.RequestHandler = {};
-Dialup.RequestHandler.handle = ({action, body, subject, to}) => {
+Dialup.RequestHandler.handle = ({action, body, q, subject, to}) => {
     switch (action) {
         case 'c':
             GASton.Mail.sendNewEmail(to, subject, body, { htmlBody: body, name: 'Garston Tremblay' });
@@ -10,5 +10,5 @@ Dialup.RequestHandler.handle = ({action, body, subject, to}) => {
             return `invalid action '${action}'`
     }
 
-    return Dialup.MailRenderer.generateHtml().join('');
+    return Dialup.MailRenderer.generateHtml(q).join('');
 };

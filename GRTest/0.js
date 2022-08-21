@@ -38,8 +38,8 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
             window.GmailApp = {
                 getUserLabelByName: label => label,
                 search: q => {
-                    const queryName = queryNames[q];
-                    const threads = (queryName && threadsByQuery[queryName]) || [];
+                    const queryName = queryNames[q] || q;
+                    const threads = threadsByQuery[queryName] || [];
                     console.log('GmailApp.search', q, threads);
                     return threads.map((msgs, threadIndex) => {
                         const thread = {

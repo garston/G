@@ -42,5 +42,10 @@ GRTest.describeApp('Dialup', {
         ], GRTest.Util.createReq({action: 'c', body: 'b', subject: 's', to: 't'}), expectedTableTextContents());
 
         GRTest.it('action=invalid returns error', [], threadsByQuery, [], GRTest.Util.createReq({action: 'g'}), {'': ["invalid action 'g'"]});
+
+        GRTest.it('q param searches messages', [], {
+            ...threadsByQuery,
+            'g': [[{...msg, getSubject: () => 's'}]]
+        }, [], GRTest.Util.createReq({q: 'g'}), expectedThTextContents('s'));
     });
 });

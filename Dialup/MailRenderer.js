@@ -1,5 +1,5 @@
 Dialup.MailRenderer = {};
-Dialup.MailRenderer.generateHtml = () => GmailApp.search('in:inbox').map(t => [
+Dialup.MailRenderer.generateHtml = (query = 'in:inbox') => GmailApp.search(query).map(t => [
     '<table>',
         '<tr>',
             '<th></th>',
