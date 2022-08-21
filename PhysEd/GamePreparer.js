@@ -16,7 +16,7 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
                     JSUtil.ArrayUtil.range(Math.floor(Math.random() * 6)).reduce(function(str){ return str + '!'; }, '');
                 var mailingList = league.getMailingList();
 
-                GASton.Mail.sendToList(subject, '', mailingList.email);
+                GASton.Mail.sendToList(mailingList.email, subject, '');
 
                 var flowdock = mailingList.createFlowdock();
                 if(flowdock) {
@@ -71,10 +71,10 @@ PhysEd.GamePreparer.prototype.sendPlayerCounts = function(){
             if(opts.secondaryThread){
                 GASton.Mail.replyAll(opts.secondaryThread, numbersAndCompetition.join('<br/>'), secondaryEmail);
             }else if(opts.playerStatusParser.inPlayers.length >= opts.league.secondaryThreshold) {
-                GASton.Mail.sendToList(JSUtil.DateUtil.toPrettyString(this.today), [
+                GASton.Mail.sendToList(secondaryEmail, JSUtil.DateUtil.toPrettyString(this.today), [
                     opts.mailingList.name + ' crew is looking to get a game together today. We play at ' + opts.mailingList.gameLocation + '. Anybody interested?',
                     ''
-                ].concat(numbersAndCompetition).join('<br/>'), secondaryEmail);
+                ].concat(numbersAndCompetition).join('<br/>'));
                 primaryIntro = ['Email sent to ' + opts.secondaryMailingList.name + ' list', ''];
             }
         }

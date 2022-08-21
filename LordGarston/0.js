@@ -37,7 +37,7 @@ function _shouldSendMail(timesPerDay){
 
 function _sendMail(rentPayment, subject, sendTxt){
     var renter = rentPayment.getRenter();
-    GASton.Mail.sendToIndividual(subject, SpreadsheetApp.getActiveSpreadsheet().getUrl(), renter.email + (sendTxt && renter.txt ? ',' + renter.txt : ''));
+    GASton.Mail.sendToIndividual(renter.email + (sendTxt && renter.txt ? ',' + renter.txt : ''), subject, SpreadsheetApp.getActiveSpreadsheet().getUrl());
 }
 
 function _startOfToday() {
