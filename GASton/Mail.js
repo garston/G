@@ -48,16 +48,16 @@ GASton.Mail.parseFrom = function(message){
         }, {email: '', firstName: '', lastName: ''});
 };
 
-GASton.Mail.replyAll = function(msg, body, replyTo, options){
-    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, msg.getSubject(), body) && msg.replyAll(body, this._getOptions(body, replyTo, options));
+GASton.Mail.replyAll = function(msg, body, options){
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, msg.getSubject(), body) && msg.replyAll(body, this._getOptions(body, options));
 };
 
 GASton.Mail.sendNewEmail = function(email, subject, body, options){
-    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, body, email) && MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), this._getOptions(body, null, options));
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, body, email) && MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), this._getOptions(body, options));
 };
 
 GASton.Mail.sendToList = function(email, subject, body){
-    this.sendNewEmail(email, subject, body, this._getOptions(body, email));
+    this.sendNewEmail(email, subject, body, this._getOptions(body, {replyTo: email}));
 };
 
 GASton.Mail.toSearchString = function(date) {
@@ -67,12 +67,11 @@ GASton.Mail.toSearchString = function(date) {
 GASton.Mail._checkProdMode = (actionDesc, subject, body, to) =>
     GASton.checkProdMode([actionDesc, `Subject: ${subject}`, `Body: ${body}`, `To: ${to}`].join('\n'));
 
-GASton.Mail._getOptions = function(body, replyTo, options){
+GASton.Mail._getOptions = function(body, options){
     return {
         bcc: Session.getActiveUser().getEmail(),
         htmlBody: body,
         name: this.getNameUsedForSending(),
-        replyTo,
         ...options
     };
 };
