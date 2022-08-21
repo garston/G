@@ -52,12 +52,8 @@ GASton.Mail.replyAll = function(msg, body, replyTo){
     this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, msg.getSubject(), body) && msg.replyAll(body, this._getOptions(body, replyTo));
 };
 
-GASton.Mail.sendNewEmail = function(email, subject, body, options) {
-    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, body, email) && MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), options);
-};
-
-GASton.Mail.sendToIndividual = function(email, subject, body){
-    this.sendNewEmail(email, subject, body, this._getOptions(body));
+GASton.Mail.sendNewEmail = function(email, subject, body, options){
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, body, email) && MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), {...this._getOptions(body), ...options});
 };
 
 GASton.Mail.sendToList = function(email, subject, body){

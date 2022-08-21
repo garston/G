@@ -45,7 +45,7 @@ function processTransactions() {
     });
 
     if(processedStrings.length || notProcessedStrings.length){
-        GASton.Mail.sendToIndividual(Session.getActiveUser().getEmail(), 'HalfZs ' + JSUtil.DateUtil.toPrettyString(now), [
+        GASton.Mail.sendNewEmail(Session.getActiveUser().getEmail(), 'HalfZs ' + JSUtil.DateUtil.toPrettyString(now), [
             'Processed:', processedStrings, '', 'Not Processed:', notProcessedStrings, '', SpreadsheetApp.getActiveSpreadsheet().getUrl()
         ].flat().join('<br/>'));
     }
