@@ -19,7 +19,7 @@ Dialup.MailRenderer.generateHtml = function(query = 'in:inbox'){
                 ];
             }).flat(),
         '</table>'
-    ]).flat();
+    ].join('')).join('<hr/>');
 };
 
 Dialup.MailRenderer._wrapEach = (tag, htmlArray) => htmlArray.map(h => `<${tag}>${h}</${tag}>`);

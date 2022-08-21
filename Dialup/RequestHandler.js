@@ -17,5 +17,5 @@ Dialup.RequestHandler.handle = ({action, body, id, q, subject, to}) => {
             return `invalid action '${action}'`
     }
 
-    return Dialup.MailRenderer.generateHtml(q).join('');
+    return Dialup.MailRenderer.generateHtml(q);
 };

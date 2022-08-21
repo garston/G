@@ -37,6 +37,10 @@ GRTest.describeApp('Dialup', {
             inbox: [[{...msg, getSubject: () => `'"&`}]]
         }, [], GRTest.Util.createReq(), expectedThTextContents(`'"&`));
 
+        GRTest.it('renders dividers between threads', [], {
+            ...threadsByQuery, inbox: [[msg], [msg]]
+        }, [], GRTest.Util.createReq(), {'hr': ['']});
+
         GRTest.it('action=a replies all', [], threadsByQuery, [
             [GASton.UPDATE_TYPES.MAIL.REPLY_ALL, 'inbox', 0, 0, 'b']
         ], GRTest.Util.createReq({action: 'a', body: 'b', id: 'inbox_0_0'}), expectedTableTextContents());
