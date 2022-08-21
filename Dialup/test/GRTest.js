@@ -1,6 +1,6 @@
 GRTest.describeApp('Dialup', {
-    ['in:inbox']: 'inbox',
-    ['from:voice-noreply@google.com in:inbox subject:"missed call from Home"']: 'missedCalls'
+    inbox: 'in:inbox',
+    missedCalls: 'from:voice-noreply@google.com in:inbox subject:"missed call from Home"'
 }, () => {
     GRTest.describeFn('doGet', () => {
         const expectedTableTextContents = () => ({...expectedTdTextContents(), ...expectedThTextContents()});

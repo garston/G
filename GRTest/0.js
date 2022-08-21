@@ -1,7 +1,7 @@
 GRTest = {};
 GRTest.SPREADSHEET_NAME = 'SPREADSHEET_NAME';
 
-GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
+GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
     let testCount = 0;
 
     GASton.checkProdMode = str => {
@@ -33,28 +33,33 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
             logBeginEnd('+');
             GASton.Database._cache = {};
 
+            const gmailThreadsByQuery = {};
+            Object.entries(threadsByQuery).forEach(([q, threads]) => {
+                gmailThreadsByQuery[queriesByName[q] || q] = threads.map((msgs, threadIndex) => {
+                    const thread = {
+                        addLabel: label => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.ADD_LABEL, q, threadIndex, label]),
+                        getFirstMessageSubject: () => msgs[0].getSubject(),
+                        getMessages: () => msgs.map((m, msgIndex) => ({
+                            getAttachments: () => [],
+                            getDate: () => new Date(),
+                            ...m,
+                            getId: () => [q, threadIndex, msgIndex].join('_'),
+                            getThread: () => thread,
+                            markRead: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MARK_READ, q, threadIndex, msgIndex])
+                        }))
+                    };
+                    return thread;
+                });
+            });
+
             const actualUpdates = [];
             window.ContentService = {createTextOutput: s => s};
             window.GmailApp = {
                 getUserLabelByName: label => label,
                 search: q => {
-                    const queryName = queryNames[q] || q;
-                    const threads = threadsByQuery[queryName] || [];
-                    console.log('GmailApp.search', q, threads);
-                    return threads.map((msgs, threadIndex) => {
-                        const thread = {
-                            addLabel: label => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.ADD_LABEL, queryName, threadIndex, label]),
-                            getFirstMessageSubject: () => msgs[0].getSubject(),
-                            getMessages: () => msgs.map((m, msgIndex) => ({
-                                getAttachments: () => [],
-                                getDate: () => new Date(),
-                                ...m,
-                                getThread: () => thread,
-                                markRead: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MARK_READ, queryName, threadIndex, msgIndex])
-                            }))
-                        };
-                        return thread;
-                    });
+                    const threads = gmailThreadsByQuery[q] || [];
+                    console.log('GmailApp.search', q, threads.map(t => JSON.stringify(t.getMessages().map(m => m.getId()))));
+                    return threads;
                 }
             };
             window.MailApp = {

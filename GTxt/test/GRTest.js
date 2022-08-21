@@ -3,10 +3,10 @@ const phoneNum = i => 3030000000 + i;
 const txtEmail = i => `1${phoneNum(0)}.1${(phoneNum(i))}.${gvKey(i)}@txt.voice.google.com`;
 
 GRTest.describeApp('GTxt', {
-    [`in:inbox is:unread to:me from:txt.voice.google.com -from:${txtEmail(1)} subject:"text message"`]: 'incomingTxts',
-    'in:inbox is:unread to:me from:voice-noreply@google.com subject:voicemail': 'incomingVMs',
-    [`in:inbox is:unread to:me from:${txtEmail(1)} subject:"text message"`]: 'outgoingTxts',
-    [`after:${GASton.Mail.toSearchString(new Date())} from:txt.voice.google.com in:anywhere subject:"text message" to:me`]: 'todayTxts'
+    incomingTxts: `in:inbox is:unread to:me from:txt.voice.google.com -from:${txtEmail(1)} subject:"text message"`,
+    incomingVMs: 'in:inbox is:unread to:me from:voice-noreply@google.com subject:voicemail',
+    outgoingTxts: `in:inbox is:unread to:me from:${txtEmail(1)} subject:"text message"`,
+    todayTxts: `after:${GASton.Mail.toSearchString(new Date())} from:txt.voice.google.com in:anywhere subject:"text message" to:me`
 }, () => {
     GRTest.describeFn('go', () => {
         const contactName = 'Contact Name';
