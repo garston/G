@@ -45,7 +45,8 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                             ...m,
                             getId: () => [q, threadIndex, msgIndex].join('_'),
                             getThread: () => thread,
-                            markRead: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MARK_READ, q, threadIndex, msgIndex])
+                            markRead: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MARK_READ, q, threadIndex, msgIndex]),
+                            replyAll: body => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.REPLY_ALL, q, threadIndex, msgIndex, body])
                         }))
                     };
                     return thread;
@@ -55,6 +56,10 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
             const actualUpdates = [];
             window.ContentService = {createTextOutput: s => s};
             window.GmailApp = {
+                getMessageById: id => {
+                    console.log('GmailApp.getMessageById', id);
+                    return Object.values(gmailThreadsByQuery).map(threads => threads.map(t => t.getMessages()).flat()).flat().find(msg => msg.getId() === id);
+                },
                 getUserLabelByName: label => label,
                 search: q => {
                     const threads = gmailThreadsByQuery[q] || [];
