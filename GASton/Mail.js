@@ -1,8 +1,7 @@
 GASton.Mail = {};
 
 GASton.Mail.addLabel = function(thread, label) {
-    this._checkProdMode(`${GASton.UPDATE_TYPES.MAIL.ADD_LABEL}: ${label}`, thread.getFirstMessageSubject()) &&
-        thread.addLabel(GmailApp.getUserLabelByName(label));
+    this._checkProdMode(`${GASton.UPDATE_TYPES.MAIL.ADD_LABEL}: ${label}`, thread.getFirstMessageSubject()) && thread.addLabel(GmailApp.getUserLabelByName(label));
 };
 
 GASton.Mail.getMessageDatePretty = (message, omitYear) => {
@@ -30,7 +29,7 @@ GASton.Mail.getNameUsedForSending = function() { return SpreadsheetApp.getActive
 GASton.Mail.isSentByScript = function(message){ return message.getFrom().includes(this.getNameUsedForSending()); };
 
 GASton.Mail.markRead = function(message) {
-    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.MARK_READ, message.getThread().getFirstMessageSubject()) && message.markRead();
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.MARK_READ, message.getSubject()) && message.markRead();
 };
 
 GASton.Mail.parseFrom = function(message){
@@ -49,14 +48,12 @@ GASton.Mail.parseFrom = function(message){
         }, {email: '', firstName: '', lastName: ''});
 };
 
-GASton.Mail.replyAll = function(thread, body, replyTo){
-    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, thread.getFirstMessageSubject(), body) &&
-        thread.replyAll(body, this._getOptions(body, replyTo));
+GASton.Mail.replyAll = function(msg, body, replyTo){
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, msg.getSubject(), body) && msg.replyAll(body, this._getOptions(body, replyTo));
 };
 
 GASton.Mail.sendNewEmail = function(email, subject, body, options) {
-    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, body, email) &&
-        MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), options);
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, body, email) && MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), options);
 };
 
 GASton.Mail.sendToIndividual = function(email, subject, body){
@@ -71,8 +68,8 @@ GASton.Mail.toSearchString = function(date) {
     return date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
 };
 
-GASton.Mail._checkProdMode = (actionDesc, threadSubject, body, to) =>
-    GASton.checkProdMode([actionDesc, `Thread Subject: ${threadSubject}`, `Body: ${body}`, `To: ${to}`].join('\n'));
+GASton.Mail._checkProdMode = (actionDesc, subject, body, to) =>
+    GASton.checkProdMode([actionDesc, `Subject: ${subject}`, `Body: ${body}`, `To: ${to}`].join('\n'));
 
 GASton.Mail._getOptions = function(body, replyTo){
     return {

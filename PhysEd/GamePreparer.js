@@ -69,7 +69,7 @@ PhysEd.GamePreparer.prototype.sendPlayerCounts = function(){
             var secondaryEmail = opts.secondaryMailingList.email;
 
             if(opts.secondaryThread){
-                GASton.Mail.replyAll(opts.secondaryThread, numbersAndCompetition.join('<br/>'), secondaryEmail);
+                GASton.Mail.replyAll(opts.secondaryThread.getMessages()[0], numbersAndCompetition.join('<br/>'), secondaryEmail);
             }else if(opts.playerStatusParser.inPlayers.length >= opts.league.secondaryThreshold) {
                 GASton.Mail.sendToList(secondaryEmail, JSUtil.DateUtil.toPrettyString(this.today), [
                     opts.mailingList.name + ' crew is looking to get a game together today. We play at ' + opts.mailingList.gameLocation + '. Anybody interested?',
@@ -79,7 +79,7 @@ PhysEd.GamePreparer.prototype.sendPlayerCounts = function(){
             }
         }
 
-        GASton.Mail.replyAll(opts.thread, primaryIntro.concat(numbersAndCompetition).join('<br/>'), opts.mailingList.email);
+        GASton.Mail.replyAll(opts.thread.getMessages()[0], primaryIntro.concat(numbersAndCompetition).join('<br/>'), opts.mailingList.email);
         if(opts.flowdockThreadId) {
             this._sendFlowdockMessage(opts.league, primaryIntro.concat(currentNumbers), opts.flowdock, opts.flowdockThreadId);
         }
