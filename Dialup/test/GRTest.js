@@ -4,8 +4,8 @@ GRTest.describeApp('Dialup', {
 }, () => {
     GRTest.describeFn('doGet', () => {
         const expectedTableTextContents = () => ({...expectedTdTextContents(), ...expectedThTextContents()});
-        const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom()} = {}) => ({td: [from, body, GRTest.Util.nowStr]});
-        const expectedThTextContents = (subject = msg.getSubject()) => ({th: ['', subject, '']});
+        const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom(), id = 'inbox_0_0'} = {}) => ({td: [from, body, GRTest.Util.nowStr, id]});
+        const expectedThTextContents = (subject = msg.getSubject()) => ({th: ['', subject, '', '']});
         const msg = {getFrom: () => 'email', getPlainBody: () => 'b1', getSubject: () => 's1', isUnread: () => false};
         const threadsByQuery = {
            inbox: [[msg]],
@@ -19,7 +19,7 @@ GRTest.describeApp('Dialup', {
             inbox: [[msg, {...msg, getFrom: () => 'email2', getPlainBody: () => 'b2'}]]
         }, [], GRTest.Util.createReq(), {
             ...expectedTableTextContents(),
-            td: [...expectedTdTextContents().td, ...expectedTdTextContents({body: 'b2', from: 'email2'}).td],
+            td: [...expectedTdTextContents().td, ...expectedTdTextContents({body: 'b2', from: 'email2', id: 'inbox_0_1'}).td],
         });
 
         GRTest.it('displays message sender first/last name when avail', [], {
