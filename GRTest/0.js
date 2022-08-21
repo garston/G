@@ -55,7 +55,7 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
                 }
             };
             window.MailApp = {
-                sendEmail: (email, subject, body) => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.SEND, email, body])
+                sendEmail: (email, subject, body) => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.SEND, email, subject, body])
             };
             window.Session = {
                 getActiveUser: () => ({
@@ -83,7 +83,7 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
 
             renderHtml(window[fnName]() || '');
 
-            expectedUpdates = expectedUpdates.map(a => a.map(u => u.__tableName || u));
+            expectedUpdates = expectedUpdates.map(a => a.map(u => u?.__tableName || u));
             if(expectedUpdates.length !== actualUpdates.length) {
                 assertFail('different number of updates', expectedUpdates, actualUpdates);
             }

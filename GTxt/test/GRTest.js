@@ -43,7 +43,7 @@ GRTest.describeApp('GTxt', {
             GRTest.it(`sends outgoing text to number formatted as ${n}`,
                 [createModelConfig(), createModelsContact([-1, 1].includes(n) ? n : 0)],
                 { outgoingTxts: [[createEmailTxt(1, `${n}|${defaultTxt}`)]] }, [
-                    [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(2), defaultTxt],
+                    [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(2), '', defaultTxt],
                     ...expectedMailMsgUpdatesSend('outgoingTxts', 0, 0),
                     [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Config, 1, 4, 2]
                 ]));
@@ -60,7 +60,7 @@ GRTest.describeApp('GTxt', {
             {incomingTxts: [[createEmailTxt(2)]]}, [
                 [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Config, 1, 4, 2],
                 [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Contact, 2, 4, 1],
-                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${phoneNum(2)}(1!)|${GRTest.Util.nowStr}-${defaultTxt}`],
+                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), '', `${phoneNum(2)}(1!)|${GRTest.Util.nowStr}-${defaultTxt}`],
                 ...expectedMailMsgUpdatesSend('incomingTxts', 0, 0)
             ]);
 
@@ -71,7 +71,7 @@ GRTest.describeApp('GTxt', {
             GRTest.it(`forwards incoming ${o.desc}`,
                 [createModelConfig(), createModelsContact()],
                 o.threadsByQuery, [
-                    [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), o.emailBody],
+                    [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), '', o.emailBody],
                     ...expectedMailMsgUpdatesSend(Object.keys(o.threadsByQuery)[0], 0, 0)
                 ]));
 
@@ -79,7 +79,7 @@ GRTest.describeApp('GTxt', {
             [createModelConfig(), createModelsContact()],
             {incomingVMs: [[createEmailVM(contactName, '')]]},
             [
-                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${contactName}|${GRTest.Util.nowStr},VM`],
+                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), '', `${contactName}|${GRTest.Util.nowStr},VM`],
                 ...expectedMailMsgUpdatesSend('incomingVMs', 0, 0)
             ]);
 
@@ -90,7 +90,7 @@ GRTest.describeApp('GTxt', {
                 incomingVMs: [[createEmailVM(phoneNumStr(1234567), '')]]
             },
             [
-                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), `${phoneNum(1234567)}|${GRTest.Util.nowStr}-${defaultTxt}||${phoneNum(1234567)}|${GRTest.Util.nowStr},VM`],
+                [GASton.UPDATE_TYPES.MAIL.SEND, txtEmail(1), '', `${phoneNum(1234567)}|${GRTest.Util.nowStr}-${defaultTxt}||${phoneNum(1234567)}|${GRTest.Util.nowStr},VM`],
                 ...expectedMailMsgUpdatesSend('incomingTxts', 0, 0),
                 ...expectedMailMsgUpdatesSend('incomingVMs', 0, 0)
             ]);

@@ -1,7 +1,7 @@
 GTxt.Util = {};
 
 GTxt.Util.mail = function(toEmail, body, derivedFromMsgs){
-    GASton.Mail.sendToIndividual(Date.now().toString(), body, toEmail);
+    GASton.Mail.sendToIndividual('', body, toEmail);
     derivedFromMsgs.forEach(function(m){
         GASton.Mail.markRead(m);
         GASton.Mail.addLabel(m.getThread(), '_' + SpreadsheetApp.getActiveSpreadsheet().getName());
