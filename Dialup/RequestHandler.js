@@ -8,6 +8,9 @@ Dialup.RequestHandler.handle = ({action, body, id, q, subject, to}) => {
         case 'c':
             GASton.Mail.sendNewEmail(to, subject, body, emailOptions);
             break;
+        case 'r':
+            GASton.Mail.reply(GmailApp.getMessageById(id), body, emailOptions);
+            break;
         case undefined:
             break;
         default:

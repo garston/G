@@ -45,6 +45,10 @@ GRTest.describeApp('Dialup', {
             [GASton.UPDATE_TYPES.MAIL.SEND, 't', 's', 'b']
         ], GRTest.Util.createReq({action: 'c', body: 'b', subject: 's', to: 't'}), expectedTableTextContents());
 
+        GRTest.it('action=r replies', [], threadsByQuery, [
+            [GASton.UPDATE_TYPES.MAIL.REPLY, 'inbox', 0, 0, 'b']
+        ], GRTest.Util.createReq({action: 'r', body: 'b', id: 'inbox_0_0'}), expectedTableTextContents());
+
         GRTest.it('action=invalid returns error', [], threadsByQuery, [], GRTest.Util.createReq({action: 'g'}), {'': ["invalid action 'g'"]});
 
         GRTest.it('q param searches messages', [], {

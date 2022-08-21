@@ -48,6 +48,10 @@ GASton.Mail.parseFrom = function(message){
         }, {email: '', firstName: '', lastName: ''});
 };
 
+GASton.Mail.reply = function(msg, body, options){
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY, msg.getSubject(), body) && msg.reply(body, this._getOptions(body, options));
+};
+
 GASton.Mail.replyAll = function(msg, body, options){
     this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, msg.getSubject(), body) && msg.replyAll(body, this._getOptions(body, options));
 };

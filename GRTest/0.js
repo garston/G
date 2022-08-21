@@ -46,6 +46,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                             getId: () => [q, threadIndex, msgIndex].join('_'),
                             getThread: () => thread,
                             markRead: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MARK_READ, q, threadIndex, msgIndex]),
+                            reply: body => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.REPLY, q, threadIndex, msgIndex, body]),
                             replyAll: body => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.REPLY_ALL, q, threadIndex, msgIndex, body])
                         }))
                     };
