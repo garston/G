@@ -24,8 +24,11 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
 
         const renderHtml = html => document.body.innerHTML = html;
 
-        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates, expectedTextContentsBySelector = {}) => {
-            const logBeginEnd = c => console.warn(['', ` ${appName} ${fnName}() ${desc} (${testCount}) `, ''].join(JSUtil.ArrayUtil.range(38).map(() => c).join('')));
+        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates, fnParam, expectedTextContentsBySelector = {}) => {
+            function logBeginEnd(c) {
+                const dividerChars = JSUtil.ArrayUtil.range(38).map(() => c).join('');
+                console.warn(dividerChars, appName, `${fnName}(`, fnParam || '', ')', desc, `(${testCount})`, dividerChars);
+            }
             testCount++;
             logBeginEnd('+');
             GASton.Database._cache = {};
@@ -81,7 +84,7 @@ GRTest.describeApp = (appName, queryNames, fnWithDescribes) => {
                 })
             };
 
-            renderHtml(window[fnName]() || '');
+            renderHtml(window[fnName](fnParam) || '');
 
             expectedUpdates = expectedUpdates.map(a => a.map(u => u?.__tableName || u));
             if(expectedUpdates.length !== actualUpdates.length) {

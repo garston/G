@@ -50,24 +50,29 @@ GASton.Mail.parseFrom = function(message){
 };
 
 GASton.Mail.replyAll = function(thread, body, replyTo){
-    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, thread.getFirstMessageSubject(), null, replyTo, body) &&
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.REPLY_ALL, thread.getFirstMessageSubject(), null, body) &&
         thread.replyAll(body, this._getOptions(body, replyTo));
 };
 
+GASton.Mail.sendNewEmail = function(email, subject, body, options) {
+    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, email, body) &&
+        MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), options);
+};
+
 GASton.Mail.sendToIndividual = function(subject, body, email){
-    this._sendNewEmail(subject, body, email);
+    this.sendNewEmail(email, subject, body, this._getOptions(body));
 };
 
 GASton.Mail.sendToList = function(subject, body, email){
-    this._sendNewEmail(subject, body, email, email);
+    this.sendNewEmail(email, subject, body, this._getOptions(body, email));
 };
 
 GASton.Mail.toSearchString = function(date) {
     return date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
 };
 
-GASton.Mail._checkProdMode = function (actionDesc, threadSubject, to, replyTo, body){
-    return GASton.checkProdMode(`${actionDesc}\nThread Subject: ${threadSubject}\nTo: ${to}\nReply-To: ${replyTo}\nBody: ${body}`);
+GASton.Mail._checkProdMode = function (actionDesc, threadSubject, to, body){
+    return GASton.checkProdMode(`${actionDesc}\nThread Subject: ${threadSubject}\nTo: ${to}\nBody: ${body}`);
 };
 
 GASton.Mail._getOptions = function(body, replyTo){
@@ -77,9 +82,4 @@ GASton.Mail._getOptions = function(body, replyTo){
         name: this.getNameUsedForSending(),
         replyTo: replyTo
     };
-};
-
-GASton.Mail._sendNewEmail = function(subject, body, email, replyTo) {
-    this._checkProdMode(GASton.UPDATE_TYPES.MAIL.SEND, subject, email, replyTo, body) &&
-        MailApp.sendEmail(email, subject, JSUtil.StringUtil.stripTags(body), this._getOptions(body, replyTo));
 };
