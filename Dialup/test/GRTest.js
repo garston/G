@@ -6,7 +6,8 @@ GRTest.describeApp('Dialup', {
         const expectedTableTextContents = () => ({...expectedTdTextContents(), ...expectedThTextContents()});
         const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom(), id = 'inbox_0_0'} = {}) => ({td: [from, body, GRTest.Util.nowStr, id]});
         const expectedThTextContents = (subject = msg.getSubject()) => ({th: ['', subject, '', '']});
-        const msg = {getFrom: () => 'email', getPlainBody: () => 'b1', getSubject: () => 's1', isUnread: () => false};
+        const htmlToEscape = '<http://gmail.com>';
+        const msg = {getFrom: () => 'f1 <email>', getPlainBody: () => 'b1', getSubject: () => 's1', isUnread: () => false};
         const threadsByQuery = {
            inbox: [[msg]],
            missedCalls: [[{isInInbox: () => false}, {isInInbox: () => true}]]
@@ -16,26 +17,21 @@ GRTest.describeApp('Dialup', {
 
         GRTest.it('renders multiple messages in a thread', [], {
             ...threadsByQuery,
-            inbox: [[msg, {...msg, getFrom: () => 'email2', getPlainBody: () => 'b2'}]]
+            inbox: [[msg, {...msg, getFrom: () => 'f2', getPlainBody: () => 'b2'}]]
         }, [], GRTest.Util.createReq(), {
             ...expectedTableTextContents(),
-            td: [...expectedTdTextContents().td, ...expectedTdTextContents({body: 'b2', from: 'email2', id: 'inbox_0_1'}).td],
+            td: [...expectedTdTextContents().td, ...expectedTdTextContents({body: 'b2', from: 'f2', id: 'inbox_0_1'}).td],
         });
-
-        GRTest.it('displays message sender first/last name when avail', [], {
-            ...threadsByQuery,
-            inbox: [[{...msg, getFrom: () => 'f l <email>'}]]
-        }, [], GRTest.Util.createReq(), expectedTdTextContents({from: 'f l'}));
 
         GRTest.it('HTML encodes message body', [], {
             ...threadsByQuery,
-            inbox: [[{...msg, getPlainBody: () => '<http://gmail.com>'}]]
-        }, [], GRTest.Util.createReq(), expectedTdTextContents({body: '<http://gmail.com>'}));
+            inbox: [[{...msg, getPlainBody: () => htmlToEscape}]]
+        }, [], GRTest.Util.createReq(), expectedTdTextContents({body: htmlToEscape}));
 
         GRTest.it('HTML encodes message subject', [], {
             ...threadsByQuery,
-            inbox: [[{...msg, getSubject: () => `'"&`}]]
-        }, [], GRTest.Util.createReq(), expectedThTextContents(`'"&`));
+            inbox: [[{...msg, getSubject: () => htmlToEscape}]]
+        }, [], GRTest.Util.createReq(), expectedThTextContents(htmlToEscape));
 
         GRTest.it('renders dividers between threads', [], {
             ...threadsByQuery, inbox: [[msg], [msg]]
