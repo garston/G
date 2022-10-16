@@ -1,4 +1,5 @@
 GRTest = {};
+GRTest.ACTIVE_USER_EMAIL = 'ACTIVE_USER_EMAIL';
 GRTest.SPREADSHEET_NAME = 'SPREADSHEET_NAME';
 
 GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
@@ -73,7 +74,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
             };
             window.Session = {
                 getActiveUser: () => ({
-                    getEmail: () => ''
+                    getEmail: () => GRTest.ACTIVE_USER_EMAIL
                 })
             };
             window.SpreadsheetApp = {
@@ -81,6 +82,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                     getName: () => GRTest.SPREADSHEET_NAME,
                     getSheetByName: tableName => ({
                         appendRow: () => actualUpdates.push([GASton.UPDATE_TYPES.DB.INSERT, tableName]),
+                        deleteRow: row => actualUpdates.push([GASton.UPDATE_TYPES.DB.DELETE, tableName, row]),
                         getDataRange: () => ({
                             getValues: () => {
                                 const dbValues = dbRowsByModel.find(a => a[0].__tableName === tableName)?.[1] || [];

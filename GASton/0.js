@@ -15,3 +15,13 @@ GASton.UPDATE_TYPES = {
 };
 
 GASton.checkProdMode = function(){ return true; };
+
+function emailLog() {
+    const log = GASton.Database.hydrate(GASton.ExecutionLog);
+    if(!log.length){
+        return;
+    }
+
+    GASton.Mail.sendNewEmail(Session.getActiveUser().getEmail(), SpreadsheetApp.getActiveSpreadsheet().getName(), log.map(l => `${l.date} ${l.params}`).join('<br/>'));
+    log.slice(0).forEach(l => GASton.Database.remove(l));
+}
