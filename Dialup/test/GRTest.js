@@ -51,6 +51,8 @@ GRTest.describeApp('Dialup', {
 
         GRTest.it('action=invalid returns error', [], threadsByQuery, [], {action: 'g'}, {'': ["invalid action 'g'"]});
 
+        GRTest.it('bodyLength param restricts body length', [], threadsByQuery, [], {bodyLength: '1'}, expectedTdTextContents({body: 'b'}));
+
         GRTest.it('q param searches messages', [], {
             ...threadsByQuery,
             'g': [[{...msg, getSubject: () => 's'}]]

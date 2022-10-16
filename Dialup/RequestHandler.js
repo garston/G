@@ -1,5 +1,5 @@
 Dialup.RequestHandler = {};
-Dialup.RequestHandler.handle = ({action, body, id, q, subject, to}) => {
+Dialup.RequestHandler.handle = ({action, body, bodyLength, id, q = 'in:inbox', subject, to}) => {
     const emailOptions = {bcc: '', name: 'Garston Tremblay'};
     switch (action) {
         case 'a':
@@ -17,5 +17,5 @@ Dialup.RequestHandler.handle = ({action, body, id, q, subject, to}) => {
             return `invalid action '${action}'`
     }
 
-    return Dialup.MailRenderer.generateHtml(q);
+    return Dialup.MailRenderer.generateHtml(GmailApp.search(q), bodyLength);
 };
