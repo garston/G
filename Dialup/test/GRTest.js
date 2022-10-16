@@ -13,12 +13,12 @@ GRTest.describeApp('Dialup', {
            missedCalls: [[{isInInbox: () => false}, {isInInbox: () => true}]]
         };
 
-        GRTest.it('renders 0 when not enabled', [], {}, [], GRTest.Util.createReq(), {'': ['0']});
+        GRTest.it('renders 0 when not enabled', [], {}, [], {}, {'': ['0']});
 
         GRTest.it('renders multiple messages in a thread', [], {
             ...threadsByQuery,
             inbox: [[msg, {...msg, getFrom: () => 'f2', getPlainBody: () => 'b2'}]]
-        }, [], GRTest.Util.createReq(), {
+        }, [], {}, {
             ...expectedTableTextContents(),
             td: [...expectedTdTextContents().td, ...expectedTdTextContents({body: 'b2', from: 'f2', id: 'inbox_0_1'}).td],
         });
@@ -26,34 +26,34 @@ GRTest.describeApp('Dialup', {
         GRTest.it('HTML encodes message body', [], {
             ...threadsByQuery,
             inbox: [[{...msg, getPlainBody: () => htmlToEscape}]]
-        }, [], GRTest.Util.createReq(), expectedTdTextContents({body: htmlToEscape}));
+        }, [], {}, expectedTdTextContents({body: htmlToEscape}));
 
         GRTest.it('HTML encodes message subject', [], {
             ...threadsByQuery,
             inbox: [[{...msg, getSubject: () => htmlToEscape}]]
-        }, [], GRTest.Util.createReq(), expectedThTextContents(htmlToEscape));
+        }, [], {}, expectedThTextContents(htmlToEscape));
 
         GRTest.it('renders dividers between threads', [], {
             ...threadsByQuery, inbox: [[msg], [msg]]
-        }, [], GRTest.Util.createReq(), {'hr': ['']});
+        }, [], {}, {'hr': ['']});
 
         GRTest.it('action=a replies all', [], threadsByQuery, [
             [GASton.UPDATE_TYPES.MAIL.REPLY_ALL, 'inbox', 0, 0, 'b']
-        ], GRTest.Util.createReq({action: 'a', body: 'b', id: 'inbox_0_0'}), expectedTableTextContents());
+        ], {action: 'a', body: 'b', id: 'inbox_0_0'}, expectedTableTextContents());
 
         GRTest.it('action=c sends message', [], threadsByQuery, [
             [GASton.UPDATE_TYPES.MAIL.SEND, 't', 's', 'b']
-        ], GRTest.Util.createReq({action: 'c', body: 'b', subject: 's', to: 't'}), expectedTableTextContents());
+        ], {action: 'c', body: 'b', subject: 's', to: 't'}, expectedTableTextContents());
 
         GRTest.it('action=r replies', [], threadsByQuery, [
             [GASton.UPDATE_TYPES.MAIL.REPLY, 'inbox', 0, 0, 'b']
-        ], GRTest.Util.createReq({action: 'r', body: 'b', id: 'inbox_0_0'}), expectedTableTextContents());
+        ], {action: 'r', body: 'b', id: 'inbox_0_0'}, expectedTableTextContents());
 
-        GRTest.it('action=invalid returns error', [], threadsByQuery, [], GRTest.Util.createReq({action: 'g'}), {'': ["invalid action 'g'"]});
+        GRTest.it('action=invalid returns error', [], threadsByQuery, [], {action: 'g'}, {'': ["invalid action 'g'"]});
 
         GRTest.it('q param searches messages', [], {
             ...threadsByQuery,
             'g': [[{...msg, getSubject: () => 's'}]]
-        }, [], GRTest.Util.createReq({q: 'g'}), expectedThTextContents('s'));
+        }, [], {q: 'g'}, expectedThTextContents('s'));
     });
 });

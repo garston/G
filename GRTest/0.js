@@ -24,10 +24,10 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
 
         const renderHtml = html => document.body.innerHTML = html;
 
-        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates, fnParam, expectedTextContentsBySelector = {}) => {
+        GRTest.it = (desc, dbRowsByModel, threadsByQuery, expectedUpdates, parameter, expectedTextContentsBySelector = {}) => {
             function logBeginEnd(c) {
                 const dividerChars = JSUtil.ArrayUtil.range(38).map(() => c).join('');
-                console.warn(dividerChars, appName, `${fnName}(`, fnParam || '', ')', desc, `(${testCount})`, dividerChars);
+                console.warn(dividerChars, appName, `${fnName}(`, parameter || '', ')', desc, `(${testCount})`, dividerChars);
             }
             testCount++;
             logBeginEnd('+');
@@ -83,7 +83,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                         appendRow: () => actualUpdates.push([GASton.UPDATE_TYPES.DB.INSERT, tableName]),
                         getDataRange: () => ({
                             getValues: () => {
-                                const dbValues = dbRowsByModel.find(a => a[0].__tableName === tableName)[1];
+                                const dbValues = dbRowsByModel.find(a => a[0].__tableName === tableName)?.[1] || [];
                                 console.log('SpreadsheetApp.getValues', tableName, dbValues);
                                 return dbValues;
                             }
@@ -95,9 +95,12 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                 })
             };
 
-            renderHtml(window[fnName](fnParam) || '');
+            renderHtml(window[fnName]({parameter}) || '');
 
-            expectedUpdates = expectedUpdates.map(a => a.map(u => u?.__tableName || u));
+            expectedUpdates = [
+                ...(parameter ? GRTest.Util.expectedDbUpdatesNewRow(GASton.ExecutionLog, 1, [JSUtil.DateUtil.timeString(new Date()), JSON.stringify(parameter)]) : []),
+                ...expectedUpdates
+            ].map(a => a.map(u => u?.__tableName || u));
             if(expectedUpdates.length !== actualUpdates.length) {
                 assertFail('different number of updates', expectedUpdates, actualUpdates);
             }
