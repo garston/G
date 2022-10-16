@@ -6,8 +6,7 @@ GASton.Mail.addLabel = function(thread, label) {
 
 GASton.Mail.getMessageDatePretty = (message, omitYear) => {
     const messageDate = message.getDate();
-    return (JSUtil.DateUtil.diff(messageDate, new Date()) ? `${JSUtil.DateUtil.toPrettyString(messageDate, omitYear)}@` : '') +
-        `${messageDate.getHours()}:${messageDate.getMinutes()}`
+    return (JSUtil.DateUtil.diff(messageDate, new Date()) ? `${JSUtil.DateUtil.toPrettyString(messageDate, omitYear)}@` : '') + JSUtil.DateUtil.timeString(messageDate)
 };
 
 GASton.Mail.getMessageWords = function(message) {

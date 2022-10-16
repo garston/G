@@ -25,6 +25,8 @@ JSUtil.DateUtil = {
         return newDate;
     },
 
+    timeString: d => `${d.getHours()}:${d.getMinutes() < 10 ? 0 : ''}${d.getMinutes()}`,
+
     toPrettyString: function(date, omitYear) {
         return (date.getMonth()+1) + '/' + date.getDate() + (omitYear ? '' : '/' + date.getFullYear());
     }

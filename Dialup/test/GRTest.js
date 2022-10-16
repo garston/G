@@ -4,7 +4,7 @@ GRTest.describeApp('Dialup', {
 }, () => {
     GRTest.describeFn('doGet', () => {
         const expectedTableTextContents = () => ({...expectedTdTextContents(), ...expectedThTextContents()});
-        const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom(), id = 'inbox_0_0'} = {}) => ({td: [from, body, GRTest.Util.nowStr, id]});
+        const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom(), id = 'inbox_0_0'} = {}) => ({td: [from, body, JSUtil.DateUtil.timeString(new Date()), id]});
         const expectedThTextContents = (subject = msg.getSubject()) => ({th: ['', subject, '', '']});
         const htmlToEscape = '<http://gmail.com>';
         const msg = {getFrom: () => 'f1 <email>', getPlainBody: () => 'b1', getSubject: () => 's1', isUnread: () => false};
