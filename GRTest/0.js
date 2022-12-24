@@ -11,7 +11,8 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
     };
 
     GRTest.describeFn = (fnName, fnWithTests) => {
-        function assertEqualJson(expected, actual, desc) {
+        function assertEqualArrays(expected, actual, desc) {
+            expected = expected.map((u, i) => u === null ? actual[i] : u);
             if (!JSUtil.ObjectUtil.equal(actual, expected)) {
                 assertFail(desc, expected, actual);
             }
@@ -101,18 +102,18 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
             renderHtml(window[fnName]({parameter}) || '');
 
             expectedUpdates = [
-                ...(parameter ? GRTest.Util.expectedDbUpdatesNewRow(GASton.ExecutionLog, 1, [JSUtil.DateUtil.timeString(new Date()), JSON.stringify(parameter)]) : []),
+                ...(parameter ? GRTest.Util.expectedDbUpdatesNewRow(GASton.ExecutionLog, 1, [null, JSON.stringify(parameter)]) : []),
                 ...expectedUpdates
             ].map(a => a.map(u => u?.__tableName || u));
             if(expectedUpdates.length !== actualUpdates.length) {
                 assertFail('different number of updates', expectedUpdates, actualUpdates);
             }
             expectedUpdates.forEach((expectedUpdate, i) => {
-                assertEqualJson(expectedUpdate, actualUpdates[i], `different update at index ${i}`);
+                assertEqualArrays(expectedUpdate, actualUpdates[i], `different update at index ${i}`);
             });
 
             Object.entries(expectedTextContentsBySelector).forEach(([selector, expectedTextContents]) => {
-                assertEqualJson(
+                assertEqualArrays(
                     expectedTextContents,
                     (selector ? Array.from(document.body.querySelectorAll(selector)) : [document.body]).map(el => el.textContent),
                     `different textContext for '${selector}'`

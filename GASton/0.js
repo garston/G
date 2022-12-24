@@ -22,6 +22,6 @@ function emailLog() {
         return;
     }
 
-    GASton.Mail.sendNewEmail(Session.getActiveUser().getEmail(), SpreadsheetApp.getActiveSpreadsheet().getName(), log.map(l => `${l.date} ${l.params}`).join('<br/>'));
+    GASton.Mail.sendNewEmail(Session.getActiveUser().getEmail(), SpreadsheetApp.getActiveSpreadsheet().getName(), log.map(l => `${JSUtil.DateUtil.timeString(new Date(l.createdAt))} ${l.params}`).join('<br/>'));
     log.slice(0).forEach(l => GASton.Database.remove(l));
 }
