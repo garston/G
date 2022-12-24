@@ -7,7 +7,8 @@ GRTest.describeApp('Dialup', {
         const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom(), id = 'inbox_0_0'} = {}) => ({td: [from, body, JSUtil.DateUtil.timeString(new Date()), id]});
         const expectedThTextContents = (subject = msg.getSubject()) => ({th: ['', subject, '', '']});
         const htmlToEscape = '<g><t>';
-        const msg = {getFrom: () => 'f1 <email>', getPlainBody: () => 'b1', getSubject: () => 's1', isUnread: () => false};
+        const msg = {getFrom: () => 'f1 <email>', getPlainBody: () => 'b1', getSubject: () => 's1'};
+        const msgOld = {...msg, getDate: () => JSUtil.DateUtil.addDays(-1, new Date())};
         const threadsByQuery = {
            inbox: [[msg]],
            missedCalls: [[{isInInbox: () => false}, {isInInbox: () => true}]]
@@ -35,7 +36,7 @@ GRTest.describeApp('Dialup', {
 
         GRTest.it('renders dividers between threads', [], {
             ...threadsByQuery, inbox: [[msg], [msg]]
-        }, [], {}, {'hr': ['']});
+        }, [], {}, {hr: ['', '']});
 
         GRTest.it('action=a replies all', [], threadsByQuery, [
             [GASton.UPDATE_TYPES.MAIL.REPLY_ALL, 'inbox', 0, 0, 'b']
@@ -51,9 +52,16 @@ GRTest.describeApp('Dialup', {
 
         GRTest.it('action=invalid returns error', [], threadsByQuery, [], {action: 'g'}, {'': ["invalid action 'g'"]});
 
-        GRTest.it('bodyLength param restricts body length', [], threadsByQuery, [], {bodyLength: '1'}, expectedTdTextContents({body: 'b'}));
+        GRTest.it('"after" param filters by date', [], {
+            ...threadsByQuery, inbox: [[msgOld, {...msg, getSubject: () => 's2'}], [msgOld]]
+        }, [], {after: `${Date.now() - 1}`}, {
+            ...expectedTableTextContents(),
+            td: expectedTdTextContents({id: 'inbox_0_1'}).td
+        });
 
-        GRTest.it('q param searches messages', [], {
+        GRTest.it('"bodyLength" param restricts body length', [], threadsByQuery, [], {bodyLength: '1'}, expectedTdTextContents({body: 'b'}));
+
+        GRTest.it('"q" param searches messages', [], {
             ...threadsByQuery,
             'g': [[{...msg, getSubject: () => 's'}]]
         }, [], {q: 'g'}, expectedThTextContents('s'));

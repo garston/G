@@ -1,21 +1,23 @@
 Dialup.RequestHandler = {};
-Dialup.RequestHandler.handle = ({action, body, bodyLength, id, q = 'in:inbox', subject, to}) => {
+Dialup.RequestHandler.handle = p => {
     const emailOptions = {bcc: '', name: 'Garston Tremblay'};
-    switch (action) {
+    switch (p.action) {
         case 'a':
-            GASton.Mail.replyAll(GmailApp.getMessageById(id), body, emailOptions);
+            GASton.Mail.replyAll(GmailApp.getMessageById(p.id), p.body, emailOptions);
             break;
         case 'c':
-            GASton.Mail.sendNewEmail(to, subject, body, emailOptions);
+            GASton.Mail.sendNewEmail(p.to, p.subject, p.body, emailOptions);
             break;
         case 'r':
-            GASton.Mail.reply(GmailApp.getMessageById(id), body, emailOptions);
+            GASton.Mail.reply(GmailApp.getMessageById(p.id), p.body, emailOptions);
             break;
         case undefined:
             break;
         default:
-            return `invalid action '${action}'`
+            return `invalid action '${p.action}'`
     }
 
-    return Dialup.MailRenderer.generateHtml(GmailApp.search(q), bodyLength);
+    return Dialup.MailRenderer.generateHtml(GASton.Mail.getThreadMessages(
+        GmailApp.search(p.q || 'in:inbox'), m => m.getDate().getTime() > (p.after || 0)
+    ), p.bodyLength);
 };

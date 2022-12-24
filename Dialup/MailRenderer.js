@@ -1,11 +1,11 @@
 Dialup.MailRenderer = {};
-Dialup.MailRenderer.generateHtml = function(threads, bodyLength){
-    return threads.map(t => [
+Dialup.MailRenderer.generateHtml = function(threadMessages, bodyLength){
+    return [Date.now(), ...threadMessages.map(messages => [
         '<table>',
             '<tr>',
-                ...this._wrapEach('th', ['', JSUtil.StringUtil.escapeHTML(t.getFirstMessageSubject()), '', '']),
+                ...this._wrapEach('th', ['', JSUtil.StringUtil.escapeHTML(messages[0].getThread().getFirstMessageSubject()), '', '']),
             '</tr>',
-            ...t.getMessages().map(m => [
+            ...messages.map(m => [
                 `<tr${m.isUnread() ? ' style="font-weight: bold"' : ''}>`,
                 ...this._wrapEach('td', [
                     JSUtil.StringUtil.escapeHTML(m.getFrom()),
@@ -16,7 +16,7 @@ Dialup.MailRenderer.generateHtml = function(threads, bodyLength){
                 '</tr>'
             ]).flat(),
         '</table>'
-    ].join('')).join('<hr/>');
+    ].join(''))].join('<hr/>');
 };
 
 Dialup.MailRenderer._wrapEach = (tag, htmlArray) => htmlArray.map(h => `<${tag}>${h}</${tag}>`);

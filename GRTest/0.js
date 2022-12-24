@@ -43,6 +43,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                         getMessages: () => msgs.map((m, msgIndex) => ({
                             getAttachments: () => [],
                             getDate: () => new Date(),
+                            isUnread: () => false,
                             ...m,
                             getId: () => [q, threadIndex, msgIndex].join('_'),
                             getThread: () => thread,

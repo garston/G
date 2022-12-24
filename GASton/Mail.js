@@ -25,6 +25,11 @@ GASton.Mail.getMessageWords = function(message) {
 };
 
 GASton.Mail.getNameUsedForSending = function() { return SpreadsheetApp.getActiveSpreadsheet().getName(); };
+
+GASton.Mail.getThreadMessages = (threads, messageFilter) => threads.
+    map(t => t.getMessages().filter(messageFilter)).
+    filter(messages => messages.length);
+
 GASton.Mail.isSentByScript = function(message){ return message.getFrom().includes(this.getNameUsedForSending()); };
 
 GASton.Mail.markRead = function(message) {

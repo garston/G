@@ -8,8 +8,7 @@ GTxt.Util.mail = function(toEmail, body, derivedFromMsgs){
     });
 };
 
-GTxt.Util.getThreadMessagesToForward = function(searchTerms) {
-    return GmailApp.search(['in:inbox', 'is:unread', 'to:me'].concat(searchTerms).join(' ')).
-        map(function(t){ return t.getMessages().filter(function(m){ return m.isInInbox() && m.isUnread(); }); }).
-        filter(function(messages){ return messages.length; });
-};
+GTxt.Util.getThreadMessagesToForward = (searchTerms) => GASton.Mail.getThreadMessages(
+    GmailApp.search(['in:inbox', 'is:unread', 'to:me'].concat(searchTerms).join(' ')),
+    m => m.isInInbox() && m.isUnread()
+);
