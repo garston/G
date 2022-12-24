@@ -8,7 +8,8 @@ GASton.Database.findBy = function(clazz, prop, value){
 GASton.Database.hydrate = function(clazz){
     if(!this._getCache(clazz)) {
         clazz.__hydrating = true;
-        this._cache[clazz.__tableName] = this._getSheet(clazz).getDataRange().getValues().
+        const values = this._getSheet(clazz).getDataRange().getValues();
+        this._cache[clazz.__tableName] = JSUtil.ObjectUtil.equal(values, [['']]) ?  [] : values.
             filter(function(rowData, rowIndex){ return rowIndex + 1 >= clazz.__firstRow; }).
             map(function(rowData){
                 var o = new clazz();

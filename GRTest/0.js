@@ -12,7 +12,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
 
     GRTest.describeFn = (fnName, fnWithTests) => {
         function assertEqualJson(expected, actual, desc) {
-            if (JSON.stringify(expected) !== JSON.stringify(actual)) {
+            if (!JSUtil.ObjectUtil.equal(actual, expected)) {
                 assertFail(desc, expected, actual);
             }
         }
@@ -85,7 +85,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                         deleteRow: row => actualUpdates.push([GASton.UPDATE_TYPES.DB.DELETE, tableName, row]),
                         getDataRange: () => ({
                             getValues: () => {
-                                const dbValues = dbRowsByModel.find(a => a[0].__tableName === tableName)?.[1] || [];
+                                const dbValues = dbRowsByModel.find(a => a[0].__tableName === tableName)?.[1] || [['']];
                                 console.log('SpreadsheetApp.getValues', tableName, dbValues);
                                 return dbValues;
                             }
