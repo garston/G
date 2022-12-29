@@ -8,6 +8,9 @@ Dialup.RequestHandler.handle = p => {
         case 'c':
             GASton.Mail.sendNewEmail(p.to, p.subject, p.body, emailOptions);
             break;
+        case 'd':
+            p.ids.split(',').forEach(i => GASton.Mail.moveToTrash(GmailApp.getThreadById(i) || GmailApp.getMessageById(i)));
+            break;
         case 'r':
             GASton.Mail.reply(GmailApp.getMessageById(p.id), p.body, emailOptions);
             break;

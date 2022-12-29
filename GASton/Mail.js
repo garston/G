@@ -36,6 +36,14 @@ GASton.Mail.markRead = function(message) {
     this._checkProdMode(GASton.UPDATE_TYPES.MAIL.MARK_READ, message.getSubject()) && message.markRead();
 };
 
+GASton.Mail.moveToTrash = function(threadOrMsg) {
+    this._checkProdMode(
+        `${GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH}: ${threadOrMsg.getId()}`,
+        threadOrMsg.getFirstMessageSubject?.() || threadOrMsg.getSubject(),
+        threadOrMsg.getPlainBody?.()
+    ) && threadOrMsg.moveToTrash();
+};
+
 GASton.Mail.parseFrom = function(message){
     return message.getFrom().
         replace(/^"(.+), ([^ ]+).*"(.+)/, '$2 $1$3').

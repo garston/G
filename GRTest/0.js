@@ -41,6 +41,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                     const thread = {
                         addLabel: label => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.ADD_LABEL, q, threadIndex, label]),
                         getFirstMessageSubject: () => msgs[0].getSubject(),
+                        getId: () => [q, threadIndex].join('_'),
                         getMessages: () => msgs.map((m, msgIndex) => ({
                             getAttachments: () => [],
                             getDate: () => new Date(),
@@ -49,20 +50,29 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                             getId: () => [q, threadIndex, msgIndex].join('_'),
                             getThread: () => thread,
                             markRead: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MARK_READ, q, threadIndex, msgIndex]),
+                            moveToTrash: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, q, threadIndex, msgIndex]),
                             reply: body => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.REPLY, q, threadIndex, msgIndex, body]),
                             replyAll: body => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.REPLY_ALL, q, threadIndex, msgIndex, body])
-                        }))
+                        })),
+                        moveToTrash: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, q, threadIndex])
                     };
                     return thread;
                 });
             });
+            const gmailThreads = Object.values(gmailThreadsByQuery).flat();
 
             const actualUpdates = [];
             window.ContentService = {createTextOutput: s => s};
             window.GmailApp = {
                 getMessageById: id => {
-                    console.log('GmailApp.getMessageById', id);
-                    return Object.values(gmailThreadsByQuery).map(threads => threads.map(t => t.getMessages()).flat()).flat().find(msg => msg.getId() === id);
+                    const m = gmailThreads.map(t => t.getMessages()).flat().find(msg => msg.getId() === id);
+                    console.log('GmailApp.getMessageById', id, m);
+                    return m;
+                },
+                getThreadById: id => {
+                    const t = gmailThreads.find(t => t.getId() === id);
+                    console.log('GmailApp.getThreadById', id, t);
+                    return t;
                 },
                 getUserLabelByName: label => label,
                 search: q => {

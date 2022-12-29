@@ -8,6 +8,7 @@ GASton.UPDATE_TYPES = {
     MAIL: {
         ADD_LABEL: 'ADD LABEL',
         MARK_READ: 'MARK READ',
+        MOVE_TO_TRASH: 'MOVE TO TRASH',
         REPLY: 'REPLY',
         REPLY_ALL: 'REPLY ALL',
         SEND: 'SEND EMAIL'

@@ -5,7 +5,7 @@ GRTest.describeApp('Dialup', {
     GRTest.describeFn('doGet', () => {
         const expectedTableTextContents = () => ({...expectedTdTextContents(), ...expectedThTextContents()});
         const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom(), id = 'inbox_0_0'} = {}) => ({td: [from, body, JSUtil.DateUtil.timeString(new Date()), id]});
-        const expectedThTextContents = (subject = msg.getSubject()) => ({th: ['', subject, '', '']});
+        const expectedThTextContents = ({id = 'inbox_0', subject = msg.getSubject()} = {}) => ({th: ['', subject, '', id]});
         const htmlToEscape = '<g><t>';
         const msg = {getFrom: () => 'f1 <email>', getPlainBody: () => 'b1', getSubject: () => 's1'};
         const msgOld = {...msg, getDate: () => JSUtil.DateUtil.addDays(-1, new Date())};
@@ -32,7 +32,7 @@ GRTest.describeApp('Dialup', {
         GRTest.it('HTML encodes message subject', [], {
             ...threadsByQuery,
             inbox: [[{...msg, getSubject: () => htmlToEscape}]]
-        }, [], {}, expectedThTextContents(htmlToEscape));
+        }, [], {}, expectedThTextContents({subject: htmlToEscape}));
 
         GRTest.it('renders dividers between threads', [], {
             ...threadsByQuery, inbox: [[msg], [msg]]
@@ -45,6 +45,11 @@ GRTest.describeApp('Dialup', {
         GRTest.it('action=c sends message', [], threadsByQuery, [
             [GASton.UPDATE_TYPES.MAIL.SEND, 't', 's', 'b']
         ], {action: 'c', body: 'b', subject: 's', to: 't'}, expectedTableTextContents());
+
+        GRTest.it('action=d moves to trash', [], threadsByQuery, [
+            [GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, 'inbox', 0],
+            [GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, 'inbox', 0, 0]
+        ], {action: 'd', ids: 'inbox_0,inbox_0_0'}, expectedTableTextContents());
 
         GRTest.it('action=r replies', [], threadsByQuery, [
             [GASton.UPDATE_TYPES.MAIL.REPLY, 'inbox', 0, 0, 'b']
@@ -63,7 +68,7 @@ GRTest.describeApp('Dialup', {
 
         GRTest.it('"q" param searches messages', [], {
             ...threadsByQuery,
-            'g': [[{...msg, getSubject: () => 's'}]]
-        }, [], {q: 'g'}, expectedThTextContents('s'));
+            'g': [[msg]]
+        }, [], {q: 'g'}, expectedThTextContents({id: 'g_0'}));
     });
 });
