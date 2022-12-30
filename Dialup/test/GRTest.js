@@ -6,8 +6,13 @@ GRTest.describeApp('Dialup', {
         const expectedTableTextContents = () => ({...expectedTdTextContents(), ...expectedThTextContents()});
         const expectedTdTextContents = ({body = msg.getPlainBody(), from = msg.getFrom(), id = 'inbox_0_0'} = {}) => ({td: [from, body, JSUtil.DateUtil.timeString(new Date()), id]});
         const expectedThTextContents = ({id = 'inbox_0', subject = msg.getSubject()} = {}) => ({th: ['', subject, '', id]});
+        const testQueryRendersMessage = (desc, q, message) => GRTest.it(desc, [], {
+            ...threadsByQuery, [q]: [[message]]
+        }, [], {q}, expectedThTextContents({id: `${q}_0`}));
+
         const htmlToEscape = '<g><t>';
         const msg = {getFrom: () => 'f1 <email>', getPlainBody: () => 'b1', getSubject: () => 's1'};
+        const msgDeleted = {...msg, isInTrash: () => true};
         const msgOld = {...msg, getDate: () => JSUtil.DateUtil.addDays(-1, new Date())};
         const threadsByQuery = {
            inbox: [[msg]],
@@ -19,6 +24,12 @@ GRTest.describeApp('Dialup', {
         GRTest.it('renders metadata', [], {
             ...threadsByQuery, inbox: [[msg], [msg]]
         }, [], {}, {'body > div': [null, 'Thread IDs: inbox_0,inbox_1']});
+
+        GRTest.it('filters deleted messages', [], {
+            ...threadsByQuery, inbox: [[msg, msgDeleted], [msgDeleted]]
+        }, [], {}, expectedTableTextContents());
+
+        ['anywhere', 'trash'].forEach(scope => testQueryRendersMessage(`doesn't filter deleted messages when querying ${scope}`, `in:${scope}`, msgDeleted));
 
         GRTest.it('renders multiple messages in a thread', [], {
             ...threadsByQuery,
@@ -70,9 +81,6 @@ GRTest.describeApp('Dialup', {
 
         GRTest.it('"bodyLength" param restricts body length', [], threadsByQuery, [], {bodyLength: '1'}, expectedTdTextContents({body: 'b'}));
 
-        GRTest.it('"q" param searches messages', [], {
-            ...threadsByQuery,
-            'g': [[msg]]
-        }, [], {q: 'g'}, expectedThTextContents({id: 'g_0'}));
+        testQueryRendersMessage('"q" param searches messages', 'g', msg);
     });
 });

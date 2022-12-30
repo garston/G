@@ -21,6 +21,6 @@ Dialup.RequestHandler.handle = p => {
     }
 
     return Dialup.MailRenderer.generateHtml(GASton.Mail.getThreadMessages(
-        GmailApp.search(p.q || 'in:inbox'), m => m.getDate().getTime() > (p.after || 0)
+        GmailApp.search(p.q || 'in:inbox'), m => m.getDate().getTime() > (p.after || 0) && (/in:(anywhere|trash)/.test(p.q) || !m.isInTrash())
     ), p.bodyLength);
 };
