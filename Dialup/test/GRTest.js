@@ -16,6 +16,10 @@ GRTest.describeApp('Dialup', {
 
         GRTest.it('renders 0 when not enabled', [], {}, [], {}, {'': ['0']});
 
+        GRTest.it('renders metadata', [], {
+            ...threadsByQuery, inbox: [[msg], [msg]]
+        }, [], {}, {'body > div': [null, 'Thread IDs: inbox_0,inbox_1']});
+
         GRTest.it('renders multiple messages in a thread', [], {
             ...threadsByQuery,
             inbox: [[msg, {...msg, getFrom: () => 'f2', getPlainBody: () => 'b2'}]]
