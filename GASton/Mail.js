@@ -37,11 +37,7 @@ GASton.Mail.markRead = function(message) {
 };
 
 GASton.Mail.moveToTrash = function(threadOrMsg) {
-    this._checkProdMode(
-        `${GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH}: ${threadOrMsg.getId()}`,
-        threadOrMsg.getFirstMessageSubject?.() || threadOrMsg.getSubject(),
-        threadOrMsg.getPlainBody?.()
-    ) && threadOrMsg.moveToTrash();
+    this._checkProdMode(`${GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH}: ${threadOrMsg.getId()}`) && threadOrMsg.moveToTrash();
 };
 
 GASton.Mail.parseFrom = function(message){

@@ -14,6 +14,6 @@ GTxt.MissedCallEnabler.changeEnabled = function(config) {
 
 GTxt.MissedCallEnabler._isToggleEnabledRequest = function(message, config) {
     return [config.gvNumber, config.getPhysicalPhoneContact().number].
-        concat(JSUtil.ArrayUtil.compact(config.additionalToggleEnabledNumbers.toString().split(',').map(num => +num))).
+        concat(JSUtil.StringUtil.splitPossiblyEmpty(config.additionalToggleEnabledNumbers.toString()).map(num => +num)).
         includes(GTxt.Voice.getFirstNumberMentioned(message.getBody()));
 };

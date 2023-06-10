@@ -6,10 +6,6 @@ PhysEd.Person = function(email, firstName, lastName) {
     this.lastName = lastName || '';
 };
 
-PhysEd.Person.prototype.getAlternateNames = function(){
-    return this.alternateNames ? this.alternateNames.split(',') : [];
-};
-
 PhysEd.Person.prototype.getDisplayString = function(){
     return this.firstName && this.lastName ? this.firstName + ' ' + this.lastName : this.email;
 };

@@ -1,5 +1,5 @@
 Dialup.RequestHandler = {};
-Dialup.RequestHandler.handle = p => {
+Dialup.RequestHandler.handle = function (p) {
     const emailOptions = {bcc: '', name: 'Garston Tremblay'};
     switch (p.action) {
         case 'a':
@@ -9,7 +9,8 @@ Dialup.RequestHandler.handle = p => {
             GASton.Mail.sendNewEmail(p.to, p.subject, p.body, emailOptions);
             break;
         case 'd':
-            p.ids.split(',').forEach(i => GASton.Mail.moveToTrash(GmailApp.getThreadById(i) || GmailApp.getMessageById(i)));
+            this._moveToTrash(p.ids, 'getThreadById');
+            this._moveToTrash(p.msgIds, 'getMessageById');
             break;
         case 'r':
             GASton.Mail.reply(GmailApp.getMessageById(p.id), p.body, emailOptions);
@@ -23,4 +24,7 @@ Dialup.RequestHandler.handle = p => {
     return Dialup.MailRenderer.generateHtml(GASton.Mail.getThreadMessages(
         GmailApp.search(p.q || 'in:inbox'), m => m.getDate().getTime() > (p.after || 0) && (/in:(anywhere|trash)/.test(p.q) || !m.isInTrash())
     ), p.bodyLength);
-};
+}
+
+Dialup.RequestHandler._moveToTrash = (ids, gmailGetFn) =>
+    JSUtil.StringUtil.splitPossiblyEmpty(ids).forEach(id => GASton.Mail.moveToTrash(GmailApp[gmailGetFn](id)));

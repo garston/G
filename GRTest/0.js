@@ -41,14 +41,14 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                     const thread = {
                         addLabel: label => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.ADD_LABEL, q, threadIndex, label]),
                         getFirstMessageSubject: () => msgs[0].getSubject(),
-                        getId: () => [q, threadIndex].join('_'),
+                        getId: () => `${q}_${threadIndex}`,
                         getMessages: () => msgs.map((m, msgIndex) => ({
                             getAttachments: () => [],
                             getDate: () => new Date(),
                             isInTrash: () => false,
                             isUnread: () => false,
                             ...m,
-                            getId: () => [q, threadIndex, msgIndex].join('_'),
+                            getId: () => `${thread.getId()}_${msgIndex}`,
                             getThread: () => thread,
                             markRead: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MARK_READ, q, threadIndex, msgIndex]),
                             moveToTrash: () => actualUpdates.push([GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, q, threadIndex, msgIndex]),

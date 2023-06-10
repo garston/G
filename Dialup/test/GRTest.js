@@ -47,10 +47,13 @@ GRTest.describeApp('Dialup', {
             [GASton.UPDATE_TYPES.MAIL.SEND, 't', 's', 'b']
         ], {action: 'c', body: 'b', subject: 's', to: 't'}, expectedTableTextContents());
 
-        GRTest.it('action=d moves to trash', [], threadsByQuery(), [
-            [GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, 'inbox', 0],
-            [GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, 'inbox', 0, 0]
-        ], {action: 'd', ids: 'inbox_0,inbox_0_0'}, expectedTableTextContents());
+        GRTest.it('action=d moves thread to trash', [], threadsByQuery(), [
+            [GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, 'inbox', 0]
+        ], {action: 'd', ids: 'inbox_0'}, expectedTableTextContents());
+
+        GRTest.it('action=d moves message to trash', [], threadsByQuery(), [
+            [GASton.UPDATE_TYPES.MAIL.MOVE_TO_TRASH, 'inbox', 0, 0],
+        ], {action: 'd', msgIds: 'inbox_0_0'}, expectedTableTextContents());
 
         GRTest.it('action=r replies', [], threadsByQuery(), [
             [GASton.UPDATE_TYPES.MAIL.REPLY, 'inbox', 0, 0, 'b']

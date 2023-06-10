@@ -19,7 +19,7 @@ PhysEd.PlayerStatusParser.prototype._getPersonGuid = function(message){
     const person = GASton.Database.hydrate(PhysEd.Person).find(person =>
         person.email === fromParts.email ||
             (person.firstName === fromParts.firstName && person.lastName === fromParts.lastName) ||
-            person.getAlternateNames().some(name => name === fromParts.email || name === fromParts.firstName + ' ' + fromParts.lastName)
+            JSUtil.StringUtil.splitPossiblyEmpty(person.alternateNames).some(name => name === fromParts.email || name === fromParts.firstName + ' ' + fromParts.lastName)
     ) || new PhysEd.Person(fromParts.email, fromParts.firstName, fromParts.lastName);
     return person.guid;
 };

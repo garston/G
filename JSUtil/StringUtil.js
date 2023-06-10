@@ -9,6 +9,8 @@ JSUtil.StringUtil = {
         return str.match(re) || [];
     },
 
+    splitPossiblyEmpty: str => str ? str.split(',') : [],
+
     stripTags: function(str) {
         return str.replace(/(<([^>]+)>)/ig, '');
     }
