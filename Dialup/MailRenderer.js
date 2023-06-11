@@ -11,7 +11,7 @@ Dialup.MailRenderer.generateHtml = function(threadMessages, bodyLength){
             '<table>',
                 '<tr>',
                     ...this._wrapEach('th', [
-                        `<input onclick="var e = document.getElementById('${idThreadIds}'); e.innerHTML = e.innerHTML.replace(/${threads[i].getId()},?/, '')" type="button" />`,
+                        `<input onclick="var e = document.getElementById('${idThreadIds}'); e.innerHTML = e.innerHTML.split(',').filter(function(i){return i !== '${threads[i].getId()}'}).join(',')" type="button" />`,
                         JSUtil.StringUtil.escapeHTML(threads[i].getFirstMessageSubject()),
                         '',
                         threads[i].getId()
