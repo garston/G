@@ -6,7 +6,7 @@ GRTest.describeApp('GASton', {}, () => {
             [GASton.ExecutionLog, ['a', 'b'].map(c => [JSUtil.GuidUtil.generate(), Date.now(), c])],
         ], {}, [
             [GASton.UPDATE_TYPES.MAIL.SEND, GRTest.ACTIVE_USER_EMAIL, GRTest.SPREADSHEET_NAME, ['a', 'b'].map(c => `${JSUtil.DateUtil.timeString(new Date())} ${c}`).join('')],
-            ...JSUtil.ArrayUtil.range(2).map(() => [GASton.UPDATE_TYPES.DB.DELETE, GASton.ExecutionLog, 1])
+            [GASton.UPDATE_TYPES.DB.CLEAR, GASton.ExecutionLog]
         ]);
     });
 });

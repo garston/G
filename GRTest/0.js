@@ -95,6 +95,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                     getName: () => GRTest.SPREADSHEET_NAME,
                     getSheetByName: tableName => ({
                         appendRow: () => actualUpdates.push([GASton.UPDATE_TYPES.DB.INSERT, tableName]),
+                        clear: () => actualUpdates.push([GASton.UPDATE_TYPES.DB.CLEAR, tableName]),
                         deleteRow: row => actualUpdates.push([GASton.UPDATE_TYPES.DB.DELETE, tableName, row]),
                         getDataRange: () => ({
                             getValues: () => {

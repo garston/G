@@ -1,6 +1,7 @@
 GASton = {};
 GASton.UPDATE_TYPES = {
     DB: {
+        CLEAR: 'CLEAR',
         DELETE: 'DELETE',
         INSERT: 'INSERT',
         UPDATE: 'UPDATE'
@@ -19,10 +20,12 @@ GASton.checkProdMode = function(){ return true; };
 
 function emailLog() {
     const log = GASton.Database.hydrate(GASton.ExecutionLog);
-    if(!log.length){
-        return;
+    if(log.length){
+        GASton.Mail.sendNewEmail(
+            Session.getActiveUser().getEmail(),
+            SpreadsheetApp.getActiveSpreadsheet().getName(),
+            log.map(l => `${JSUtil.DateUtil.timeString(new Date(l.createdAt))} ${l.params}`).join('<br/>')
+        );
+        GASton.Database.clear(GASton.ExecutionLog);
     }
-
-    GASton.Mail.sendNewEmail(Session.getActiveUser().getEmail(), SpreadsheetApp.getActiveSpreadsheet().getName(), log.map(l => `${JSUtil.DateUtil.timeString(new Date(l.createdAt))} ${l.params}`).join('<br/>'));
-    log.slice(0).forEach(l => GASton.Database.remove(l));
 }
