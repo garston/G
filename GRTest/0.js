@@ -21,7 +21,7 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
         function assertFail(desc, expected, actual) {
             console.error('expected:', expected);
             console.error('actual:  ', actual);
-            throw `assertion failure: ${desc}`
+            throw `assertion failure: ${desc}`;
         }
 
         const renderHtml = html => document.body.innerHTML = html;
@@ -109,6 +109,9 @@ GRTest.describeApp = (appName, queriesByName, fnWithDescribes) => {
                         })
                     })
                 })
+            };
+            window.UrlFetchApp = {
+                fetch: (url, params) => actualUpdates.push([GASton.UPDATE_TYPES.URL.FETCH, url, params])
             };
 
             renderHtml(window[fnName]({parameter}) || '');

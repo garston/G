@@ -5,15 +5,14 @@ PhysEd.GamePreparer = function() {
 PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
     var leaguesByMailingListGuid = JSUtil.ArrayUtil.groupBy(GASton.Database.hydrate(PhysEd.League), function(league){ return league.mailingListGuid; });
     for(var mailingListGuid in leaguesByMailingListGuid) {
-        var tomorrowDay = (this.today.getDay() + 1) % 7;
+        const tomorrowDay = JSUtil.DateUtil.getDay(1);
         const tomorrowSports = leaguesByMailingListGuid[mailingListGuid].filter(league => league.getGameDays().includes(tomorrowDay));
         var sportsByScheduleType = JSUtil.ArrayUtil.groupBy(tomorrowSports, function(league){ return league.hasPredeterminedSchedule(); });
         var chosenSport = sportsByScheduleType[true] && (this._findInProgressSport(sportsByScheduleType[true]) || this._findLowestSport(sportsByScheduleType[true]));
         (sportsByScheduleType[false] || []).
             concat(chosenSport || []).
             forEach(function(league){
-                var subject = (league.cuteSportName ? league.cuteSportName + ' ' + JSUtil.DateUtil.dayOfWeekString(tomorrowDay) : league.sportName + ' Tomorrow') +
-                    JSUtil.ArrayUtil.range(Math.floor(Math.random() * 6)).reduce(function(str){ return str + '!'; }, '');
+                const subject = `${league.cuteSportName ? `${league.cuteSportName} ${JSUtil.DateUtil.dayOfWeekString(tomorrowDay)}` : `${league.sportName} Tomorrow`}!`;
                 var mailingList = league.getMailingList();
 
                 GASton.Mail.sendToList(mailingList.email, subject, '');
@@ -22,6 +21,8 @@ PhysEd.GamePreparer.prototype.notifyGameTomorrow = function(){
                 if(flowdock) {
                     this._sendFlowdockMessage(league, subject, flowdock);
                 }
+
+                mailingList.createGroupMePoll(league);
             }, this);
 
         if(chosenSport){

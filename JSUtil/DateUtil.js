@@ -13,6 +13,8 @@ JSUtil.DateUtil = {
         return Math.floor((date2 - date1) / 86400000);
     },
 
+    getDay: daysFromNow => (new Date().getDay() + daysFromNow) % 7,
+
     lastDayOfMonth: function(date) {
         var newDate = new Date(date);
         newDate.setFullYear(newDate.getFullYear(), newDate.getMonth() + 1, 0)

@@ -13,6 +13,9 @@ GASton.UPDATE_TYPES = {
         REPLY: 'REPLY',
         REPLY_ALL: 'REPLY ALL',
         SEND: 'SEND EMAIL'
+    },
+    URL: {
+        FETCH: 'URL FETCH'
     }
 };
 
