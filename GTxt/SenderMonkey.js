@@ -23,7 +23,7 @@ GTxt.SenderMonkey.txtContacts = function(searchTerms, getMessageText, onSuccess,
                 } else {
                     this._findContacts(!isQuickReply && messageParts[0], onError, message, config).forEach(function(contact){
                         GTxt.Util.mail(
-                            GTxt.Voice.getTxtEmail(contact, config),
+                            GASton.Voice.getTxtEmail(config.gvNumber, contact.number, contact.gvKey),
                             GTxt.Compression.isCompressed(text) ? GTxt.Compression.decompress(text) : text,
                             [message]
                         );
