@@ -23,7 +23,7 @@ Dialup.RequestHandler.handle = function (p) {
 
     return Dialup.MailRenderer.generateHtml(GASton.Mail.getThreadMessages(
         GmailApp.search(p.q || 'in:inbox'), m => m.getDate().getTime() > (p.after || 0) && (/in:(anywhere|trash)/.test(p.q) || !m.isInTrash())
-    ), p.bodyLength);
+    ), p);
 }
 
 Dialup.RequestHandler._moveToTrash = (ids, gmailGetFn) =>

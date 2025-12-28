@@ -1,7 +1,7 @@
 GTxt.MissedCallEnabler = {};
 
 GTxt.MissedCallEnabler.changeEnabled = function(config) {
-    GmailApp.search(`from:${GASton.Voice.NO_REPLY_EMAIL} is:unread subject:${GASton.Voice.MISSED_CALL_SUBJECT} -to:me`).forEach(t => {
+    GmailApp.search(`from:${GASton.Voice.NO_REPLY_EMAIL} is:unread subject:"${GASton.Voice.MISSED_CALL_SUBJECT}" -to:me`).forEach(t => {
         t.getMessages().filter(m => !m.isInTrash() && m.isUnread() && this._isToggleEnabledRequest(m, config)).forEach((m, i, msgs) => {
             GTxt.Util.mail(
                 Session.getActiveUser().getEmail(),

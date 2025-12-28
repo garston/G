@@ -1,6 +1,6 @@
 GRTest.describeApp('Dialup', {
     inbox: 'in:inbox',
-    missedCalls: 'from:voice-noreply@google.com in:inbox subject:"missed call from Home"'
+    missedCalls: `from:${GASton.Voice.NO_REPLY_EMAIL} in:inbox subject:"${GASton.Voice.MISSED_CALL_SUBJECT} from Home"`
 }, () => {
     GRTest.describeFn('doGet', () => {
         const expectedTableTextContents = () => ({...expectedTdTextContents(), ...expectedThTextContents()});
@@ -31,11 +31,29 @@ GRTest.describeApp('Dialup', {
                 td: [...expectedTdTextContents().td, ...expectedTdTextContents({body: 'b2', from: 'f2', id: 'inbox_0_1'}).td],
             });
 
-        GRTest.it('HTML encodes message body', [],
-            threadsByQuery([[{...msg, getPlainBody: () => htmlToEscape}]]), [], {}, expectedTdTextContents({body: htmlToEscape}));
-
         GRTest.it('HTML encodes message subject', [],
-            threadsByQuery([[{...msg, getSubject: () => htmlToEscape}]]), [], {}, expectedThTextContents({subject: htmlToEscape}));
+            threadsByQuery([[{...msg, getSubject: () => htmlToEscape}]]), [], {},
+            expectedThTextContents({subject: htmlToEscape}));
+
+        GRTest.it('HTML encodes message body', [],
+            threadsByQuery([[{...msg, getPlainBody: () => htmlToEscape}]]), [], {},
+            expectedTdTextContents({body: htmlToEscape}));
+
+        GRTest.it('does not trim Voice message body when bodyRaw param', [],
+            threadsByQuery([[GRTest.Util.emailTxtCreate()]]), [], {bodyRaw: 1},
+            expectedTdTextContents({body: GRTest.Util.emailTxtBody(), from: GRTest.Util.emailTxtEmail()}));
+
+        GRTest.it('trims text message body', [],
+            threadsByQuery([[GRTest.Util.emailTxtCreate()]]), [], {},
+            expectedTdTextContents({body: GRTest.Util.DEFAULT_TXT, from: GRTest.Util.emailTxtEmail()}));
+
+        GRTest.it('trims voicemail body', [],
+            threadsByQuery([[GRTest.Util.emailVMCreate()]]), [], {},
+            expectedTdTextContents({body: GRTest.Util.DEFAULT_VM, from: GASton.Voice.NO_REPLY_EMAIL}));
+
+        GRTest.it('does not trim other Voice message', [],
+            threadsByQuery([[{...GRTest.Util.emailVMCreate(), getPlainBody: () => 'b'}]]), [], {},
+            expectedTdTextContents({body: 'b', from: GASton.Voice.NO_REPLY_EMAIL}));
 
         GRTest.it('renders dividers between threads', [], threadsByQuery([[msg], [msg]]), [], {}, {hr: ['', '']});
 
