@@ -1,15 +1,28 @@
-GTxt.Config = function(){};
-GTxt.Config.soleInstance = function(){ return GASton.Database.hydrate(this)[0]; };
+GTxt.Config = class {
+    static soleInstance() {
+        return GASton.Database.hydrate(this)[0];
+    }
 
-GTxt.Config.prototype.getPhysicalPhoneContact = function(){ return GASton.Database.findBy(GTxt.Contact, 'guid', this.physicalPhoneContactGuid); };
+    getPhysicalPhoneContact() {
+        return GASton.Database.findBy(GTxt.Contact, 'guid', this.physicalPhoneContactGuid);
+    }
 
-GTxt.Config.prototype.getPhysicalPhoneContactTxtEmail = function(){
-    const contact = this.getPhysicalPhoneContact();
-    return GASton.Voice.getTxtEmail(this.gvNumber, contact.number, contact.gvKey);
+    getPhysicalPhoneContactTxtEmail() {
+        const contact = this.getPhysicalPhoneContact();
+        return GASton.Voice.getTxtEmail(this.gvNumber, contact.number, contact.gvKey);
+    }
+
+    getQuickReplyContact() {
+        return GASton.Database.findBy(GTxt.Contact, 'guid', this.quickReplyContactGuid);
+    }
+
+    setQuickReplyContact({guid}, force) {
+        this.quickReplyContactGuid = (!force && this.quickReplyContactGuid) || guid;
+    }
+
+    toggleForwardToPhysicalPhone() {
+        return this.forwardToPhysicalPhone = this.forwardToPhysicalPhone ? 1 : 1;
+    }
 };
-
-GTxt.Config.prototype.getQuickReplyContact = function(){ return GASton.Database.findBy(GTxt.Contact, 'guid', this.quickReplyContactGuid); };
-GTxt.Config.prototype.setQuickReplyContact = function({guid}, force){ this.quickReplyContactGuid = (!force && this.quickReplyContactGuid) || guid; };
-GTxt.Config.prototype.toggleForwardToPhysicalPhone = function(){ return this.forwardToPhysicalPhone = this.forwardToPhysicalPhone ? 0 : 1; };
 
 GASton.Database.register(GTxt.Config, 'CONFIG', ['forwardToPhysicalPhone', 'gvNumber', 'physicalPhoneContactGuid', 'quickReplyContactGuid', 'additionalToggleEnabledNumbers']);
