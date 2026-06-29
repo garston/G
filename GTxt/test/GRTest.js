@@ -2,6 +2,7 @@ GRTest.describeApp('GTxt', {
     incomingTxts: `in:inbox is:unread to:me from:${GASton.Voice.TXT_DOMAIN} -from:${GRTest.Util.emailTxtEmail(1)} subject:"${GASton.Voice.TXT_SUBJECT}"`,
     incomingVMs: `in:inbox is:unread to:me from:${GASton.Voice.NO_REPLY_EMAIL} subject:${GASton.Voice.VOICEMAIL_SUBJECT}`,
     outgoingTxts: `in:inbox is:unread to:me from:${GRTest.Util.emailTxtEmail(1)} subject:"${GASton.Voice.TXT_SUBJECT}"`,
+    sendTxts: `in:inbox is:unread to:me from:me subject:${GRTest.SPREADSHEET_NAME}`,
     todayTxts: `after:${GASton.Mail.toSearchString(new Date())} from:${GASton.Voice.TXT_DOMAIN} in:anywhere subject:"${GASton.Voice.TXT_SUBJECT}" to:me`
 }, () => {
     GRTest.describeFn('go', () => {
@@ -9,9 +10,9 @@ GRTest.describeApp('GTxt', {
 
         const createEmailTxt = (i, txt) => emailInboxUnread(GRTest.Util.emailTxtCreate(i, txt));
         const createEmailVM = (subjectFrom, txt) => emailInboxUnread(GRTest.Util.emailVMCreate(subjectFrom, txt));
-        const createModelConfig = (o = {}) => [GTxt.Config, [[o.disableForwarding ? 0 : 1, GRTest.Util.phoneNum(0), 1, o.quickReplyContactGuid || '', '']]];
-        const createModelsContact = shortId => [GTxt.Contact, JSUtil.ArrayUtil.range(2).map(i => [i + 1, GRTest.Util.phoneNum(i + 1), GRTest.Util.gvKey(i + 1), (i && shortId) || 0])];
         const emailInboxUnread = (email, inboxUnread = true) => ({ ...email, isInInbox: () => inboxUnread, isUnread: () => inboxUnread });
+        const modelConfig = (o = {}) => [GTxt.Config, [[o.disableForwarding ? 0 : 1, GRTest.Util.phoneNum(0), 1, o.quickReplyContactGuid || '', '']]];
+        const modelsContact = shortId => [GTxt.Contact, JSUtil.ArrayUtil.range(2).map(i => [i + 1, GRTest.Util.phoneNum(i + 1), GRTest.Util.gvKey(i + 1), (i && shortId) || 0])];
 
         const expectedMailMsgUpdatesSend = (queryName, threadIndex, msgIndex) => [
             [GASton.UPDATE_TYPES.MAIL.MARK_READ, queryName, threadIndex, msgIndex],
@@ -20,22 +21,22 @@ GRTest.describeApp('GTxt', {
 
         [GRTest.Util.phoneNum(2), '303-000-0002', '+1 (303) 000-0002', -1, 1].forEach(n =>
             GRTest.it(`sends outgoing text to number formatted as ${n}`,
-                [createModelConfig(), createModelsContact([-1, 1].includes(n) ? n : 0)],
+                [modelConfig(), modelsContact([-1, 1].includes(n) ? n : 0)],
                 { outgoingTxts: [[createEmailTxt(1, `${n}|${GRTest.Util.DEFAULT_TXT}`)]] }, [
                     [GASton.UPDATE_TYPES.MAIL.SEND, GRTest.Util.emailTxtEmail(2), '', GRTest.Util.DEFAULT_TXT],
                     ...expectedMailMsgUpdatesSend('outgoingTxts', 0, 0),
                     [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Config, 1, 4, 2]
                 ]));
 
-        GRTest.it('does nothing when no incoming texts', [createModelConfig(), createModelsContact()], {}, []);
+        GRTest.it('does nothing when no incoming texts', [modelConfig(), modelsContact()], {}, []);
 
         GRTest.it('creates Contact on txt (in anywhere) from new number',
-            [createModelConfig(), createModelsContact()],
+            [modelConfig(), modelsContact()],
             { todayTxts: [[emailInboxUnread(createEmailTxt(2), false)], [emailInboxUnread(createEmailTxt(3), false)]] },
             GRTest.Util.expectedDbUpdatesNewRow(GTxt.Contact, 3, [GRTest.Util.phoneNum(3), GRTest.Util.gvKey(3), 0]));
 
         GRTest.it('sets quick reply contact on incoming txt',
-            [createModelConfig(), createModelsContact()],
+            [modelConfig(), modelsContact()],
             {incomingTxts: [[createEmailTxt(2)]]}, [
                 [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Config, 1, 4, 2],
                 [GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Contact, 2, 4, 1],
@@ -48,14 +49,14 @@ GRTest.describeApp('GTxt', {
             { desc: 'VMs', emailBody: `${contactName}|${JSUtil.DateUtil.timeString(new Date())},VM-${GRTest.Util.DEFAULT_VM}`, threadsByQuery: {incomingVMs: [[createEmailVM(contactName)]]} }
         ].forEach(o =>
             GRTest.it(`forwards incoming ${o.desc}`,
-                [createModelConfig(), createModelsContact()],
+                [modelConfig(), modelsContact()],
                 o.threadsByQuery, [
                     [GASton.UPDATE_TYPES.MAIL.SEND, GRTest.Util.emailTxtEmail(1), '', o.emailBody],
                     ...expectedMailMsgUpdatesSend(Object.keys(o.threadsByQuery)[0], 0, 0)
                 ]));
 
         GRTest.it('forwards incoming empty VMs from known numbers',
-            [createModelConfig(), createModelsContact()],
+            [modelConfig(), modelsContact()],
             {incomingVMs: [[createEmailVM(contactName, '')]]},
             [
                 [GASton.UPDATE_TYPES.MAIL.SEND, GRTest.Util.emailTxtEmail(1), '', `${contactName}|${JSUtil.DateUtil.timeString(new Date())},VM`],
@@ -63,7 +64,7 @@ GRTest.describeApp('GTxt', {
             ]);
 
         GRTest.it('forwards incoming empty VMs from unknown number w/ other msgs to forward',
-            [createModelConfig(), createModelsContact()],
+            [modelConfig(), modelsContact()],
             {
                 incomingTxts: [[createEmailTxt(1234567)]],
                 incomingVMs: [[createEmailVM(GRTest.Util.phoneNumStr(1234567), '')]]
@@ -75,12 +76,20 @@ GRTest.describeApp('GTxt', {
             ]);
 
         GRTest.it('does not forward incoming empty VMs from unknown number w/o other msgs to forward',
-            [createModelConfig(), createModelsContact()],
+            [modelConfig(), modelsContact()],
             {incomingVMs: [[createEmailVM(GRTest.Util.phoneNumStr(1234567), '')]]},
             []);
 
+        GRTest.it('sends text from email',
+            [modelConfig(), modelsContact()],
+            {sendTxts: [[emailInboxUnread({getBody: () => `${GRTest.Util.phoneNum(2)}|${GRTest.Util.DEFAULT_TXT}`, getSubject: () => ''})]]},
+            [
+                [GASton.UPDATE_TYPES.MAIL.SEND, GRTest.Util.emailTxtEmail(2), '', GRTest.Util.DEFAULT_TXT],
+                ...expectedMailMsgUpdatesSend('sendTxts', 0, 0)
+            ]);
+
         GRTest.it('clears quick reply contact when forwarding disabled',
-            [createModelConfig({disableForwarding: true, quickReplyContactGuid: 2}), createModelsContact()], {},
+            [modelConfig({disableForwarding: true, quickReplyContactGuid: 2}), modelsContact()], {},
             [[GASton.UPDATE_TYPES.DB.UPDATE, GTxt.Config, 1, 4, '']]);
     });
 });
