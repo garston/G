@@ -1,10 +1,14 @@
-GASton.ExecutionLog = class {
-    constructor(params) {
-        this.guid = JSUtil.GuidUtil.generate();
-        this.createdAt = Date.now();
+namespace GASton {
+    export const ExecutionLog = GASton.Database.register(class {
+        public createdAt: number;
+        public guid: string;
+        public params: string;
 
-        this.params = JSON.stringify(params);
-    }
-};
+        constructor(params: GoogleAppsScript.Events.DoGet['parameter']) {
+            this.guid = JSUtil.GuidUtil.generate();
+            this.createdAt = Date.now();
 
-GASton.Database.register(GASton.ExecutionLog, 'EXECUTION_LOG', ['guid', 'createdAt', 'params']);
+            this.params = JSON.stringify(params);
+        }
+    }, 'EXECUTION_LOG', ['guid', 'createdAt', 'params']);
+}
