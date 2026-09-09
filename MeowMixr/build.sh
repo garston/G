@@ -6,6 +6,9 @@ SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 
 echo "//$PLUSES `git rev-parse HEAD` $PLUSES" > $SCRIPT_DIR/bundle.txt
 
+cat $SCRIPT_DIR/../../DefinitelyTyped/types/google-apps-script/*.d.ts >> $SCRIPT_DIR/bundle.txt
+sed -i '' '2,5d;706d' $SCRIPT_DIR/bundle.txt
+
 for projectName in "$@"
 do
     echo "Building $projectName"
@@ -15,3 +18,5 @@ do
 done
 
 echo "//$MINUSES `git rev-parse HEAD` $MINUSES" >> $SCRIPT_DIR/bundle.txt
+
+open $SCRIPT_DIR/bundle.txt

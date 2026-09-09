@@ -1,30 +1,33 @@
-Dialup.RequestHandler = {};
-Dialup.RequestHandler.handle = function (p) {
-    const emailOptions = {bcc: '', name: 'Garston Tremblay'};
-    switch (p.action) {
-        case 'a':
-            GASton.Mail.replyAll(GmailApp.getMessageById(p.id), p.body, emailOptions);
-            break;
-        case 'c':
-            GASton.Mail.sendNewEmail(p.to, p.subject, p.body, emailOptions);
-            break;
-        case 'd':
-            this._moveToTrash(p.ids, 'getThreadById');
-            this._moveToTrash(p.msgIds, 'getMessageById');
-            break;
-        case 'r':
-            GASton.Mail.reply(GmailApp.getMessageById(p.id), p.body, emailOptions);
-            break;
-        case undefined:
-            break;
-        default:
-            return `invalid action '${p.action}'`
+namespace Dialup {
+    export namespace RequestHandler {
+        export const handle = (p: Dialup.Parameter) => {
+            const emailOptions = {bcc: '', name: 'Garston Tremblay'};
+            switch (p.action) {
+                case 'a':
+                    GASton.Mail.replyAll(GmailApp.getMessageById(p.id!), p.body!, emailOptions);
+                    break;
+                case 'c':
+                    GASton.Mail.sendNewEmail(p.to!, p.subject!, p.body!, emailOptions);
+                    break;
+                case 'd':
+                    _moveToTrash(p.ids!, 'getThreadById');
+                    _moveToTrash(p.msgIds!, 'getMessageById');
+                    break;
+                case 'r':
+                    GASton.Mail.reply(GmailApp.getMessageById(p.id!), p.body!, emailOptions);
+                    break;
+                case undefined:
+                    break;
+                default:
+                    return `invalid action '${p.action}'`
+            }
+
+            return Dialup.MailRenderer.generateHtml(GASton.Mail.getThreadMessages(
+                GmailApp.search(p.q || 'in:inbox'), m => m.getDate().getTime() > (+p.after! || 0) && (/in:(anywhere|trash)/.test(p.q || '') || !m.isInTrash())
+            ), p);
+        };
+
+        const _moveToTrash = (ids: string, gmailGetFn: 'getMessageById' | 'getThreadById') =>
+            JSUtil.StringUtil.splitPossiblyEmpty(ids).forEach(id => GASton.Mail.moveToTrash(GmailApp[gmailGetFn](id)));
     }
-
-    return Dialup.MailRenderer.generateHtml(GASton.Mail.getThreadMessages(
-        GmailApp.search(p.q || 'in:inbox'), m => m.getDate().getTime() > (p.after || 0) && (/in:(anywhere|trash)/.test(p.q) || !m.isInTrash())
-    ), p);
 }
-
-Dialup.RequestHandler._moveToTrash = (ids, gmailGetFn) =>
-    JSUtil.StringUtil.splitPossiblyEmpty(ids).forEach(id => GASton.Mail.moveToTrash(GmailApp[gmailGetFn](id)));
