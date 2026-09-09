@@ -15,3 +15,7 @@ do
 done
 
 echo "//$MINUSES `git rev-parse HEAD` $MINUSES" >> $SCRIPT_DIR/bundle.txt
+
+cat $SCRIPT_DIR/../../DefinitelyTyped/types/google-apps-script/*.d.ts >> MeowMixr/bundle.txt
+
+open $SCRIPT_DIR/bundle.txt

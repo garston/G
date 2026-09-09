@@ -1,35 +1,28 @@
-JSUtil.DateUtil = {
-    addDays: function(days, date) {
-        var newDate = new Date(date);
-        newDate.setDate(newDate.getDate() + days);
-        return newDate;
-    },
+namespace JSUtil {
+    export namespace DateUtil {
+        export const addDays = (days: number, d: Date) => {
+            const newDate = new Date(d);
+            newDate.setDate(newDate.getDate() + days);
+            return newDate;
+        };
 
-    dayOfWeekString: function(dayOfWeek) {
-        return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
-    },
+        export const dayOfWeekString = (dayOfWeek: number) => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+        export const diff = (d1: any, d2: any) => Math.floor((d2 - d1) / 86400000);
+        export const getDay = (daysFromNow: number) => (new Date().getDay() + daysFromNow) % 7;
 
-    diff: function(date1, date2) {
-        return Math.floor((date2 - date1) / 86400000);
-    },
+        export const lastDayOfMonth = (d: Date) => {
+            const newDate = new Date(d);
+            newDate.setFullYear(newDate.getFullYear(), newDate.getMonth() + 1, 0)
+            return newDate;
+        };
 
-    getDay: daysFromNow => (new Date().getDay() + daysFromNow) % 7,
+        export const startOfDay = (d: Date) => {
+            const newDate = new Date(d);
+            newDate.setHours(0, 0, 0, 0);
+            return newDate;
+        };
 
-    lastDayOfMonth: function(date) {
-        var newDate = new Date(date);
-        newDate.setFullYear(newDate.getFullYear(), newDate.getMonth() + 1, 0)
-        return newDate;
-    },
-
-    startOfDay: function(date) {
-        var newDate = new Date(date);
-        newDate.setHours(0, 0, 0, 0);
-        return newDate;
-    },
-
-    timeString: d => `${d.getHours()}:${d.getMinutes() < 10 ? 0 : ''}${d.getMinutes()}`,
-
-    toPrettyString: function(date, omitYear) {
-        return (date.getMonth()+1) + '/' + date.getDate() + (omitYear ? '' : '/' + date.getFullYear());
+        export const timeString = (d: GoogleAppsScript.Base.Date) => `${d.getHours()}:${d.getMinutes() < 10 ? 0 : ''}${d.getMinutes()}`;
+        export const toPrettyString = (d: GoogleAppsScript.Base.Date, omitYear?: boolean) => (d.getMonth()+1) + '/' + d.getDate() + (omitYear ? '' : '/' + d.getFullYear());
     }
-};
+}
