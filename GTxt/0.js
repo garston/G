@@ -1,6 +1,7 @@
-GTxt = {};
-GTxt.DOUBLE_SEPARATOR = '||';
-GTxt.SEPARATOR = '|';
+namespace GTxt {
+    export const DOUBLE_SEPARATOR = '||';
+    export const SEPARATOR = '|';
+}
 
 function clearShortIds () {
     GASton.Database.hydrate(GTxt.Contact).forEach(c => c.shortId = c.hasShortId() ? -c.shortId : 0);
@@ -26,4 +27,3 @@ function go() {
 function populateContacts() {
     GTxt.ContactPopulator.execute(true);
 }
-

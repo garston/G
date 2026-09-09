@@ -1,80 +1,90 @@
-GASton.Database = {};
-GASton.Database._cache = {};
+namespace GASton {
+    export namespace Database {
+        type Cache<T extends BoundObject> = Record<BoundClass['__tableName'], T[] | undefined>;
+        export let _cache: Cache<BoundObject> = {};
 
-GASton.Database.clear = function(clazz){
-    GASton.checkProdMode(`${GASton.UPDATE_TYPES.DB.CLEAR} ${clazz.__tableName}`) &&
-        this._getSheet(clazz).clear();
-    this._setCache(clazz, []);
-};
+        export const clear = (clazz: BoundClass) => {
+            checkProdMode(`${UPDATE_TYPES.DB.CLEAR} ${clazz.__tableName}`) &&
+                _getSheet(clazz).clear();
+            _setCache(clazz, []);
+        };
 
-GASton.Database.findBy = function(clazz, prop, value){
-    return this.hydrate(clazz).find(o => o[prop] === value);
-};
-
-GASton.Database.hydrate = function(clazz){
-    if(!this._getCache(clazz)) {
-        clazz.__hydrating = true;
-        const values = this._getSheet(clazz).getDataRange().getValues();
-        this._setCache(clazz, JSUtil.ObjectUtil.equal(values, [['']]) ?  [] : values.
-            slice(clazz.__firstRow - 1).
-            map(rowData => {
-                const o = new clazz();
-                o.__values = rowData.slice();
-                return o;
-            })
-        );
-        delete clazz.__hydrating;
-    }
-
-    return this._getCache(clazz);
-};
-
-GASton.Database.register = function(clazz, tableName, props, hasHeaders){
-    clazz.__firstRow = hasHeaders ? 2 : 1;
-    clazz.__tableName = tableName;
-
-    props.forEach(function(prop, propIndex){
-        if(!prop) {
-            return;
+        export const findBy = function<T extends BoundClass>(clazz: T, prop: BoundObjectProp, value: BoundObjectPropVal) {
+            return hydrate(clazz).find(o => (o as Record<BoundObjectProp, BoundObjectPropVal>)[prop] === value);
         }
 
-        Object.defineProperty(clazz.prototype, prop, {
-            get: function(){ return this.__values[propIndex]; },
-            set: function(val){
-                if(clazz.__hydrating){
+        export const hydrate = function<T extends BoundClass>(clazz: T) {
+            if(!_getCache(clazz)) {
+                clazz.__hydrating = true;
+                const values: BoundObjectPropVal[][] = _getSheet(clazz).getDataRange().getValues();
+                _setCache(clazz, JSUtil.ObjectUtil.equal(values, [['']]) ?  [] : values.
+                    slice(clazz.__firstRow - 1).
+                    map(rowData => {
+                        const o = new clazz();
+                        o.__values = rowData.slice();
+                        return o;
+                    })
+                );
+                delete clazz.__hydrating;
+            }
+
+            return _getCache(clazz)!;
+        };
+
+        export const register = function<T extends BoundClass>(clazz: T, tableName: string, props: (null | BoundObjectProp)[], hasHeaders?: boolean) {
+            clazz.__firstRow = hasHeaders ? 2 : 1;
+            clazz.__tableName = tableName;
+
+            props.forEach((prop, propIndex) => {
+                if(!prop) {
                     return;
                 }
 
-                if (!this.__values){
-                    GASton.Database.hydrate(clazz).push(this);
+                Object.defineProperty(clazz.prototype, prop, {
+                    get: function(){ return (this as BoundObject).__values![propIndex]; },
+                    set: function(val){
+                        if(clazz.__hydrating){
+                            return;
+                        }
 
-                    var newRow = props.map(function(prop, i){ return i === propIndex ? val : ''; });
-                    GASton.checkProdMode(`${GASton.UPDATE_TYPES.DB.INSERT} ${tableName} - ${JSON.stringify(newRow)}`) &&
-                        GASton.Database._getSheet(clazz).appendRow(newRow.slice());
-                    this.__values = newRow;
-                }else if(this.__values[propIndex] !== val){
-                    const rowIndex = GASton.Database._getRowIndex(this);
-                    GASton.checkProdMode(`${GASton.UPDATE_TYPES.DB.UPDATE} ${tableName}:${rowIndex} - ${prop}: ${this.__values[propIndex]} -> ${val}`) &&
-                        GASton.Database._getSheet(clazz).getRange(rowIndex, propIndex + 1).setValue(val);
-                    this.__values[propIndex] = val;
-                }
-            }
-        });
-    });
-};
+                        const o: InstanceType<T> = this;
+                        if (!o.__values){
+                            hydrate(clazz).push(o);
 
-GASton.Database.remove = function(o){
-    const clazz = this._getClazz(o);
-    GASton.checkProdMode(`${GASton.UPDATE_TYPES.DB.DELETE} ${clazz.__tableName}:${this._getRowIndex(o)}`) &&
-        this._getSheet(clazz).deleteRow(this._getRowIndex(o));
-    JSUtil.ArrayUtil.remove(this._getCache(clazz), o);
-};
+                            const newRow = props.map((_prop, i) => i === propIndex ? val : '');
+                            checkProdMode(`${UPDATE_TYPES.DB.INSERT} ${tableName} - ${JSON.stringify(newRow)}`) &&
+                                _getSheet(clazz).appendRow(newRow.slice());
+                            o.__values = newRow;
+                        }else if(o.__values[propIndex] !== val){
+                            const rowIndex = _getRowIndex(o);
+                            checkProdMode(`${UPDATE_TYPES.DB.UPDATE} ${tableName}:${rowIndex} - ${prop}: ${o.__values[propIndex]} -> ${val}`) &&
+                                _getSheet(clazz).getRange(rowIndex, propIndex + 1).setValue(val);
+                            o.__values[propIndex] = val;
+                        }
+                    }
+                });
+            });
+        };
 
-GASton.Database._getCache = function(clazz){ return this._cache[clazz.__tableName]; };
-GASton.Database._getClazz = o => o.constructor;
-GASton.Database._getRowIndex = function(o){
-    const clazz = this._getClazz(o);
-    return this._getCache(clazz).indexOf(o) + clazz.__firstRow;
-};
-GASton.Database._getSheet = function (clazz){ return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(clazz.__tableName); };
-GASton.Database._setCache = function(clazz, objs){ this._cache[clazz.__tableName] = objs; };
+        export const remove = (o: BoundObject) => {
+            const clazz = _getClazz(o);
+            checkProdMode(`${UPDATE_TYPES.DB.DELETE} ${clazz.__tableName}:${_getRowIndex(o)}`) &&
+                _getSheet(clazz).deleteRow(_getRowIndex(o));
+            JSUtil.ArrayUtil.remove(_getCache(clazz)!, o);
+        };
+
+        const _getCache = function<T extends BoundClass>(clazz: T) { return (_cache as Cache<InstanceType<T>>)[clazz.__tableName]};
+        const _getClazz = (o: BoundObject) => o.constructor as BoundClass;
+
+        const _getRowIndex = (o: BoundObject) => {
+            const clazz = _getClazz(o);
+            return _getCache(clazz)!.indexOf(o) + clazz.__firstRow;
+        };
+
+        const _getSheet = (clazz: BoundClass) => SpreadsheetApp.getActiveSpreadsheet().getSheetByName(clazz.__tableName)!;
+
+        const _setCache = (clazz: BoundClass, objs: BoundObject[]) => {
+            _cache[clazz.__tableName] = objs;
+        }
+    }
+}

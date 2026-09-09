@@ -1,6 +1,20 @@
-Dialup = {};
+namespace Dialup {
+    export type Parameter = {
+        action?: string;
+        after?: string;
+        body?: string;
+        bodyLength?: string;
+        bodyRaw?: string;
+        id?: string;
+        ids?: string;
+        msgIds?: string;
+        q?: string;
+        subject?: string;
+        to?: string;
+    };
+}
 
-function doGet(req) {
+function doGet(req: GoogleAppsScript.Events.DoGet) {
     new GASton.ExecutionLog(req.parameter);
 
     return ContentService.createTextOutput(

@@ -1,28 +1,35 @@
-GTxt.Config = class {
-    static soleInstance() {
-        return GASton.Database.hydrate(this)[0];
-    }
+namespace GTxt {
+    export class Config extends GASton.BoundObject {
+        readonly additionalToggleEnabledNumbers!: GASton.BoundObjectPropCommaList;
+        forwardToPhysicalPhone!: number
+        readonly gvNumber!: number;
+        private readonly physicalPhoneContactGuid!: string;
+        quickReplyContactGuid!: string;
 
-    getPhysicalPhoneContact() {
-        return GASton.Database.findBy(GTxt.Contact, 'guid', this.physicalPhoneContactGuid);
-    }
+        static soleInstance() {
+            return GASton.Database.hydrate(Config)[0];
+        }
 
-    getPhysicalPhoneContactTxtEmail() {
-        const contact = this.getPhysicalPhoneContact();
-        return GASton.Voice.getTxtEmail(this.gvNumber, contact.number, contact.gvKey);
-    }
+        getPhysicalPhoneContact() {
+            return GASton.Database.findBy(GTxt.Contact, 'guid', this.physicalPhoneContactGuid)!;
+        }
 
-    getQuickReplyContact() {
-        return GASton.Database.findBy(GTxt.Contact, 'guid', this.quickReplyContactGuid);
-    }
+        getPhysicalPhoneContactTxtEmail() {
+            const contact = this.getPhysicalPhoneContact();
+            return GASton.Voice.getTxtEmail(this.gvNumber, contact.number, contact.gvKey);
+        }
 
-    setQuickReplyContact({guid}, force) {
-        this.quickReplyContactGuid = (!force && this.quickReplyContactGuid) || guid;
-    }
+        getQuickReplyContact() {
+            return GASton.Database.findBy(GTxt.Contact, 'guid', this.quickReplyContactGuid);
+        }
 
-    toggleForwardToPhysicalPhone() {
-        return this.forwardToPhysicalPhone = this.forwardToPhysicalPhone ? 1 : 1;
-    }
-};
+        setQuickReplyContact({guid}: GTxt.Contact, force?: boolean) {
+            this.quickReplyContactGuid = (!force && this.quickReplyContactGuid) || guid;
+        }
 
-GASton.Database.register(GTxt.Config, 'CONFIG', ['forwardToPhysicalPhone', 'gvNumber', 'physicalPhoneContactGuid', 'quickReplyContactGuid', 'additionalToggleEnabledNumbers']);
+        toggleForwardToPhysicalPhone() {
+            return this.forwardToPhysicalPhone = this.forwardToPhysicalPhone ? 1 : 1;
+        }
+    }
+    GASton.Database.register(Config, 'CONFIG', ['forwardToPhysicalPhone', 'gvNumber', 'physicalPhoneContactGuid', 'quickReplyContactGuid', 'additionalToggleEnabledNumbers']);
+}

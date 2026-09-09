@@ -1,22 +1,24 @@
-GTxt.Compression = {};
+namespace GTxt {
+    export namespace Compression {
+        export const compress = (str: string) => {
+            return str.
+                split(' ').
+                map(word => JSUtil.StringUtil.capitalize(word)).
+                join('');
+        };
 
-GTxt.Compression.compress = function(str){
-    return str.
-        split(' ').
-        map(function(word){ return JSUtil.StringUtil.capitalize(word); }).
-        join('');
-};
+        export const decompress = (str: string) => {
+            return str.split('').map((ch, i, str) => {
+                const prevCh = str[i - 1];
+                if(/[.!?]/.test(prevCh) || (!/[\d:;]/.test(prevCh) && /[\d:;]/.test(ch))){
+                    return ' ' + ch;
+                } else if(prevCh && /[A-Z]/.test(ch)){
+                    return ' ' + ch.toLowerCase();
+                }
+                return ch;
+            }).join('');
+        };
 
-GTxt.Compression.decompress = function(str) {
-    return str.split('').map(function(ch, i, str){
-        var prevCh = str[i - 1];
-        if(/[.!?]/.test(prevCh) || (!/[\d:;]/.test(prevCh) && /[\d:;]/.test(ch))){
-            return ' ' + ch;
-        } else if(prevCh && /[A-Z]/.test(ch)){
-            return ' ' + ch.toLowerCase();
-        }
-        return ch;
-    }).join('');
-};
-
-GTxt.Compression.isCompressed = function(str){ return !str.includes(' '); };
+        export const isCompressed = (str: string) => !str.includes(' ');
+    }
+}
